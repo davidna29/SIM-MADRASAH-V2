@@ -27,9 +27,9 @@
                         <input type="search" placeholder="Cari nama atau NIS…" class="w-full bg-transparent py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none" aria-label="Cari siswa">
                     </div>
                 </div>
-                <x-ui.select name="tahun" class="w-44" :options="[2026 => 'TA 2026/2027', 2025 => 'TA 2025/2026']" />
-                <x-ui.select name="kelas" class="w-40" :options="['VII-A' => 'VII-A', 'VIII-C' => 'VIII-C', 'IX-B' => 'IX-B']" />
-                <x-ui.select name="status" class="w-40" :options="['aktif' => 'Aktif', 'lulus' => 'Lulus', 'alumni' => 'Alumni']" />
+                <x-ui.select name="tahun" :full="false" class="w-44" :options="[2026 => 'TA 2026/2027', 2025 => 'TA 2025/2026']" />
+                <x-ui.select name="kelas" :full="false" class="w-40" :options="['VII-A' => 'VII-A', 'VIII-C' => 'VIII-C', 'IX-B' => 'IX-B']" />
+                <x-ui.select name="status" :full="false" class="w-40" :options="['aktif' => 'Aktif', 'lulus' => 'Lulus', 'alumni' => 'Alumni']" />
                 <x-ui.button variant="secondary" size="md">Terapkan</x-ui.button>
             </div>
         </div>

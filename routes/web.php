@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Guru\NilaiController;
+use App\Http\Controllers\Kepegawaian\EmployeeController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Support\DemoData;
 
@@ -50,6 +51,15 @@ Route::middleware('auth')->group(function () {
                 ],
             ]);
         })->name('siswa.create');
+
+        // Modul Data Guru & Pegawai — backend (Tahap 13)
+        Route::get('/kepegawaian/data-guru', [EmployeeController::class, 'index'])->name('pegawai.index');
+        Route::get('/kepegawaian/data-guru/tambah', [EmployeeController::class, 'create'])->name('pegawai.create');
+        Route::post('/kepegawaian/data-guru', [EmployeeController::class, 'store'])->name('pegawai.store');
+        Route::get('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'show'])->name('pegawai.show');
+        Route::get('/kepegawaian/data-guru/{employee}/edit', [EmployeeController::class, 'edit'])->name('pegawai.edit');
+        Route::put('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'update'])->name('pegawai.update');
+        Route::delete('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'destroy'])->name('pegawai.destroy');
     });
 
     // Guru — walking skeleton: penugasan → input nilai → terbitkan rapor

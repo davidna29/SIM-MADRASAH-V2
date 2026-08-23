@@ -65,4 +65,66 @@ class DemoData
             ['nama' => 'Bu. Sari (TU)', 'aksi' => 'mengunggah arsip surat masuk No. 042/SM/2026', 'waktu' => '2 jam lalu'],
         ];
     }
+
+    public static function pegawai(): array
+    {
+        return [
+            [
+                'nip' => '198503122010011003', 'nik' => '3508120503850001', 'nama' => 'Drs. H. Ahmad Fauzi, M.Pd.',
+                'jk' => 'L', 'agama' => 'Islam', 'ttl' => 'Banyuwangi, 12 Maret 1985',
+                'nip_lengkap' => '19850312 201001 1 003', 'jabatan' => 'Kepala Madrasah',
+                'unit' => 'Pimpinan', 'status_pegawai' => 'pns', 'status' => 'aktif',
+                'hp' => '081234500001', 'email' => 'kepala@madrasah.sch.id', 'tmt' => '2010-01-01',
+            ],
+            [
+                'nip' => '198702102011012004', 'nik' => '3508131002870002', 'nama' => 'Dra. Siti Nurhayati',
+                'jk' => 'P', 'agama' => 'Islam', 'ttl' => 'Jember, 10 Februari 1987',
+                'nip_lengkap' => '19870210 201101 2 004', 'jabatan' => 'Wakamad Kurikulum',
+                'unit' => 'Kurikulum', 'status_pegawai' => 'pns', 'status' => 'aktif',
+                'hp' => '081234500002', 'email' => 'kurikulum@madrasah.sch.id', 'tmt' => '2011-02-01',
+            ],
+            [
+                'nip' => '199001152019031005', 'nik' => '3508141501900003', 'nama' => 'Bapak Umar Hakim, S.Pd.',
+                'jk' => 'L', 'agama' => 'Islam', 'ttl' => 'Bondowoso, 15 Januari 1990',
+                'nip_lengkap' => '19900115 201903 1 005', 'jabatan' => 'Guru Mata Pelajaran',
+                'unit' => 'Guru', 'status_pegawai' => 'pppk', 'status' => 'aktif',
+                'hp' => '081234500003', 'email' => 'guru.umar@madrasah.sch.id', 'tmt' => '2019-03-01',
+            ],
+            [
+                'nip' => '—', 'nik' => '3508152107960004', 'nama' => 'Ratna Dewi, S.E.',
+                'jk' => 'P', 'agama' => 'Islam', 'ttl' => 'Situbondo, 21 Juli 1996',
+                'nip_lengkap' => '—', 'jabatan' => 'Bendahara',
+                'unit' => 'Tata Usaha', 'status_pegawai' => 'honor', 'status' => 'aktif',
+                'hp' => '081234500004', 'email' => 'bendahara@madrasah.sch.id', 'tmt' => '2020-07-01',
+            ],
+            [
+                'nip' => '—', 'nik' => '3508160504990005', 'nama' => 'Sari Indah Puspitasari, A.Md.',
+                'jk' => 'P', 'agama' => 'Islam', 'ttl' => 'Probolinggo, 5 April 1999',
+                'nip_lengkap' => '—', 'jabatan' => 'Tata Usaha',
+                'unit' => 'Tata Usaha', 'status_pegawai' => 'honor', 'status' => 'aktif',
+                'hp' => '081234500005', 'email' => 'tu@madrasah.sch.id', 'tmt' => '2021-08-01',
+            ],
+            [
+                'nip' => '—', 'nik' => '3508171205930006', 'nama' => 'Imam Syafii, S.Pd.',
+                'jk' => 'L', 'agama' => 'Islam', 'ttl' => 'Lumajang, 12 Mei 1993',
+                'nip_lengkap' => '—', 'jabatan' => 'Guru Mata Pelajaran',
+                'unit' => 'Guru', 'status_pegawai' => 'honor', 'status' => 'aktif',
+                'hp' => '081234500006', 'email' => 'guru.imam@madrasah.sch.id', 'tmt' => '2018-07-15',
+            ],
+            [
+                'nip' => '—', 'nik' => '3508180107900007', 'nama' => 'Nurul Aini, S.Pd.',
+                'jk' => 'P', 'agama' => 'Islam', 'ttl' => 'Pasuruan, 1 Juli 1990',
+                'nip_lengkap' => '—', 'jabatan' => 'Guru BK',
+                'unit' => 'Kesiswaan', 'status_pegawai' => 'pppk', 'status' => 'aktif',
+                'hp' => '081234500007', 'email' => 'guru.bk@madrasah.sch.id', 'tmt' => '2022-09-01',
+            ],
+            [
+                'nip' => '—', 'nik' => '3508193008980008', 'nama' => 'Hasan Basri, S.Kom.',
+                'jk' => 'L', 'agama' => 'Islam', 'ttl' => 'Banyuwangi, 30 Agustus 1998',
+                'nip_lengkap' => '—', 'jabatan' => 'Petugas Perpustakaan',
+                'unit' => 'Perpustakaan', 'status_pegawai' => 'honor', 'status' => 'aktif',
+                'hp' => '081234500008', 'email' => 'pustaka@madrasah.sch.id', 'tmt' => '2023-01-10',
+            ],
+        ];
+    }
 }
