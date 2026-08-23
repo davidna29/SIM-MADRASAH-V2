@@ -24,8 +24,15 @@ return [
             ['label' => 'Data Guru & Pegawai', 'route' => 'pegawai.index', 'icon' => 'user-group', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
             ['label' => 'Mata Pelajaran', 'route' => 'mapel.index', 'icon' => 'book-open', 'roles' => ['super_admin', 'wakamad_kurikulum']],
             ['label' => 'Kelas & Penempatan', 'route' => 'kelas.index', 'icon' => 'building-library', 'roles' => ['super_admin', 'wakamad_kurikulum']],
-            ['label' => 'Penugasan Mengajar', 'route' => 'penugasan.index', 'icon' => 'user-group', 'roles' => ['super_admin', 'wakamad_kurikulum']],
-            ['label' => 'Jadwal Pelajaran', 'route' => 'jadwal.penyusunan', 'icon' => 'calendar-days', 'roles' => ['super_admin', 'wakamad_kurikulum', 'guru']],
+            [
+                'label' => 'Jadwal Pelajaran',
+                'icon' => 'calendar-days',
+                'roles' => ['super_admin', 'wakamad_kurikulum', 'guru'],
+                'children' => [
+                    ['label' => 'Model Jadwal', 'route' => 'jadwal.model.index', 'icon' => 'clipboard-document-list', 'roles' => ['super_admin', 'wakamad_kurikulum']],
+                    ['label' => 'Penyusunan', 'route' => 'jadwal.penyusunan', 'icon' => 'table-cells', 'roles' => ['super_admin', 'wakamad_kurikulum', 'guru']],
+                ],
+            ],
             ['label' => 'Jurnal & Penilaian', 'route' => 'dashboard', 'icon' => 'clipboard-document-list', 'roles' => ['super_admin', 'wakamad_kurikulum', 'guru']],
             ['label' => 'Rapor', 'route' => 'dashboard', 'icon' => 'document-text', 'roles' => ['super_admin', 'wakamad_kurikulum', 'wali_kelas', 'kepala_madrasah']],
         ],

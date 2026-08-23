@@ -19,18 +19,25 @@ class ScheduleCellController extends Controller
 {
     protected array $days = ['senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
 
-    public function penyusunan(?ScheduleModel $model = null): View
+    public function penyusunan(): View
     {
         $this->authorize('viewAny', ScheduleModel::class);
 
         $tahun = AcademicYear::active();
 
-        if (! $model || $model->academic_year_id !== $tahun->id) {
+        $model = null;
+        if (request('model')) {
+            $model = ScheduleModel::where('id', request('model'))->where('academic_year_id', $tahun->id)->first();
+        }
+
+        if (! $model) {
             $model = ScheduleModel::where('academic_year_id', $tahun->id)->where('is_active', true)->first()
                 ?? ScheduleModel::where('academic_year_id', $tahun->id)->first();
         }
 
         $models = ScheduleModel::where('academic_year_id', $tahun->id)->orderBy('name')->get();
+
+        $years = AcademicYear::orderByDesc('name')->get();
 
         if ($model) {
             $model->load(['gradeLevelRows', 'slots', 'cells']);
@@ -49,6 +56,7 @@ class ScheduleCellController extends Controller
             'tahun' => $tahun,
             'models' => $models,
             'model' => $model,
+            'years' => $years,
             'days' => $this->days,
             'teachers' => $teachers,
             'subjects' => $subjects,

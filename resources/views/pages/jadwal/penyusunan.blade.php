@@ -15,9 +15,11 @@
             <form method="GET" action="{{ route('jadwal.penyusunan') }}" class="flex items-end gap-2">
                 <div>
                     <label for="model" class="block pb-1.5 text-xs font-bold text-ink">Model Jadwal</label>
-                    <x-ui.select name="model" :full="false" class="w-64" :options="$models->pluck('name', 'id')" :selected="$model?->id" placeholder="Pilih model…" />
+                    <div class="flex items-center gap-2">
+                        <x-ui.select name="model" :full="false" class="w-64" :options="$models->pluck('name', 'id')" :selected="$model?->id" placeholder="Pilih model…" onchange="this.form.submit()" />
+                        <x-ui.button type="submit" variant="secondary" size="md">Muat</x-ui.button>
+                    </div>
                 </div>
-                <x-ui.button type="submit" variant="secondary" size="md">Muat</x-ui.button>
             </form>
         </div>
 
@@ -54,14 +56,22 @@
                 </div>
 
                 <div class="mt-3 flex flex-wrap items-center gap-2 border-t border-rule/70 pt-3">
-                    <form method="POST" action="{{ route('jadwal.generate', $model) }}" class="flex flex-wrap items-center gap-2"
-                        onsubmit="return confirm('Generate jadwal untuk model ini? Data tahun tujuan yang sudah ada tidak akan ditimpa.');">
+                    <form method="POST" action="{{ route('jadwal.generate', $model) }}" x-data="{ mode: 'blank' }"
+                        onsubmit="return confirm('Generate jadwal untuk model ini? Data tahun tujuan yang sudah ada tidak akan ditimpa.');"
+                        class="flex flex-wrap items-end gap-2">
                         @csrf
-                        <select name="mode" class="rounded-[var(--radius-control)] bg-sheet px-2.5 py-2 text-xs text-ink ring-1 ring-inset ring-rule-strong focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Mode generate">
-                            <option value="blank">Kerangka kosong</option>
-                            <option value="copy">Salin dari tahun sebelumnya</option>
-                        </select>
-                        <x-ui.button type="submit" variant="secondary" size="sm" icon="sparkles">Generate Jadwal</x-ui.button>
+                        <div>
+                            <label class="block pb-1.5 text-xs font-bold text-ink">Mode Generate</label>
+                            <select name="mode" x-model="mode" class="w-44 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-sm text-ink ring-1 ring-inset ring-rule-strong transition focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option value="blank">Kerangka kosong</option>
+                                <option value="copy">Salin tahun sebelumnya</option>
+                            </select>
+                        </div>
+                        <div x-show="mode === 'copy'" x-cloak class="transition">
+                            <label class="block pb-1.5 text-xs font-bold text-ink">Tahun Sumber</label>
+                            <x-ui.select name="source_academic_year_id" :full="false" class="w-44" :options="$years->pluck('name', 'id')" />
+                        </div>
+                        <x-ui.button type="submit" variant="primary" size="md" icon="sparkles">Generate Jadwal</x-ui.button>
                     </form>
                     <span class="mx-1 h-4 w-px bg-rule-strong/70" aria-hidden="true"></span>
                     <span class="text-xs text-ink-faint">Cetak tersedia di tampilan per-kelas & per-guru.</span>
