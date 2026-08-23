@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Akademik\AttendanceController;
 use App\Http\Controllers\Akademik\ClassGroupController;
+use App\Http\Controllers\Akademik\ScheduleCellController;
 use App\Http\Controllers\Akademik\ScheduleModelController;
 use App\Http\Controllers\Akademik\StudentController;
 use App\Http\Controllers\Akademik\SubjectController;
@@ -92,6 +93,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/akademik/jadwal-pelajaran/model/{model}/edit', [ScheduleModelController::class, 'edit'])->name('jadwal.model.edit');
         Route::put('/akademik/jadwal-pelajaran/model/{model}', [ScheduleModelController::class, 'update'])->name('jadwal.model.update');
         Route::delete('/akademik/jadwal-pelajaran/model/{model}', [ScheduleModelController::class, 'destroy'])->name('jadwal.model.destroy');
+
+        // Penyusunan (tabel master) + view turunan
+        Route::get('/akademik/jadwal-pelajaran/penyusunan', [ScheduleCellController::class, 'penyusunan'])->name('jadwal.penyusunan');
+        Route::get('/akademik/jadwal-pelajaran/kelas/{classGroup}', [ScheduleCellController::class, 'perKelas'])->name('jadwal.kelas');
+        Route::get('/akademik/jadwal-pelajaran/guru/{teacher}', [ScheduleCellController::class, 'perGuru'])->name('jadwal.guru');
     });
 
     // Guru — walking skeleton: penugasan → input nilai → terbitkan rapor

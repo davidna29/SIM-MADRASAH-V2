@@ -1,0 +1,53 @@
+<x-layouts.page
+    :title="'Jadwal Kelas'"
+    :roleLabel="$roleLabel"
+    :breadcrumb="$breadcrumb">
+
+    <div class="mx-auto max-w-5xl">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Jadwal Kelas {{ $classGroup->name }}</h1>
+                <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-ink-soft">
+                    Tampilan turunan dari tabel master penyusunan — siap ditempel atau dicetak.
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-6 overflow-x-auto rounded-sheet bg-sheet shadow-sheet ring-1 ring-inset ring-rule/60">
+            <table class="w-full min-w-[720px] border-collapse text-sm">
+                <thead>
+                    <tr class="border-b-2 border-rule-strong bg-paper/50">
+                        <th scope="col" class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-ink-soft">Hari</th>
+                        <th scope="col" class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-ink-soft">Jam ke-</th>
+                        <th scope="col" class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-ink-soft">Mata Pelajaran</th>
+                        <th scope="col" class="px-3 py-3 text-left text-xs font-bold uppercase tracking-wide text-ink-soft">Guru</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-rule/70">
+                    @foreach ($days as $day)
+                        @php
+                            $dayCells = $cells->where('day', $day)->sortBy('period_no');
+                        @endphp
+                        @forelse ($dayCells as $cell)
+                            <tr class="transition hover:bg-paper/60">
+                                @if ($loop->first)
+                                    <td rowspan="{{ $dayCells->count() }}" class="px-3 py-3 align-top text-xs font-extrabold uppercase tracking-wide text-board-deep">
+                                        {{ ucfirst($day) }}
+                                    </td>
+                                @endif
+                                <td class="tabular px-3 py-3 font-mono text-xs font-semibold text-ink-faint">{{ $cell->period_no }}</td>
+                                <td class="px-3 py-3 font-semibold text-ink">{{ $cell->subject?->name ?? '—' }}</td>
+                                <td class="px-3 py-3 text-ink-soft">{{ $cell->teacher?->name ?? '—' }}</td>
+                            </tr>
+                        @empty
+                            <tr class="hover:bg-paper/60">
+                                <td class="px-3 py-3 align-top text-xs font-extrabold uppercase tracking-wide text-board-deep">{{ ucfirst($day) }}</td>
+                                <td colspan="3" class="px-3 py-3 text-xs text-ink-faint">Belum ada jadwal.</td>
+                            </tr>
+                        @endforelse
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+</x-layouts.page>

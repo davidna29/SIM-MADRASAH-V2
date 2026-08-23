@@ -13,6 +13,7 @@
                 </p>
             </div>
             <div class="flex items-center gap-2">
+                <x-ui.button variant="primary" icon="clipboard-document-list" href="{{ route('jadwal.penyusunan', ['model' => $model->id]) }}">Susun Jadwal</x-ui.button>
                 <x-ui.button variant="secondary" icon="pencil-square" href="{{ route('jadwal.model.edit', $model) }}">Ubah</x-ui.button>
             </div>
         </div>
