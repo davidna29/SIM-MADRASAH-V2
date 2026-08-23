@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             AkademikSeeder::class,
             PenugasanSeeder::class,
             SiswaSeeder::class,
+            JadwalSeeder::class,
         ]);
     }
 }

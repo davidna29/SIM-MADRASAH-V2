@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Akademik\AttendanceController;
 use App\Http\Controllers\Akademik\ClassGroupController;
+use App\Http\Controllers\Akademik\ScheduleController;
 use App\Http\Controllers\Akademik\StudentController;
 use App\Http\Controllers\Akademik\SubjectController;
 use App\Http\Controllers\Akademik\TeacherAssignmentController;
@@ -81,6 +82,14 @@ Route::middleware('auth')->group(function () {
         // Modul Kehadiran Siswa
         Route::get('/kesiswaan/kehadiran', [AttendanceController::class, 'index'])->name('kehadiran.index');
         Route::post('/kesiswaan/kehadiran', [AttendanceController::class, 'store'])->name('kehadiran.store');
+
+        // Modul Jadwal Mengajar
+        Route::get('/akademik/jadwal-mengajar', [ScheduleController::class, 'index'])->name('jadwal.index');
+        Route::get('/akademik/jadwal-mengajar/tambah', [ScheduleController::class, 'create'])->name('jadwal.create');
+        Route::post('/akademik/jadwal-mengajar', [ScheduleController::class, 'store'])->name('jadwal.store');
+        Route::get('/akademik/jadwal-mengajar/{schedule}/edit', [ScheduleController::class, 'edit'])->name('jadwal.edit');
+        Route::put('/akademik/jadwal-mengajar/{schedule}', [ScheduleController::class, 'update'])->name('jadwal.update');
+        Route::delete('/akademik/jadwal-mengajar/{schedule}', [ScheduleController::class, 'destroy'])->name('jadwal.destroy');
     });
 
     // Guru — walking skeleton: penugasan → input nilai → terbitkan rapor
