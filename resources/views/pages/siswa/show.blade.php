@@ -40,7 +40,14 @@
                     <div>
                         <h2 class="text-lg font-extrabold tracking-tight text-ink">{{ $student->displayName() }}</h2>
                         <div class="mt-1.5 flex flex-wrap items-center gap-2">
-                            <x-ui.badge variant="info" icon="academic-cap">{{ $student->enrollments->first()?->classGroup?->name ?? 'Belum ditempatkan' }}</x-ui.badge>
+                            @php
+                                $activeEnrollment = $student->enrollments->where('status', 'aktif')->first();
+                            @endphp
+                            @if ($activeEnrollment?->classGroup)
+                                <x-ui.badge variant="info" icon="academic-cap">{{ $activeEnrollment->classGroup->name }}</x-ui.badge>
+                            @else
+                                <x-ui.badge variant="neutral" :dot="false">Tanpa rombel</x-ui.badge>
+                            @endif
                             <x-ui.badge variant="success">Aktif</x-ui.badge>
                         </div>
                     </div>

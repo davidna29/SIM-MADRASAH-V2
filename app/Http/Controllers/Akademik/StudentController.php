@@ -23,7 +23,7 @@ class StudentController extends Controller
 
         $tahun = AcademicYear::active();
 
-        $students = Student::with(['person', 'enrollments' => fn ($q) => $q->where('academic_year_id', $tahun->id)->with('classGroup')])
+        $students = Student::with(['person', 'enrollments' => fn ($q) => $q->where('academic_year_id', $tahun->id)->where('status', 'aktif')->with('classGroup')])
             ->when(request('q'), fn ($q, $search) => $q->where(function ($query) use ($search) {
                 $query->where('nis', 'like', "%{$search}%")
                     ->orWhereHas('person', fn ($p) => $p->where('name', 'like', "%{$search}%")->orWhere('nik', 'like', "%{$search}%"));

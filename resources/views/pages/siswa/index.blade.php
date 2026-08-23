@@ -71,7 +71,11 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <x-ui.badge variant="info">{{ $enrollment?->classGroup?->name ?? '—' }}</x-ui.badge>
+                                    @if ($enrollment?->classGroup)
+                                        <x-ui.badge variant="info">{{ $enrollment->classGroup->name }}</x-ui.badge>
+                                    @else
+                                        <x-ui.badge variant="neutral" :dot="false">Tanpa rombel</x-ui.badge>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-3 text-ink-soft">{{ $student->person?->gender === 'P' ? 'Perempuan' : 'Laki-laki' }}</td>
                                 <td class="px-4 py-3">

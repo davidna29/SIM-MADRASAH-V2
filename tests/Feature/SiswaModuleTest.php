@@ -98,6 +98,26 @@ class SiswaModuleTest extends TestCase
         $this->assertDatabaseHas('students', ['id' => $student->id]);
     }
 
+    public function test_unplaced_student_shows_without_rombel(): void
+    {
+        $class = ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
+        $person = Person::create(['nik' => '3518000101010004', 'name' => 'Dinda', 'gender' => 'P', 'religion' => 'Islam']);
+        $student = Student::create(['person_id' => $person->id, 'nis' => '251004', 'name' => 'Dinda', 'gender' => 'P']);
+        $enrollment = StudentEnrollment::create([
+            'academic_year_id' => AcademicYear::active()->id,
+            'class_group_id' => $class->id,
+            'student_id' => $student->id,
+            'status' => 'aktif',
+        ]);
+        $enrollment->update(['status' => 'alumni']);
+
+        $response = $this->actingAs($this->admin)->get(route('siswa.index'));
+
+        $response->assertOk();
+        $response->assertSee('Dinda');
+        $response->assertSee('Tanpa rombel');
+    }
+
     public function test_admin_can_update_student_placement(): void
     {
         $person = Person::create(['nik' => '3518000101010003', 'name' => 'Citra', 'gender' => 'P', 'religion' => 'Islam']);
