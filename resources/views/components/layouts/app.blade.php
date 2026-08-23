@@ -16,7 +16,7 @@
     $initials = $user ? mb_strtoupper(mb_substr(collect(preg_split('/\s+/', $user->name))->first(), 0, 2)) : 'AM';
 @endphp
 
-<div x-data="{ mobileOpen: false, userOpen: false, notifOpen: false }" class="min-h-screen">
+<div x-data="{ mobileOpen: false, userOpen: false, notifOpen: false }" class="min-h-screen lg:flex">
     <!-- Backdrop mobile -->
     <div x-show="mobileOpen" x-cloak @click="mobileOpen = false"
         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -25,7 +25,7 @@
 
     <!-- Sidebar (Papan) -->
     <aside :class="mobileOpen ? 'translate-x-0' : '-translate-x-full'"
-        class="board-face fixed inset-y-0 left-0 z-50 flex w-72 flex-col shadow-sheet-raised transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none lg:transition-none">
+        class="board-face fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 flex-col shadow-sheet-raised transition-transform duration-200 ease-out lg:static lg:h-screen lg:translate-x-0 lg:shadow-none lg:transition-none">
 
         <!-- Kop papan -->
         <div class="flex items-center gap-3 border-b border-white/10 px-5 py-4">
@@ -56,7 +56,7 @@
         </div>
     </aside>
 
-    <div class="flex min-h-screen flex-col lg:pl-72">
+    <div class="flex min-h-screen min-w-0 flex-1 flex-col">
         <!-- Topbar -->
         <header class="sticky top-0 z-30 flex items-center gap-3 border-b border-rule-strong/70 bg-paper/85 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
             <button type="button" @click="mobileOpen = true" class="rounded-md p-2 text-ink-soft transition hover:bg-paper-deep hover:text-ink lg:hidden" aria-label="Buka menu">
@@ -145,7 +145,7 @@
         </header>
 
         <!-- Konten (kertas) -->
-        <main class="paper-grain flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main class="paper-grain flex-1 overflow-x-clip px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             {{ $slot }}
         </main>
 
