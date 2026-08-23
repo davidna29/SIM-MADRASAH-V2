@@ -57,7 +57,7 @@
 
                 <div class="mt-3 flex flex-wrap items-center gap-2 border-t border-rule/70 pt-3">
                     <form method="POST" action="{{ route('jadwal.generate', $model) }}" x-data="{ mode: 'blank' }"
-                        onsubmit="return confirm('Generate jadwal untuk model ini? Data tahun tujuan yang sudah ada tidak akan ditimpa.');"
+                        onsubmit="return confirm('Generate jadwal untuk model ini? Kerangka kosong akan mereset isian yang sudah ada.');"
                         class="flex flex-wrap items-end gap-2">
                         @csrf
                         <div>
@@ -118,17 +118,33 @@
                                                 @php
                                                     $cell = $dayCells->first(fn ($c) => $c->class_group_id === $class->id && $c->period_no === $slot->period_no);
                                                 @endphp
-                                                <button type="button"
-                                                    @click="openCell('{{ $class->id }}', '{{ $day }}', {{ $slot->period_no }}, {{ $cell?->teacher_id ?? 'null' }}, {{ $cell?->subject_id ?? 'null' }}, '{{ $class->name }}')"
-                                                    class="group/btn block w-full rounded-[var(--radius-control)] px-2 py-1.5 text-left transition hover:bg-primary-soft focus:outline-none focus:ring-2 focus:ring-primary"
-                                                    :class="selectedKey === '{{ $class->id }}-{{ $day }}-{{ $slot->period_no }}' ? 'bg-primary-soft ring-2 ring-primary' : ''">
-                                                    @if ($cell)
-                                                        <span class="block text-[12px] font-semibold leading-tight text-ink">{{ $cell->teacher?->name }}</span>
-                                                        <span class="block text-[11px] text-primary-strong">{{ $cell->subject?->name }}</span>
-                                                    @else
-                                                        <span class="block text-[11px] text-ink-faint">+ isi</span>
+                                                <div class="flex items-stretch gap-1">
+                                                    <button type="button"
+                                                        @click="openCell('{{ $class->id }}', '{{ $day }}', {{ $slot->period_no }}, {{ $cell?->teacher_id ?? 'null' }}, {{ $cell?->subject_id ?? 'null' }}, '{{ $class->name }}')"
+                                                        class="group/btn block flex-1 rounded-[var(--radius-control)] px-2 py-1.5 text-left transition hover:bg-primary-soft focus:outline-none focus:ring-2 focus:ring-primary"
+                                                        :class="selectedKey === '{{ $class->id }}-{{ $day }}-{{ $slot->period_no }}' ? 'bg-primary-soft ring-2 ring-primary' : ''">
+                                                        @if ($cell && $cell->teacher_id && $cell->subject_id)
+                                                            <span class="block text-[12px] font-semibold leading-tight text-ink">{{ $cell->teacher?->name }}</span>
+                                                            <span class="block text-[11px] text-primary-strong">{{ $cell->subject?->name }}</span>
+                                                        @else
+                                                            <span class="block text-center text-[11px] text-ink-faint">+ isi</span>
+                                                        @endif
+                                                    </button>
+                                                    @if ($cell && $cell->teacher_id && $cell->subject_id)
+                                                        <form method="POST" action="{{ route('jadwal.penyusunan.store', $model) }}" class="shrink-0"
+                                                            onsubmit="return confirm('Kosongkan sel ini?');">
+                                                            @csrf
+                                                            <input type="hidden" name="cells[0][class_group_id]" value="{{ $class->id }}">
+                                                            <input type="hidden" name="cells[0][day]" value="{{ $day }}">
+                                                            <input type="hidden" name="cells[0][period_no]" value="{{ $slot->period_no }}">
+                                                            <input type="hidden" name="cells[0][teacher_id]" value="">
+                                                            <input type="hidden" name="cells[0][subject_id]" value="">
+                                                            <button type="submit" class="flex h-full items-center rounded-[var(--radius-control)] px-1.5 text-ink-faint transition hover:bg-danger-soft hover:text-danger" aria-label="Hapus isi sel">
+                                                                <x-svg-x-mark class="size-3.5" aria-hidden="true" />
+                                                            </button>
+                                                        </form>
                                                     @endif
-                                                </button>
+                                                </div>
                                             @endif
                                         </td>
                                     @endforeach
@@ -146,6 +162,7 @@
                 @keydown.escape.window="cellModalOpen = false" role="dialog" aria-modal="true" aria-labelledby="cell-modal-title">
                 <div class="absolute inset-0 bg-board-deep/60 backdrop-blur-[2px]" @click="cellModalOpen = false"></div>
                 <div class="relative w-full max-w-md rounded-sheet bg-sheet shadow-sheet-raised ring-1 ring-inset ring-rule"
+                    @keydown.enter.prevent="submitCell"
                     x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-3 scale-[0.98]" x-transition:enter-end="opacity-100 translate-y-0 scale-100">
                     <header class="flex items-center justify-between border-b border-rule/70 px-5 py-4">
                         <h3 id="cell-modal-title" class="text-sm font-bold tracking-tight text-ink">
@@ -196,7 +213,7 @@
 
                     <footer class="flex items-center justify-end gap-2 border-t border-rule/70 px-5 py-4">
                         <x-ui.button variant="ghost" size="sm" @click="cellModalOpen = false">Batal</x-ui.button>
-                        <form method="POST" :action="'{{ route('jadwal.penyusunan.store', $model) }}'" @submit.prevent="applyCell">
+                        <form method="POST" :action="'{{ route('jadwal.penyusunan.store', $model) }}'" @submit.prevent="submitCell">
                             @csrf
                             <input type="hidden" name="cells[0][class_group_id]" :value="cellClassId">
                             <input type="hidden" name="cells[0][day]" :value="cellDay">
@@ -257,9 +274,9 @@
                     this.subjectQuery = '';
                     this.cellModalOpen = true;
                 },
-                applyCell(e) {
+                submitCell() {
                     // Submit form per-sel; backend memvalidasi konflik guru (hard-block)
-                    e?.target?.closest('form')?.submit();
+                    this.$root.querySelector('[role="dialog"] form')?.submit();
                 },
             };
         }

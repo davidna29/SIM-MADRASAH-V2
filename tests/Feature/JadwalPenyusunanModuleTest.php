@@ -114,7 +114,7 @@ class JadwalPenyusunanModuleTest extends TestCase
         $this->assertSame(24, ScheduleCell::where('schedule_model_id', $this->model->id)->count());
     }
 
-    public function test_generate_does_not_overwrite_existing_data(): void
+    public function test_generate_blank_resets_existing_data(): void
     {
         ScheduleCell::create([
             'schedule_model_id' => $this->model->id,
@@ -126,7 +126,32 @@ class JadwalPenyusunanModuleTest extends TestCase
             'subject_id' => $this->mapel->id,
         ]);
 
+        // Mode blank = reset: isian lama dihapus, lalu kerangka kosong dibuat
         $response = $this->actingAs($this->admin)->post(route('jadwal.generate', $this->model), ['mode' => 'blank']);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertSame(24, ScheduleCell::where('schedule_model_id', $this->model->id)->count());
+        $this->assertNull(ScheduleCell::where('schedule_model_id', $this->model->id)->first()->teacher_id);
+    }
+
+    public function test_generate_copy_does_not_overwrite_existing_data(): void
+    {
+        $tahunLama = AcademicYear::create(['name' => '2025/2026', 'semester' => 'ganjil', 'is_active' => false]);
+        ScheduleCell::create([
+            'schedule_model_id' => $this->model->id,
+            'academic_year_id' => $this->tahun->id,
+            'class_group_id' => $this->classA->id,
+            'day' => 'senin',
+            'period_no' => 1,
+            'teacher_id' => $this->guru->id,
+            'subject_id' => $this->mapel->id,
+        ]);
+
+        // Mode copy tetap proteksi jika tahun tujuan sudah ada data
+        $response = $this->actingAs($this->admin)->post(route('jadwal.generate', $this->model), [
+            'mode' => 'copy',
+            'source_academic_year_id' => $tahunLama->id,
+        ]);
 
         $response->assertSessionHasErrors('generate');
         $this->assertSame(1, ScheduleCell::where('schedule_model_id', $this->model->id)->count());

@@ -180,13 +180,14 @@ class ScheduleCellController extends Controller
         $tahunId = $tahun->id;
         $slots = $model->slots;
 
-        // Proteksi: jangan menimpa data tahun tujuan yang sudah ada
+        // Mode blank = reset: hapus seluruh isian tahun tujuan lalu buat kerangka kosong.
+        // Mode copy tetap proteksi — tidak menimpa data yang sudah ada.
         $existing = ScheduleCell::where('schedule_model_id', $model->id)
             ->where('academic_year_id', $tahunId)
             ->exists();
 
-        if ($existing) {
-            return back()->withErrors(['generate' => 'Tahun ajaran tujuan sudah memiliki data jadwal. Hapus data lama terlebih dahulu, atau pilih tahun lain.']);
+        if ($existing && $validated['mode'] === 'copy') {
+            return back()->withErrors(['generate' => 'Tahun ajaran tujuan sudah memiliki data jadwal. Gunakan "Kerangka kosong" untuk mereset isian, atau pilih tahun lain.']);
         }
 
         $rombel = ClassGroup::whereIn('grade_level', $model->gradeLevels())->get();
@@ -199,7 +200,13 @@ class ScheduleCellController extends Controller
                 ->keyBy(fn ($c) => $c->class_group_id.'|'.$c->day.'|'.$c->period_no);
         }
 
-        DB::transaction(function () use ($model, $tahunId, $slots, $rombel, $sourceCells, $validated) {
+        $resetCount = 0;
+        DB::transaction(function () use ($model, $tahunId, $slots, $rombel, $sourceCells, $validated, &$resetCount) {
+            // Reset isian lama pada tahun tujuan (baik blank maupun copy dimulai dari bersih)
+            $resetCount = ScheduleCell::where('schedule_model_id', $model->id)
+                ->where('academic_year_id', $tahunId)
+                ->delete();
+
             foreach ($rombel as $class) {
                 foreach ($this->days as $day) {
                     foreach ($slots as $slot) {
@@ -223,10 +230,17 @@ class ScheduleCellController extends Controller
             }
         });
 
-        $mode = $validated['mode'] === 'blank' ? 'kerangka kosong' : 'salinan dari tahun sumber';
+        if ($validated['mode'] === 'blank') {
+            $message = $resetCount > 0
+                ? "Jadwal di-reset ({$resetCount} isian dihapus) lalu kerangka kosong dibuat."
+                : 'Kerangka kosong berhasil dibuat.';
+        } else {
+            $message = 'Jadwal berhasil disalin dari tahun sumber.';
+        }
+
         activity('akademik')->performedOn($model)->log('jadwal_generate_'.$validated['mode']);
 
-        return redirect()->route('jadwal.penyusunan', ['model' => $model->id])->with('status', 'Jadwal berhasil di-generate ('.$mode.').');
+        return redirect()->route('jadwal.penyusunan', ['model' => $model->id])->with('status', $message);
     }
 
     public function cetakKelas(ClassGroup $classGroup)
