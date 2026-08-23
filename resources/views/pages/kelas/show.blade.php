@@ -65,20 +65,32 @@
             </x-ui.sheet>
 
             <!-- Tambah penempatan -->
-            <x-ui.sheet title="Tempatkan Siswa" subtitle="Pilih siswa yang belum terdaftar di kelas lain" pinned>
-                <form method="POST" action="{{ route('kelas.place', $classGroup) }}" class="space-y-4">
+            <x-ui.sheet title="Tempatkan Siswa" subtitle="Siswa yang belum terdaftar di rombel lain" pinned>
+                <form method="GET" action="{{ route('kelas.show', $classGroup) }}" class="space-y-3">
+                    <div>
+                        <label for="cari-siswa" class="block text-xs font-bold text-ink">Cari siswa</label>
+                        <div class="mt-1.5 flex items-center gap-2 rounded-[var(--radius-control)] bg-paper px-3 ring-1 ring-inset ring-rule-strong transition focus-within:ring-2 focus-within:ring-primary">
+                            <x-svg-magnifying-glass class="size-4 shrink-0 text-ink-faint" aria-hidden="true" />
+                            <input id="cari-siswa" type="search" name="q" value="{{ $search ?? '' }}" placeholder="Cari nama atau NIS…" class="w-full bg-transparent py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none" aria-label="Cari siswa">
+                        </div>
+                    </div>
+                </form>
+
+                <form method="POST" action="{{ route('kelas.place', $classGroup) }}" class="mt-4 space-y-4">
                     @csrf
                     <div class="space-y-1.5">
                         <label class="block text-xs font-bold text-ink">Siswa tersedia ({{ count($availableStudents) }})</label>
-                        <div class="max-h-72 space-y-1 overflow-y-auto rounded-[var(--radius-control)] ring-1 ring-inset ring-rule/70 p-2">
+                        <div class="max-h-80 space-y-1 overflow-y-auto rounded-[var(--radius-control)] ring-1 ring-inset ring-rule/70 p-2">
                             @forelse ($availableStudents as $student)
                                 <label class="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 transition hover:bg-paper-deep">
                                     <input type="checkbox" name="student_ids[]" value="{{ $student->id }}" class="size-4 rounded border-rule-strong text-primary focus:ring-primary">
-                                    <span class="text-[13px] font-medium text-ink">{{ $student->name }}</span>
+                                    <span class="text-[13px] font-medium text-ink">{{ $student->displayName() }}</span>
                                     <span class="tabular ml-auto font-mono text-xs text-ink-faint">{{ $student->nis }}</span>
                                 </label>
                             @empty
-                                <p class="px-2 py-3 text-xs text-ink-faint">Semua siswa sudah ditempatkan.</p>
+                                <p class="px-2 py-3 text-xs text-ink-faint">
+                                    {{ $search ? 'Tidak ada siswa yang cocok dengan pencarian.' : 'Semua siswa sudah ditempatkan.' }}
+                                </p>
                             @endforelse
                         </div>
                     </div>

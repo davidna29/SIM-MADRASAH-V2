@@ -53,7 +53,20 @@ class ClassGroupController extends Controller
             ->orderBy('student_id')
             ->get();
 
-        $availableStudents = Student::whereNotIn('id', $enrollments->pluck('student_id'))
+        // Siswa yang sudah aktif di rombel lain (TA berjalan) tidak ditampilkan
+        // pada daftar tersedia — hindari menempatkan ganda.
+        $placedElsewhere = StudentEnrollment::where('academic_year_id', $tahun->id)
+            ->where('status', 'aktif')
+            ->where('class_group_id', '!=', $classGroup->id)
+            ->pluck('student_id');
+
+        $availableStudents = Student::with('person')
+            ->whereNotIn('id', $enrollments->pluck('student_id'))
+            ->whereNotIn('id', $placedElsewhere)
+            ->when(request('q'), fn ($q, $search) => $q->where(function ($query) use ($search) {
+                $query->where('nis', 'like', "%{$search}%")
+                    ->orWhereHas('person', fn ($p) => $p->where('name', 'like', "%{$search}%"));
+            }))
             ->orderBy('name')
             ->get();
 
@@ -68,6 +81,7 @@ class ClassGroupController extends Controller
             'tahun' => $tahun,
             'enrollments' => $enrollments,
             'availableStudents' => $availableStudents,
+            'search' => request('q'),
         ]);
     }
 

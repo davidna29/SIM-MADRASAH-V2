@@ -193,6 +193,46 @@ class AkademikModuleTest extends TestCase
         $response->assertSessionHasErrors('student_ids');
     }
 
+    public function test_available_students_exclude_those_placed_in_other_class(): void
+    {
+        $tahun = AcademicYear::active();
+        $classA = ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
+        $classB = ClassGroup::create(['name' => 'I-B', 'grade_level' => 'I']);
+        $inA = Student::create(['nis' => '240101', 'name' => 'Aisyah', 'gender' => 'P']);
+        $free = Student::create(['nis' => '240199', 'name' => 'Bebas', 'gender' => 'L']);
+
+        StudentEnrollment::create([
+            'academic_year_id' => $tahun->id,
+            'class_group_id' => $classA->id,
+            'student_id' => $inA->id,
+            'status' => 'aktif',
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('kelas.show', $classB));
+
+        $response->assertOk();
+        $response->assertSee('Bebas');
+        $response->assertDontSee('Aisyah');
+    }
+
+    public function test_available_students_search_by_name_and_nis(): void
+    {
+        $tahun = AcademicYear::active();
+        $classB = ClassGroup::create(['name' => 'I-B', 'grade_level' => 'I']);
+        $ali = Student::create(['nis' => '240200', 'name' => 'Ali', 'gender' => 'L']);
+        $budi = Student::create(['nis' => '240201', 'name' => 'Budi', 'gender' => 'L']);
+
+        $response = $this->actingAs($this->admin)->get(route('kelas.show', [$classB, 'q' => 'Ali']));
+
+        $response->assertOk();
+        $response->assertSee('Ali');
+        $response->assertDontSee('Budi');
+
+        $byNis = $this->actingAs($this->admin)->get(route('kelas.show', [$classB, 'q' => '240201']));
+        $byNis->assertSee('Budi');
+        $byNis->assertDontSee('Ali');
+    }
+
     public function test_unplace_marks_student_as_alumni(): void
     {
         $tahun = AcademicYear::active();
