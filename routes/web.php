@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Akademik\AttendanceController;
 use App\Http\Controllers\Akademik\ClassGroupController;
 use App\Http\Controllers\Akademik\StudentController;
 use App\Http\Controllers\Akademik\SubjectController;
@@ -76,6 +77,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/akademik/penugasan-mengajar/{assignment}/edit', [TeacherAssignmentController::class, 'edit'])->name('penugasan.edit');
         Route::put('/akademik/penugasan-mengajar/{assignment}', [TeacherAssignmentController::class, 'update'])->name('penugasan.update');
         Route::delete('/akademik/penugasan-mengajar/{assignment}', [TeacherAssignmentController::class, 'destroy'])->name('penugasan.destroy');
+
+        // Modul Kehadiran Siswa
+        Route::get('/kesiswaan/kehadiran', [AttendanceController::class, 'index'])->name('kehadiran.index');
+        Route::post('/kesiswaan/kehadiran', [AttendanceController::class, 'store'])->name('kehadiran.store');
     });
 
     // Guru — walking skeleton: penugasan → input nilai → terbitkan rapor

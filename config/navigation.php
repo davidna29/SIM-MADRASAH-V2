@@ -33,7 +33,7 @@ return [
     [
         'label' => 'Kesiswaan',
         'items' => [
-            ['label' => 'Kehadiran Siswa', 'route' => 'dashboard', 'icon' => 'clipboard-document-check', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru']],
+            ['label' => 'Kehadiran Siswa', 'route' => 'kehadiran.index', 'icon' => 'clipboard-document-check', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru']],
             ['label' => 'Prestasi & Pelanggaran', 'route' => 'dashboard', 'icon' => 'trophy', 'roles' => ['super_admin', 'wakamad_kesiswaan']],
             ['label' => 'Konseling (BK)', 'route' => 'dashboard', 'icon' => 'shield-check', 'roles' => ['super_admin', 'guru_bk']],
             ['label' => 'Ekstrakurikuler', 'route' => 'dashboard', 'icon' => 'star', 'roles' => ['super_admin', 'wakamad_kesiswaan']],
