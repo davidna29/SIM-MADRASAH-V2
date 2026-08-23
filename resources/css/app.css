@@ -1,0 +1,155 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    /* Kertas (paper ground) */
+    --color-paper: #f6f1e7;
+    --color-paper-deep: #ece5d3;
+    --color-sheet: #ffffff;
+
+    /* Tinta (ink) */
+    --color-ink: #22322a;
+    --color-ink-soft: #55665b;
+    --color-ink-faint: #5f7067;
+
+    /* Garis (rules) */
+    --color-rule: #e4dcc8;
+    --color-rule-strong: #d3c8ad;
+
+    /* Papan (board) — hijau madrasah */
+    --color-board: #12402f;
+    --color-board-deep: #0c3023;
+    --color-board-soft: #1e5a42;
+    --color-board-ink: #e9f4ee;
+
+    /* Hijau primer */
+    --color-primary: #1b7a45;
+    --color-primary-strong: #11602f;
+    --color-primary-soft: #e3f1e8;
+
+    /* Status (PRD: merah error, kuning peringatan, hijau lunas, biru info) */
+    --color-success: #157a3c;
+    --color-success-soft: #e4f3e9;
+    --color-warning: #9c4308;
+    --color-warning-soft: #fdf1dc;
+    --color-danger: #b42318;
+    --color-danger-soft: #fdeae7;
+    --color-info: #1d5fa5;
+    --color-info-soft: #e6f0fa;
+
+    /* Radius */
+    --radius-sheet: 0.875rem;
+    --radius-control: 0.625rem;
+
+    /* Bayangan — lembar kertas yang disematkan */
+    --shadow-sheet: 0 1px 1px rgb(34 50 42 / 0.05), 0 2px 4px -1px rgb(34 50 42 / 0.06),
+        0 12px 32px -16px rgb(34 50 42 / 0.22);
+    --shadow-sheet-raised: 0 1px 1px rgb(34 50 42 / 0.05), 0 8px 20px -8px rgb(34 50 42 / 0.16),
+        0 24px 48px -24px rgb(34 50 42 / 0.3);
+    --shadow-pin: 0 0 0 3px rgb(255 255 255 / 0.55), 0 2px 6px -1px rgb(18 64 47 / 0.5);
+}
+
+@layer base {
+    html {
+        font-feature-settings: 'cv01', 'cv02', 'ss01';
+    }
+
+    body {
+        background-color: var(--color-paper);
+        color: var(--color-ink);
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Browser surfaces — pilihan teks, caret, scrollbar, fokus */
+    ::selection {
+        background-color: var(--color-primary);
+        color: #ffffff;
+    }
+
+    ::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb, var(--color-ink-faint) 55%, transparent);
+        border: 3px solid transparent;
+        background-clip: padding-box;
+        border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: color-mix(in srgb, var(--color-ink-faint) 80%, transparent);
+    }
+
+    * {
+        caret-color: var(--color-primary);
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+        font: inherit;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+}
+
+@layer components {
+    /* Tekstur kertas halus di atas latar */
+    .paper-grain {
+        background-image: radial-gradient(rgb(34 50 42 / 0.045) 1px, transparent 1px);
+        background-size: 14px 14px;
+    }
+
+    /* Lembar bergaris — dipakai pada kartu lembar agar terasa kertas bergaris halus */
+    .ruled-paper {
+        background-image: repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 31px,
+            color-mix(in srgb, var(--color-rule) 55%, transparent) 31px,
+            color-mix(in srgb, var(--color-rule) 55%, transparent) 32px
+        );
+        background-position: 0 0.85em;
+    }
+
+    /* Papan (board) — latar sidebar */
+    .board-face {
+        background-color: var(--color-board);
+        background-image: radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px);
+        background-size: 16px 16px;
+    }
+
+    .board-face-deep {
+        background-color: var(--color-board-deep);
+    }
+
+    /* Penanda pin (pinhead) */
+    .pin-dot {
+        border-radius: 999px;
+        box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25), inset 0 -2px 3px rgb(0 0 0 / 0.18),
+            0 1px 2px rgb(0 0 0 / 0.25);
+    }
+
+    /* Angka tabular untuk digit-bank */
+    .tabular {
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: 'tnum';
+    }
+}

@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-23T08:35:00+07:00",
+  "title": "Design System: SIM Madrasah",
+  "extensions": {
+    "colorMeta": {
+      "paper": { "role": "neutral", "displayName": "Kertas", "canonical": "#f6f1e7", "tonalRamp": ["#3a342a", "#4e4638", "#635a49", "#776d5a", "#8c816c", "#a1977e", "#b9af96", "#d6cdb7", "#f6f1e7"] },
+      "sheet": { "role": "neutral", "displayName": "Lembar", "canonical": "#ffffff", "tonalRamp": ["#4a4a4a", "#5c5c5c", "#707070", "#848484", "#9a9a9a", "#b3b3b3", "#d1d1d1", "#ededed", "#ffffff"] },
+      "ink": { "role": "neutral", "displayName": "Tinta", "canonical": "#22322a", "tonalRamp": ["#0e1712", "#162219", "#1e2d21", "#22322a", "#2c4034", "#3b5143", "#526c5a", "#778d7f", "#a9bab0"] },
+      "board": { "role": "secondary", "displayName": "Hijau Papan", "canonical": "#12402f", "tonalRamp": ["#041109", "#082015", "#0c3023", "#12402f", "#18543d", "#1e6a4c", "#2c8460", "#45a47c", "#7acba7"] },
+      "primary": { "role": "primary", "displayName": "Hijau Madrasah", "canonical": "#1b7a45", "tonalRamp": ["#051c10", "#0a3319", "#0f4c24", "#11602f", "#1b7a45", "#2a9557", "#43b06f", "#6dcd91", "#a8e6bd"] },
+      "success": { "role": "tertiary", "displayName": "Sukses / Lunas", "canonical": "#157a3c", "tonalRamp": ["#04250f", "#093d1a", "#0c5423", "#157a3c", "#1f9250", "#35ab66", "#5cc584", "#93dfae", "#cbf2d8"] },
+      "warning": { "role": "tertiary", "displayName": "Peringatan / Cicilan", "canonical": "#9c4308", "tonalRamp": ["#2b1201", "#462004", "#5e2c06", "#7d3b08", "#9c4308", "#bb5c14", "#d97f2e", "#eda95c", "#f9d9a8"] },
+      "danger": { "role": "tertiary", "displayName": "Bahaya / Error", "canonical": "#b42318", "tonalRamp": ["#3a0703", "#590d06", "#7d150c", "#9c1e12", "#b42318", "#cd3a26", "#e2634a", "#f0937f", "#fbcbbd"] },
+      "info": { "role": "tertiary", "displayName": "Informasi", "canonical": "#1d5fa5", "tonalRamp": ["#051a30", "#0b2c50", "#103f70", "#174f8d", "#1d5fa5", "#2e78c2", "#4d93da", "#7db3e8", "#bfd9f4"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Judul halaman — display 800, tracking -0.02em." },
+      "headline": { "displayName": "Headline", "purpose": "Judul section sheet." },
+      "data": { "displayName": "Data", "purpose": "Angka tabular (NIS, nominal Rupiah, pagination) — JetBrains Mono + tabular-nums." }
+    },
+    "shadows": [
+      { "name": "sheet", "value": "0 1px 1px rgb(34 50 42/0.05), 0 2px 4px -1px rgb(34 50 42/0.06), 0 12px 32px -16px rgb(34 50 42/0.22)", "purpose": "Lembar yang disematkan — kartu, sheet, KPI." },
+      { "name": "sheet-raised", "value": "0 1px 1px rgb(34 50 42/0.05), 0 8px 20px -8px rgb(34 50 42/0.16), 0 24px 48px -24px rgb(34 50 42/0.3)", "purpose": "Modal, dropdown, drawer, toast." },
+      { "name": "pin", "value": "0 0 0 3px rgb(255 255 255/0.55), 0 2px 6px -1px rgb(18 64 47/0.5)", "purpose": "Penanda pin-dot." }
+    ],
+    "motion": [
+      { "name": "ease-out-standard", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Easing default transisi state; eksponensial, dari tampilan yang sudah terlihat." },
+      { "name": "duration-150", "value": "150ms", "purpose": "Transisi hover/state cepat." },
+      { "name": "duration-200", "value": "200ms", "purpose": "Drawer, dropdown, toast." },
+      { "name": "pin-pop", "value": "pin-dot scale 0->1 (240ms ease-out)", "purpose": "Satu-satunya momen gerak yang diorchestrasi: pin on approve." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Satu tindakan utama per kartu/layar; hijau madrasah.",
+      "html": "<button class=\"ds-btn-primary\"><svg class=\"ds-ico\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 4.5v15m7.5-7.5h-15\"/></svg>Simpan</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: none; border-radius: 10px; background: #1b7a45; color: #fff; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 150ms ease-out, transform 150ms ease-out; } .ds-btn-primary:hover { background: #11602f; } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid #1b7a45; outline-offset: 2px; } .ds-ico { width: 16px; height: 16px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Tindakan sekunder; lembar putih dengan ring garis.",
+      "html": "<button class=\"ds-btn-secondary\">Buka</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 10px; background: #ffffff; color: #22322a; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: inset 0 0 0 1px #d3c8ad; transition: background 150ms ease-out; } .ds-btn-secondary:hover { background: #ece5d3; } .ds-btn-secondary:focus-visible { outline: 2px solid #1b7a45; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-success",
+      "description": "Status sebagai pin + label teks. Variant mengikuti peran warna.",
+      "html": "<span class=\"ds-badge ds-badge-success\"><span class=\"ds-pin\"></span>Lunas</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; box-shadow: inset 0 0 0 1px currentColor; } .ds-pin { width: 6px; height: 6px; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), inset 0 -2px 3px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.25); } .ds-badge-success { background: #e4f3e9; color: #157a3c; } .ds-badge-success .ds-pin { background: #157a3c; }"
+    },
+    {
+      "name": "Sheet Card",
+      "kind": "card",
+      "refersTo": "sheet",
+      "description": "Lembar putih bergaris halus dengan bayangan lembar.",
+      "html": "<section class=\"ds-sheet\"><header class=\"ds-sheet-head\"><h3>Perlu Tindakan</h3></header><div class=\"ds-sheet-body ruled\">Isi lembar…</div></section>",
+      "css": ".ds-sheet { background: #ffffff; border-radius: 14px; box-shadow: 0 1px 1px rgb(34 50 42/0.05), 0 2px 4px -1px rgb(34 50 42/0.06), 0 12px 32px -16px rgb(34 50 42/0.22); } .ds-sheet-head { padding: 16px 24px; border-bottom: 1px solid rgba(228,220,200,0.7); } .ds-sheet-head h3 { margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 700; color: #22322a; letter-spacing: -0.02em; } .ds-sheet-body { padding: 20px 24px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; color: #22322a; } .ds-sheet-body.ruled { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(228,220,200,0.55) 31px, rgba(228,220,200,0.55) 32px); background-position: 0 0.85em; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Input lembar putih dengan ring; fokus hijau.",
+      "html": "<div class=\"ds-field\"><label for=\"n\" class=\"ds-label\">Nama Lengkap <span class=\"ds-req\">*</span></label><input id=\"n\" class=\"ds-input\" placeholder=\"Nama sesuai akta\"></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-label { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 700; color: #22322a; } .ds-req { color: #b42318; } .ds-input { height: 40px; padding: 0 14px; border-radius: 10px; background: #ffffff; color: #22322a; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; box-shadow: inset 0 0 0 1px #d3c8ad; transition: box-shadow 150ms ease-out; } .ds-input::placeholder { color: #5f7067; } .ds-input:focus { outline: none; box-shadow: inset 0 0 0 2px #1b7a45; }"
+    },
+    {
+      "name": "KPI Digit-Bank",
+      "kind": "card",
+      "refersTo": "kpi",
+      "description": "Angka data memakai JetBrains Mono tabular di atas lembar bergaris.",
+      "html": "<article class=\"ds-kpi\"><span class=\"ds-kpi-pin\"></span><p class=\"ds-kpi-label\">Siswa Aktif</p><p class=\"ds-kpi-value\">482</p><p class=\"ds-kpi-trend up\">+12 vs. 2025/2026</p></article>",
+      "css": ".ds-kpi { position: relative; background: #ffffff; border-radius: 14px; padding: 16px 20px; box-shadow: 0 1px 1px rgb(34 50 42/0.05), 0 2px 4px -1px rgb(34 50 42/0.06), 0 12px 32px -16px rgb(34 50 42/0.22); background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(228,220,200,0.55) 31px, rgba(228,220,200,0.55) 32px); background-position: 0 0.85em; } .ds-kpi-pin { position: absolute; top: 12px; right: 12px; width: 8px; height: 8px; border-radius: 999px; background: rgba(27,122,69,0.7); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), inset 0 -2px 3px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.25); } .ds-kpi-label { margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; color: #55665b; } .ds-kpi-value { margin: 8px 0 0; font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 700; line-height: 1; color: #22322a; font-variant-numeric: tabular-nums; } .ds-kpi-trend { margin: 8px 0 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; color: #5f7067; } .ds-kpi-trend.up { color: #157a3c; }"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Papan hijau dengan item tersemat; item aktif terangkat.",
+      "html": "<aside class=\"ds-board\"><p class=\"ds-nav-label\">Akademik</p><a class=\"ds-nav-item is-active\" href=\"#\"><svg class=\"ds-nav-ico\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75a5.981 5.981 0 0 0 2.374.49m9.876-6.6a5.981 5.981 0 0 1 0-6.6M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m0 18a9 9 0 0 1 0-18\"/></svg>Data Siswa<span class=\"ds-pin\"></span></a></aside>",
+      "css": ".ds-board { background: #12402f; background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 16px 16px; padding: 16px 12px; width: 288px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; } .ds-nav-label { margin: 0 0 6px; padding: 0 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(233,244,238,0.6); } .ds-nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; font-size: 13px; font-weight: 600; color: rgba(233,244,238,0.7); text-decoration: none; transition: background 150ms ease-out, color 150ms ease-out; } .ds-nav-item:hover { background: rgba(30,90,66,0.3); color: #e9f4ee; } .ds-nav-item.is-active { background: rgba(30,90,66,0.4); color: #e9f4ee; box-shadow: inset 0 0 0 1px rgba(30,90,66,0.6); } .ds-nav-ico { width: 18px; height: 18px; } .ds-pin { width: 6px; height: 6px; margin-left: auto; border-radius: 999px; background: #e9f4ee; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), inset 0 -2px 3px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.25); }"
+    },
+    {
+      "name": "Data Table",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Lembar tabel: header label uppercase, angka mono tabular, row hover kertas.",
+      "html": "<div class=\"ds-table-wrap\"><table class=\"ds-table\"><thead><tr><th>Siswa</th><th class=\"num\">NIS</th><th>Status</th></tr></thead><tbody><tr><td>Aisyah Nur Azizah</td><td class=\"num\">240101</td><td><span class=\"ds-badge ds-badge-success\"><span class=\"ds-pin\"></span>Lunas</span></td></tr></tbody></table></div>",
+      "css": ".ds-table-wrap { overflow-x: auto; } .ds-table { width: 100%; min-width: 640px; border-collapse: collapse; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; color: #22322a; } .ds-table th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #55665b; border-bottom: 1px solid #d3c8ad; } .ds-table td { padding: 12px 16px; border-bottom: 1px solid rgba(228,220,200,0.7); } .ds-table tbody tr:hover { background: rgba(246,241,231,0.6); } .ds-table .num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Papan Pengumuman Madrasah (Mading)",
+    "overview": "Seluruh sistem operasional madrasah disajikan sebagai dinding papan pengumuman yang tertata: papan hijau madrasah di kiri sebagai indeks, lembaran kertas putih bergaris sebagai kartu, dan penanda status sebagai pin berwarna yang disematkan. Setiap modul adalah sebuah papan; setiap catatan adalah lembar; persetujuan berarti menyematkan sebuah lembar; riwayat tidak pernah hilang dari papan. Sistem ini menolak dashboard admin abu-abu generik.\n\nPersonality: terang, sederhana, dan hangat — dibangun untuk guru dan pegawai madrasah yang belum terbiasa aplikasi kompleks. Kertas hangat sebagai tanah memberi kehangatan; hijau madrasah sebagai papan memberi otoritas institusional; lembaran bergaris memberi keteraturan yang akrab dengan administrasi kertas. Plus Jakarta Sans dirancang di Jakarta — kesejajaran budaya; JetBrains Mono menjaga angka (NIS, nominal Rupiah, tanggal) presisi dan tabular.",
+    "keyCharacteristics": [
+      "Kertas hangat sebagai tanah, lembar putih sebagai kartu, papan hijau sebagai navigasi.",
+      "Status selalu sebagai pin berwarna + label teks (tidak pernah hanya ikon).",
+      "Angka data memakai font monospace tabular (digit-bank KPI).",
+      "Tindakan utama hijau; teks selalu menemani ikon.",
+      "Bahasa antarmuka Bahasa Indonesia."
+    ],
+    "rules": [
+      { "name": "The Pin-As-Status Rule", "body": "Status ditampilkan sebagai pin berwarna dengan label teks berdampingan — warna tidak pernah menjadi satu-satunya pembawa makna.", "section": "colors" },
+      { "name": "The One-Action Rule", "body": "Satu hijau primer per kartu/layar. Peran primer adalah tindakan paling penting; tindakan kedua memakai sekunder/ghost.", "section": "colors" },
+      { "name": "The Digit-Bank Rule", "body": "Semua angka data memakai font mono tabular (JetBrains Mono + tabular-nums), sehingga kolom angka berbaris tegak dan berubah nilai tanpa bergeser.", "section": "typography" },
+      { "name": "The Teks-Temani-Ikon Rule", "body": "Ikon selalu disertai label teks. Tidak ada navigasi atau aksi ikon-tanpa-teks.", "section": "typography" },
+      { "name": "The Sheet-Lift Rule", "body": "Kedalaman selalu sebagai lembaran: bayangan ber-offset + ber-blur, menaik dari dasar datar. Tidak ada hard-offset shadow, tidak ada glow ber-halo nol-offset.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do gunakan kertas hangat (#f6f1e7) sebagai tanah halaman dan lembar putih sebagai kartu.",
+      "Do tampilkan status sebagai pin berwarna + label teks; angka data memakai JetBrains Mono tabular.",
+      "Do beri teks pada setiap ikon (label tombol, badge, item nav).",
+      "Do gunakan satu hijau primer per layar/kartu untuk satu tindakan utama.",
+      "Do gunakan `ruled` pada kartu daftar/KPI/form agar terasa lembar administrasi.",
+      "Do pakai Bahasa Indonesia untuk seluruh antarmuka."
+    ],
+    "donts": [
+      "Don't tampilkan status hanya lewat warna — selalu sertakan label teks.",
+      "Don't pakai hard-offset shadow atau glow ber-halo; kedalaman hanya lewat shadow lembar ber-blur.",
+      "Don't gunakan emoji/glyph sebagai ikon; ikon dari set Heroicons outline stroke konsisten.",
+      "Don't pakai font display sistem (Impact, Arial Black) untuk judul; gunakan Plus Jakarta Sans.",
+      "Don't buat gradien teks; penekanan dari bobot dan ukuran.",
+      "Don't gunakan kicker/eyebrow di atas judul; judul berdiri sendiri.",
+      "Don't biarkan halaman meluap horizontal di mobile; tabel memakai scroll internal, pagination memakai flex-wrap."
+    ]
+  }
+}
