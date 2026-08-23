@@ -1,67 +1,87 @@
 <x-layouts.page
-    :title="'Tambah Siswa'"
+    :title="$editing ? 'Ubah Siswa' : 'Tambah Siswa'"
     :roleLabel="$roleLabel"
     :breadcrumb="$breadcrumb"
     active-route="siswa.create">
 
-    <div class="mx-auto max-w-3xl">
+    <div class="mx-auto max-w-4xl">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Tambah Siswa Baru</h1>
+                <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+                    {{ $editing ? 'Ubah Siswa' : 'Tambah Siswa' }}
+                </h1>
                 <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-ink-soft">
-                    Lembar pendaftaran siswa baru — data inti dipakai lintas modul tanpa entri ulang.
+                    Lembar data siswa baru — data inti dipakai lintas modul tanpa entri ulang.
                 </p>
             </div>
         </div>
 
-        <div class="mt-6 space-y-6">
+        @if (session('status'))
+            <div class="mt-6">
+                <x-ui.alert variant="success" dismissible>{{ session('status') }}</x-ui.alert>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="mt-6">
+                <x-ui.alert variant="danger" dismissible>
+                    @foreach ($errors->all() as $error) {{ $error }} @endforeach
+                </x-ui.alert>
+            </div>
+        @endif
+
+        <form method="POST"
+            action="{{ $editing ? route('siswa.update', $student) : route('siswa.store') }}"
+            class="mt-6 space-y-6">
+            @csrf
+            @if ($editing)
+                @method('PUT')
+            @endif
+
             <x-ui.form-section title="Data Inti" description="Identitas dasar siswa. NIK, nama, dan tanggal lahir sesuai akta.">
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    <x-ui.field label="Nama Lengkap" required>
-                        <x-ui.input name="nama" placeholder="Nama sesuai akta" value="Aisyah Nur Azizah" />
+                    <x-ui.field label="Nama Lengkap" required :error="$errors->first('name')">
+                        <x-ui.input name="name" :value="old('name', $editing ? $student->displayName() : '')" placeholder="Nama sesuai akta" />
                     </x-ui.field>
-                    <x-ui.field label="NIS / NISN" required>
-                        <x-ui.input name="nis" placeholder="Masukkan NIS" value="240106" />
+                    <x-ui.field label="NIS / NISN" required :error="$errors->first('nis')">
+                        <x-ui.input name="nis" :value="old('nis', $editing ? $student->nis : '')" placeholder="Masukkan NIS" />
                     </x-ui.field>
-                    <x-ui.field label="Tempat, Tanggal Lahir" required>
+                    <x-ui.field label="NIK" required hint="Nomor Induk Kependudukan — 16 digit." :error="$errors->first('nik')">
+                        <x-ui.input name="nik" :value="old('nik', $editing && $student->person ? $student->person->nik : '')" placeholder="3508120503850001" maxlength="16" />
+                    </x-ui.field>
+                    <x-ui.field label="Tempat, Tanggal Lahir">
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <x-ui.input name="tmpt_lahir" placeholder="Tempat lahir" value="Banyuwangi" />
-                            <x-ui.input name="tgl_lahir" type="date" value="2013-05-12" />
+                            <x-ui.input name="birth_place" :value="old('birth_place', $editing && $student->person ? $student->person->birth_place : '')" placeholder="Tempat lahir" />
+                            <x-ui.input name="birth_date" type="date" :value="old('birth_date', $editing && $student->person?->birth_date ? $student->person->birth_date->format('Y-m-d') : '')" />
                         </div>
                     </x-ui.field>
-                    <x-ui.field label="Jenis Kelamin" required>
-                        <x-ui.select name="jk" :options="['L' => 'Laki-laki', 'P' => 'Perempuan']" />
+                    <x-ui.field label="Jenis Kelamin" required :error="$errors->first('gender')">
+                        <x-ui.select name="gender" :options="['L' => 'Laki-laki', 'P' => 'Perempuan']" :selected="old('gender', $editing ? $student->person?->gender : null)" />
                     </x-ui.field>
                     <x-ui.field label="Agama">
-                        <x-ui.select name="agama" :options="['islam' => 'Islam']" />
+                        <x-ui.select name="religion" :options="['Islam' => 'Islam', 'Kristen' => 'Kristen', 'Katolik' => 'Katolik', 'Hindu' => 'Hindu', 'Buddha' => 'Buddha', 'Khonghucu' => 'Konghucu']" :selected="old('religion', $editing && $student->person ? $student->person->religion : null)" />
                     </x-ui.field>
-                    <x-ui.field label="Nomor HP Orang Tua" hint="Untuk notifikasi kehadiran dan tagihan.">
-                        <x-ui.input name="hp" prefix="+62" placeholder="812-3456-7890" value="81234567890" />
+                    <x-ui.field label="Nomor HP Orang Tua" hint="Untuk notifikasi kehadiran dan tagihan." :error="$errors->first('phone')">
+                        <x-ui.input name="phone" prefix="+62" :value="old('phone', $editing && $student->person ? ltrim((string) $student->person->phone, '0') : '')" />
+                    </x-ui.field>
+                    <x-ui.field label="Email" :error="$errors->first('email')">
+                        <x-ui.input name="email" type="email" :value="old('email', $editing && $student->person ? $student->person->email : '')" placeholder="nama@example.com" />
                     </x-ui.field>
                 </div>
             </x-ui.form-section>
 
-            <x-ui.form-section title="Penempatan Awal" description="Kelas dan tahun ajaran di mana siswa mulai bersekolah di madrasah ini.">
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
-                    <x-ui.field label="Tahun Ajaran" required>
-                        <x-ui.select name="tahun_ajaran" :options="[2026 => '2026/2027', 2025 => '2025/2026']" />
-                    </x-ui.field>
-                    <x-ui.field label="Tingkat">
-                        <x-ui.select name="tingkat" :options="[1 => 'Kelas I', 2 => 'Kelas II', 3 => 'Kelas III', 4 => 'Kelas IV', 5 => 'Kelas V', 6 => 'Kelas VI']" />
-                    </x-ui.field>
-                    <x-ui.field label="Kelas">
-                        <x-ui.select name="kelas" :options="['I-A' => 'I-A', 'I-B' => 'I-B', 'I-C' => 'I-C']" />
-                    </x-ui.field>
-                </div>
+            <x-ui.form-section title="Penempatan" description="Kelas pada tahun ajaran berjalan. Penempatan lama tercatat di papan riwayat.">
+                <x-ui.field label="Kelas" :error="$errors->first('class_group_id')">
+                    <x-ui.select name="class_group_id" :options="$classes->pluck('name', 'id')" :selected="old('class_group_id', $editing ? $student->enrollments->first()?->class_group_id : null)" placeholder="Pilih kelas (opsional)" />
+                </x-ui.field>
             </x-ui.form-section>
 
             <div class="flex flex-col-reverse items-center justify-between gap-3 border-t border-rule-strong/60 pt-5 sm:flex-row">
                 <x-ui.button variant="ghost" icon="arrow-left" href="{{ route('siswa.index') }}">Kembali ke Data Siswa</x-ui.button>
-                <div class="flex items-center gap-2">
-                    <x-ui.button variant="secondary" icon="document-text">Simpan sebagai Draft</x-ui.button>
-                    <x-ui.button variant="primary" icon="check" x-on:click="$store.toasts.push('Siswa baru berhasil disimpan dan disematkan ke papan.')">Sematkan & Simpan</x-ui.button>
-                </div>
+                <x-ui.button type="submit" variant="primary" icon="check">
+                    {{ $editing ? 'Sematkan & Simpan Perubahan' : 'Sematkan & Simpan' }}
+                </x-ui.button>
             </div>
-        </div>
+        </form>
     </div>
 </x-layouts.page>

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Akademik\ClassGroupController;
+use App\Http\Controllers\Akademik\StudentController;
 use App\Http\Controllers\Akademik\SubjectController;
 use App\Http\Controllers\Akademik\TeacherAssignmentController;
 use App\Http\Controllers\Guru\NilaiController;
@@ -33,27 +34,13 @@ Route::middleware('auth')->group(function () {
             ]);
         })->name('dashboard');
 
-        Route::get('/akademik/data-siswa', function () {
-            return view('pages.siswa.index', [
-                'roleLabel' => 'Super Admin',
-                'breadcrumb' => [
-                    ['label' => 'Akademik', 'href' => route('dashboard')],
-                    ['label' => 'Data Siswa'],
-                ],
-                'siswa' => DemoData::siswa(),
-            ]);
-        })->name('siswa.index');
-
-        Route::get('/akademik/data-siswa/tambah', function () {
-            return view('pages.siswa.create', [
-                'roleLabel' => 'Super Admin',
-                'breadcrumb' => [
-                    ['label' => 'Akademik', 'href' => route('dashboard')],
-                    ['label' => 'Data Siswa', 'href' => route('siswa.index')],
-                    ['label' => 'Tambah Siswa'],
-                ],
-            ]);
-        })->name('siswa.create');
+        Route::get('/akademik/data-siswa', [StudentController::class, 'index'])->name('siswa.index');
+        Route::get('/akademik/data-siswa/tambah', [StudentController::class, 'create'])->name('siswa.create');
+        Route::post('/akademik/data-siswa', [StudentController::class, 'store'])->name('siswa.store');
+        Route::get('/akademik/data-siswa/{student}', [StudentController::class, 'show'])->name('siswa.show');
+        Route::get('/akademik/data-siswa/{student}/edit', [StudentController::class, 'edit'])->name('siswa.edit');
+        Route::put('/akademik/data-siswa/{student}', [StudentController::class, 'update'])->name('siswa.update');
+        Route::delete('/akademik/data-siswa/{student}', [StudentController::class, 'destroy'])->name('siswa.destroy');
 
         // Modul Data Guru & Pegawai — backend (Tahap 13)
         Route::get('/kepegawaian/data-guru', [EmployeeController::class, 'index'])->name('pegawai.index');

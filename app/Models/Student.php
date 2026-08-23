@@ -7,12 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 class Student extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
-    protected $fillable = ['nis', 'name', 'gender'];
+    protected $fillable = ['person_id', 'nis', 'name', 'gender'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['nis'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
+    }
+
+    public function person(): BelongsTo
+    {
+        return $this->belongsTo(Person::class);
+    }
 
     public function enrollments(): HasMany
     {
@@ -27,5 +42,10 @@ class Student extends Model
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
+    }
+
+    public function displayName(): string
+    {
+        return $this->person?->name ?? $this->name;
     }
 }

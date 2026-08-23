@@ -9,7 +9,7 @@
             <div>
                 <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Data Siswa</h1>
                 <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-ink-soft">
-                    Papan data siswa aktif Tahun Ajaran 2026/2027 — riwayat penempatan kelas tidak pernah hilang.
+                    Papan data siswa Tahun Ajaran {{ $tahun->name }} — riwayat penempatan kelas tidak pernah hilang.
                 </p>
             </div>
             <div class="flex items-center gap-2">
@@ -18,21 +18,37 @@
             </div>
         </div>
 
+        @if (session('status'))
+            <div class="mt-6">
+                <x-ui.alert variant="success" dismissible>{{ session('status') }}</x-ui.alert>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="mt-6">
+                <x-ui.alert variant="danger" dismissible>
+                    @foreach ($errors->all() as $error) {{ $error }} @endforeach
+                </x-ui.alert>
+            </div>
+        @endif
+
         <!-- Filter -->
-        <div class="mt-6 rounded-sheet bg-sheet shadow-sheet ring-1 ring-inset ring-rule/60 p-4">
+        <form method="GET" action="{{ route('siswa.index') }}" class="mt-6 rounded-sheet bg-sheet shadow-sheet ring-1 ring-inset ring-rule/60 p-4">
             <div class="flex flex-wrap items-center gap-3">
-                <div class="min-w-[220px] flex-1">
+                <div class="w-56">
                     <div class="flex items-center gap-2 rounded-[var(--radius-control)] bg-paper px-3 ring-1 ring-inset ring-rule-strong transition focus-within:ring-2 focus-within:ring-primary">
-                        <x-svg-magnifying-glass class="size-4 text-ink-faint" aria-hidden="true" />
-                        <input type="search" placeholder="Cari nama atau NIS…" class="w-full bg-transparent py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none" aria-label="Cari siswa">
+                        <x-svg-magnifying-glass class="size-4 shrink-0 text-ink-faint" aria-hidden="true" />
+                        <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari nama, NIS, NIK…" class="w-full bg-transparent py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none" aria-label="Cari siswa">
                     </div>
                 </div>
-                <x-ui.select name="tahun" :full="false" class="w-44" :options="[2026 => 'TA 2026/2027', 2025 => 'TA 2025/2026']" />
-                <x-ui.select name="kelas" :full="false" class="w-40" :options="['I-A' => 'I-A', 'II-A' => 'II-A', 'VI-A' => 'VI-A']" />
-                <x-ui.select name="status" :full="false" class="w-40" :options="['aktif' => 'Aktif', 'lulus' => 'Lulus', 'alumni' => 'Alumni']" />
-                <x-ui.button variant="secondary" size="md">Terapkan</x-ui.button>
+                <x-ui.select name="grade_level" :full="false" class="w-32" :options="$gradeOptions" :selected="request('grade_level')" placeholder="Semua tingkat" />
+                <x-ui.select name="class_group_id" :full="false" class="w-32" :options="$classOptions" :selected="request('class_group_id')" placeholder="Semua kelas" />
+                <x-ui.button type="submit" variant="secondary" size="md">Terapkan</x-ui.button>
+                @if (request()->hasAny(['q', 'grade_level', 'class_group_id']))
+                    <x-ui.button variant="ghost" size="md" href="{{ route('siswa.index') }}">Reset</x-ui.button>
+                @endif
             </div>
-        </div>
+        </form>
 
         <!-- Tabel -->
         <div class="mt-4">
@@ -40,28 +56,31 @@
                 <x-ui.table :headers="['NIS', 'Nama Lengkap', 'Kelas', 'Jenis Kelamin', 'Status', '']">
                     <x-slot name="emptySlot">Tidak ada siswa yang cocok dengan filter.</x-slot>
                     <x-slot>
-                        @foreach ($siswa as $s)
+                        @foreach ($students as $student)
+                            @php
+                                $enrollment = $student->enrollments->first();
+                            @endphp
                             <tr class="transition hover:bg-paper/60">
-                                <td class="tabular px-4 py-3 font-mono text-xs font-semibold text-ink-faint">{{ $s['nis'] }}</td>
+                                <td class="tabular px-4 py-3 font-mono text-xs font-semibold text-ink-faint">{{ $student->nis }}</td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-3">
                                         <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft text-[11px] font-extrabold text-primary-strong">
-                                            {{ \Illuminate\Support\Str::substr($s['nama'], 0, 1) }}
+                                            {{ mb_substr($student->displayName(), 0, 1) }}
                                         </span>
-                                        <span class="font-semibold text-ink">{{ $s['nama'] }}</span>
+                                        <span class="font-semibold text-ink">{{ $student->displayName() }}</span>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <x-ui.badge variant="info">{{ $s['kelas'] }}</x-ui.badge>
+                                    <x-ui.badge variant="info">{{ $enrollment?->classGroup?->name ?? '—' }}</x-ui.badge>
                                 </td>
-                                <td class="px-4 py-3 text-ink-soft">{{ $s['jk'] === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                                <td class="px-4 py-3 text-ink-soft">{{ $student->person?->gender === 'P' ? 'Perempuan' : 'Laki-laki' }}</td>
                                 <td class="px-4 py-3">
                                     <x-ui.badge variant="success">Aktif</x-ui.badge>
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
-                                        <x-ui.button size="sm" variant="ghost" icon="eye">Detail</x-ui.button>
-                                        <x-ui.button size="sm" variant="ghost" icon="pencil-square">Ubah</x-ui.button>
+                                        <x-ui.button size="sm" variant="ghost" icon="eye" href="{{ route('siswa.show', $student) }}">Detail</x-ui.button>
+                                        <x-ui.button size="sm" variant="ghost" icon="pencil-square" href="{{ route('siswa.edit', $student) }}">Ubah</x-ui.button>
                                     </div>
                                 </td>
                             </tr>
@@ -69,7 +88,7 @@
                     </x-slot>
                 </x-ui.table>
                 <div class="border-t border-rule/70 px-4 py-3.5">
-                    <x-ui.pagination :current="1" :last="3" />
+                    <x-ui.pagination :current="$students->currentPage()" :last="$students->lastPage()" />
                 </div>
             </x-ui.sheet>
         </div>

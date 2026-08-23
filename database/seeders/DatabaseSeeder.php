@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             KepegawaianSeeder::class,
             AkademikSeeder::class,
             PenugasanSeeder::class,
+            SiswaSeeder::class,
         ]);
     }
 }
