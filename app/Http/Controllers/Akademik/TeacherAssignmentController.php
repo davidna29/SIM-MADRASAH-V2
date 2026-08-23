@@ -38,7 +38,7 @@ class TeacherAssignmentController extends Controller
             ],
             'assignments' => $assignments,
             'tahun' => $tahun,
-            'gradeOptions' => ['VII' => 'VII', 'VIII' => 'VIII', 'IX' => 'IX'],
+            'gradeOptions' => ['I' => 'I', 'II' => 'II', 'III' => 'III', 'IV' => 'IV', 'V' => 'V', 'VI' => 'VI'],
             'subjectOptions' => Subject::orderBy('name')->pluck('name', 'id'),
         ]);
     }

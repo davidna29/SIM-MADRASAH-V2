@@ -18,28 +18,30 @@ class PenugasanSeeder extends Seeder
         $kelas = ClassGroup::orderBy('grade_level')->orderBy('name')->get();
         $mapel = Subject::orderBy('id')->get();
 
+        $kelasByName = fn (string $name) => $kelas->firstWhere('name', $name);
         $mapelByCode = fn (string $code) => $mapel->firstWhere('code', $code);
 
         $assignments = [
-            // [userIndex, classIndex, mapelCode]
-            [0, 0, 'MAT'],  // guru.umar -> VII-A Matematika
-            [0, 0, 'IPA'],  // guru.umar -> VII-A IPA
-            [1, 0, 'BIN'],  // guru.imam -> VII-A B. Indonesia
-            [1, 1, 'MAT'],  // guru.imam -> VII-B Matematika
-            [2, 1, 'BING'], // guru.nurul -> VII-B B. Inggris
-            [0, 2, 'IPA'],  // guru.umar -> VIII-A IPA
+            // [userIndex, className, mapelCode]
+            [0, 'I-A', 'MAT'],    // guru.umar -> I-A Matematika
+            [0, 'I-A', 'IPA'],    // guru.umar -> I-A IPA
+            [1, 'I-A', 'BIN'],    // guru.imam -> I-A B. Indonesia
+            [1, 'I-B', 'MAT'],    // guru.imam -> I-B Matematika
+            [2, 'I-B', 'BING'],   // guru.nurul -> I-B B. Inggris
+            [0, 'II-A', 'IPA'],   // guru.umar -> II-A IPA
         ];
 
-        foreach ($assignments as [$u, $c, $code]) {
+        foreach ($assignments as [$u, $className, $code]) {
+            $kelasModel = $kelasByName($className);
             $subject = $mapelByCode($code);
-            if (! $subject) {
+            if (! $kelasModel || ! $subject) {
                 continue;
             }
 
             TeacherAssignment::firstOrCreate(
                 [
                     'academic_year_id' => $tahun->id,
-                    'class_group_id' => $kelas[$c]->id,
+                    'class_group_id' => $kelasModel->id,
                     'subject_id' => $subject->id,
                 ],
                 ['user_id' => $guru[$u]->id]

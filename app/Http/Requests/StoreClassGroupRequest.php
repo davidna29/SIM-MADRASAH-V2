@@ -15,7 +15,7 @@ class StoreClassGroupRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:20', 'unique:class_groups,name'],
-            'grade_level' => ['required', 'in:VII,VIII,IX'],
+            'grade_level' => ['required', 'in:I,II,III,IV,V,VI'],
         ];
     }
 

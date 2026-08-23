@@ -31,13 +31,19 @@ class AkademikSeeder extends Seeder
         }
 
         $classes = [
-            ['name' => 'VII-A', 'grade_level' => 'VII'],
-            ['name' => 'VII-B', 'grade_level' => 'VII'],
-            ['name' => 'VII-C', 'grade_level' => 'VII'],
-            ['name' => 'VIII-A', 'grade_level' => 'VIII'],
-            ['name' => 'VIII-B', 'grade_level' => 'VIII'],
-            ['name' => 'IX-A', 'grade_level' => 'IX'],
-            ['name' => 'IX-B', 'grade_level' => 'IX'],
+            ['name' => 'I-A', 'grade_level' => 'I'],
+            ['name' => 'I-B', 'grade_level' => 'I'],
+            ['name' => 'I-C', 'grade_level' => 'I'],
+            ['name' => 'II-A', 'grade_level' => 'II'],
+            ['name' => 'II-B', 'grade_level' => 'II'],
+            ['name' => 'III-A', 'grade_level' => 'III'],
+            ['name' => 'III-B', 'grade_level' => 'III'],
+            ['name' => 'IV-A', 'grade_level' => 'IV'],
+            ['name' => 'IV-B', 'grade_level' => 'IV'],
+            ['name' => 'V-A', 'grade_level' => 'V'],
+            ['name' => 'V-B', 'grade_level' => 'V'],
+            ['name' => 'VI-A', 'grade_level' => 'VI'],
+            ['name' => 'VI-B', 'grade_level' => 'VI'],
         ];
 
         foreach ($classes as $c) {

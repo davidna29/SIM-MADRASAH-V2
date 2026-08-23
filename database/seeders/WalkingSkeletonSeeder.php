@@ -19,7 +19,7 @@ class WalkingSkeletonSeeder extends Seeder
     {
         $tahun = AcademicYear::create(['name' => '2026/2027', 'semester' => 'ganjil', 'is_active' => true]);
 
-        $kelas = ClassGroup::create(['name' => 'VII-A', 'grade_level' => 'VII']);
+        $kelas = ClassGroup::firstOrCreate(['name' => 'I-A', 'grade_level' => 'I']);
         $mapel = Subject::create(['code' => 'MAT', 'name' => 'Matematika']);
 
         // Guru

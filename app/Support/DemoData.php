@@ -7,18 +7,18 @@ class DemoData
     public static function siswa(): array
     {
         return [
-            ['nis' => '240101', 'nama' => 'Aisyah Nur Azizah', 'kelas' => 'VII-A', 'jk' => 'P', 'status' => 'aktif'],
-            ['nis' => '240102', 'nama' => 'Bilal Ramadhan', 'kelas' => 'VII-A', 'jk' => 'L', 'status' => 'aktif'],
-            ['nis' => '240103', 'nama' => 'Cinta Lestari Putri', 'kelas' => 'VII-A', 'jk' => 'P', 'status' => 'aktif'],
-            ['nis' => '240104', 'nama' => 'Dimas Prasetyo', 'kelas' => 'VII-A', 'jk' => 'L', 'status' => 'aktif'],
-            ['nis' => '240105', 'nama' => 'Eka Salsabila', 'kelas' => 'VII-A', 'jk' => 'P', 'status' => 'aktif'],
-            ['nis' => '239901', 'nama' => 'Fathir Rahman', 'kelas' => 'IX-B', 'jk' => 'L', 'status' => 'aktif'],
-            ['nis' => '239902', 'nama' => 'Ghina Aulia Rahma', 'kelas' => 'IX-B', 'jk' => 'P', 'status' => 'aktif'],
-            ['nis' => '239903', 'nama' => 'Hafizh Akbar', 'kelas' => 'IX-B', 'jk' => 'L', 'status' => 'aktif'],
-            ['nis' => '239904', 'nama' => 'Intan Permatasari', 'kelas' => 'IX-B', 'jk' => 'P', 'status' => 'aktif'],
-            ['nis' => '239905', 'nama' => 'Jaka Setiawan', 'kelas' => 'IX-B', 'jk' => 'L', 'status' => 'aktif'],
-            ['nis' => '238101', 'nama' => 'Khalifah Nur Hidayah', 'kelas' => 'VIII-C', 'jk' => 'P', 'status' => 'aktif'],
-            ['nis' => '238102', 'nama' => 'Lukman Hakim', 'kelas' => 'VIII-C', 'jk' => 'L', 'status' => 'aktif'],
+            ['nis' => '240101', 'nama' => 'Aisyah Nur Azizah', 'kelas' => 'I-A', 'jk' => 'P', 'status' => 'aktif'],
+            ['nis' => '240102', 'nama' => 'Bilal Ramadhan', 'kelas' => 'I-A', 'jk' => 'L', 'status' => 'aktif'],
+            ['nis' => '240103', 'nama' => 'Cinta Lestari Putri', 'kelas' => 'I-A', 'jk' => 'P', 'status' => 'aktif'],
+            ['nis' => '240104', 'nama' => 'Dimas Prasetyo', 'kelas' => 'I-A', 'jk' => 'L', 'status' => 'aktif'],
+            ['nis' => '240105', 'nama' => 'Eka Salsabila', 'kelas' => 'I-A', 'jk' => 'P', 'status' => 'aktif'],
+            ['nis' => '239901', 'nama' => 'Fathir Rahman', 'kelas' => 'VI-A', 'jk' => 'L', 'status' => 'aktif'],
+            ['nis' => '239902', 'nama' => 'Ghina Aulia Rahma', 'kelas' => 'VI-A', 'jk' => 'P', 'status' => 'aktif'],
+            ['nis' => '239903', 'nama' => 'Hafizh Akbar', 'kelas' => 'VI-A', 'jk' => 'L', 'status' => 'aktif'],
+            ['nis' => '239904', 'nama' => 'Intan Permatasari', 'kelas' => 'VI-A', 'jk' => 'P', 'status' => 'aktif'],
+            ['nis' => '239905', 'nama' => 'Jaka Setiawan', 'kelas' => 'VI-A', 'jk' => 'L', 'status' => 'aktif'],
+            ['nis' => '238101', 'nama' => 'Khalifah Nur Hidayah', 'kelas' => 'II-A', 'jk' => 'P', 'status' => 'aktif'],
+            ['nis' => '238102', 'nama' => 'Lukman Hakim', 'kelas' => 'II-A', 'jk' => 'L', 'status' => 'aktif'],
         ];
     }
 

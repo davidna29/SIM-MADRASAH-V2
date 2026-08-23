@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 <x-ui.select name="tahun" :full="false" class="w-44" :options="[2026 => 'TA 2026/2027', 2025 => 'TA 2025/2026']" />
-                <x-ui.select name="kelas" :full="false" class="w-40" :options="['VII-A' => 'VII-A', 'VIII-C' => 'VIII-C', 'IX-B' => 'IX-B']" />
+                <x-ui.select name="kelas" :full="false" class="w-40" :options="['I-A' => 'I-A', 'II-A' => 'II-A', 'VI-A' => 'VI-A']" />
                 <x-ui.select name="status" :full="false" class="w-40" :options="['aktif' => 'Aktif', 'lulus' => 'Lulus', 'alumni' => 'Alumni']" />
                 <x-ui.button variant="secondary" size="md">Terapkan</x-ui.button>
             </div>

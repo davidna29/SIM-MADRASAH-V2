@@ -47,10 +47,10 @@
                         <x-ui.select name="tahun_ajaran" :options="[2026 => '2026/2027', 2025 => '2025/2026']" />
                     </x-ui.field>
                     <x-ui.field label="Tingkat">
-                        <x-ui.select name="tingkat" :options="[7 => 'Kelas VII', 8 => 'Kelas VIII', 9 => 'Kelas IX']" />
+                        <x-ui.select name="tingkat" :options="[1 => 'Kelas I', 2 => 'Kelas II', 3 => 'Kelas III', 4 => 'Kelas IV', 5 => 'Kelas V', 6 => 'Kelas VI']" />
                     </x-ui.field>
                     <x-ui.field label="Kelas">
-                        <x-ui.select name="kelas" :options="['VII-A' => 'VII-A', 'VII-B' => 'VII-B', 'VII-C' => 'VII-C']" />
+                        <x-ui.select name="kelas" :options="['I-A' => 'I-A', 'I-B' => 'I-B', 'I-C' => 'I-C']" />
                     </x-ui.field>
                 </div>
             </x-ui.form-section>

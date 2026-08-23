@@ -63,7 +63,7 @@ class AkademikModuleTest extends TestCase
     public function test_subject_destroy_is_blocked_when_in_use(): void
     {
         $subject = Subject::create(['code' => 'MAT', 'name' => 'Matematika', 'sort_order' => 1]);
-        $class = ClassGroup::create(['name' => 'VII-A', 'grade_level' => 'VII']);
+        $class = ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
         $guru = User::factory()->create(['role' => 'guru']);
 
         \App\Models\TeacherAssignment::create([
@@ -108,21 +108,21 @@ class AkademikModuleTest extends TestCase
     public function test_admin_can_create_class_group(): void
     {
         $response = $this->actingAs($this->admin)->post(route('kelas.store'), [
-            'name' => 'VII-A',
-            'grade_level' => 'VII',
+            'name' => 'I-A',
+            'grade_level' => 'I',
         ]);
 
         $response->assertRedirect();
-        $this->assertDatabaseHas('class_groups', ['name' => 'VII-A']);
+        $this->assertDatabaseHas('class_groups', ['name' => 'I-A']);
     }
 
     public function test_class_name_must_be_unique(): void
     {
-        ClassGroup::create(['name' => 'VII-A', 'grade_level' => 'VII']);
+        ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
 
         $response = $this->actingAs($this->admin)->post(route('kelas.store'), [
-            'name' => 'VII-A',
-            'grade_level' => 'VII',
+            'name' => 'I-A',
+            'grade_level' => 'I',
         ]);
 
         $response->assertSessionHasErrors('name');
@@ -130,7 +130,7 @@ class AkademikModuleTest extends TestCase
 
     public function test_place_student_into_class(): void
     {
-        $class = ClassGroup::create(['name' => 'VII-A', 'grade_level' => 'VII']);
+        $class = ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
         $student = Student::create(['nis' => '240101', 'name' => 'Aisyah', 'gender' => 'P']);
 
         $response = $this->actingAs($this->admin)->post(route('kelas.place', $class), [
@@ -148,8 +148,8 @@ class AkademikModuleTest extends TestCase
     public function test_place_rejects_student_already_in_another_class(): void
     {
         $tahun = AcademicYear::active();
-        $classA = ClassGroup::create(['name' => 'VII-A', 'grade_level' => 'VII']);
-        $classB = ClassGroup::create(['name' => 'VII-B', 'grade_level' => 'VII']);
+        $classA = ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
+        $classB = ClassGroup::create(['name' => 'I-B', 'grade_level' => 'I']);
         $student = Student::create(['nis' => '240101', 'name' => 'Aisyah', 'gender' => 'P']);
 
         StudentEnrollment::create([
@@ -169,7 +169,7 @@ class AkademikModuleTest extends TestCase
     public function test_unplace_marks_student_as_alumni(): void
     {
         $tahun = AcademicYear::active();
-        $class = ClassGroup::create(['name' => 'VII-A', 'grade_level' => 'VII']);
+        $class = ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
         $student = Student::create(['nis' => '240101', 'name' => 'Aisyah', 'gender' => 'P']);
 
         $enrollment = StudentEnrollment::create([

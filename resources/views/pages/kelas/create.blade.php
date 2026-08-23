@@ -36,7 +36,7 @@
                         <x-ui.input name="name" :value="old('name', $editing ? $classGroup->name : '')" placeholder="VII-A" />
                     </x-ui.field>
                     <x-ui.field label="Tingkat" required :error="$errors->first('grade_level')">
-                        <x-ui.select name="grade_level" :options="['VII' => 'VII', 'VIII' => 'VIII', 'IX' => 'IX']" :selected="old('grade_level', $editing ? $classGroup->grade_level : null)" />
+                        <x-ui.select name="grade_level" :options="['I' => 'I', 'II' => 'II', 'III' => 'III', 'IV' => 'IV', 'V' => 'V', 'VI' => 'VI']" :selected="old('grade_level', $editing ? $classGroup->grade_level : null)" />
                     </x-ui.field>
                 </div>
             </x-ui.form-section>
