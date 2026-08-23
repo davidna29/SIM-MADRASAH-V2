@@ -1,7 +1,7 @@
 @props([
     'headers' => [],
     'footer' => null,
-    'empty' => true,
+    'empty' => false,
     'emptySlot' => null,
 ])
 

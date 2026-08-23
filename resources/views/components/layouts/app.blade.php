@@ -1,9 +1,20 @@
 @props([
-    'role' => 'super_admin',
-    'roleLabel' => 'Super Admin',
+    'role' => null,
+    'roleLabel' => null,
     'madrasah' => 'MTs Al-Ikhlas Mulia',
     'activeRoute' => null,
 ])
+
+@php
+    $user = auth()->user();
+    $role = $role ?? $user?->role ?? 'super_admin';
+    $roleLabel = $roleLabel ?? (match ($role) {
+        'guru' => 'Guru Mata Pelajaran',
+        'orang_tua' => 'Orang Tua / Wali',
+        default => 'Super Admin',
+    });
+    $initials = $user ? mb_strtoupper(mb_substr(collect(preg_split('/\s+/', $user->name))->first(), 0, 2)) : 'AM';
+@endphp
 
 <div x-data="{ mobileOpen: false, userOpen: false, notifOpen: false }" class="min-h-screen">
     <!-- Backdrop mobile -->
@@ -35,9 +46,9 @@
         <!-- Pengguna papan -->
         <div class="border-t border-white/10 p-3">
             <div class="flex items-center gap-3 rounded-[var(--radius-control)] bg-board-soft/40 px-3 py-2.5">
-                <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-extrabold text-primary-strong">AM</span>
+                <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-extrabold text-primary-strong">{{ $initials }}</span>
                 <div class="min-w-0 flex-1">
-                    <p class="truncate text-[13px] font-bold text-board-ink">Admin Madrasah</p>
+                    <p class="truncate text-[13px] font-bold text-board-ink">{{ $user?->name ?? "Admin Madrasah" }}</p>
                     <p class="truncate text-[11px] text-board-ink/60">{{ $roleLabel }}</p>
                 </div>
                 <span class="pin-dot size-2 bg-success" aria-hidden="true"></span>
@@ -105,9 +116,9 @@
                 <div class="relative">
                     <button type="button" @click="userOpen = !userOpen; notifOpen = false"
                         class="flex items-center gap-2 rounded-[var(--radius-control)] px-2 py-1.5 transition hover:bg-paper-deep">
-                        <span class="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-extrabold text-white">AM</span>
+                        <span class="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-extrabold text-white">{{ $initials }}</span>
                         <span class="hidden text-left sm:block">
-                            <span class="block text-[13px] font-bold leading-tight text-ink">Admin Madrasah</span>
+                            <span class="block text-[13px] font-bold leading-tight text-ink">{{ $user?->name ?? "Admin Madrasah" }}</span>
                             <span class="block text-[11px] text-ink-faint">{{ $roleLabel }}</span>
                         </span>
                         <x-svg-chevron-down class="hidden size-4 text-ink-faint sm:block" aria-hidden="true" />
@@ -122,9 +133,12 @@
                             <x-svg-cog-6-tooth class="size-4" aria-hidden="true" /> Pengaturan akun
                         </a>
                         <div class="my-1.5 border-t border-rule/70"></div>
-                        <a href="{{ route('login') }}" class="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-danger transition hover:bg-danger-soft">
-                            <x-svg-arrow-right-on-rectangle class="size-4" aria-hidden="true" /> Keluar
-                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="flex w-full items-center gap-2 px-4 py-2 text-[13px] font-medium text-danger transition hover:bg-danger-soft">
+                                <x-svg-arrow-right-on-rectangle class="size-4" aria-hidden="true" /> Keluar
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -1,8 +1,8 @@
 @props([
     'title' => null,
     'breadcrumb' => null,
-    'role' => 'super_admin',
-    'roleLabel' => 'Super Admin',
+    'role' => null,
+    'roleLabel' => null,
     'activeRoute' => null,
 ])
 

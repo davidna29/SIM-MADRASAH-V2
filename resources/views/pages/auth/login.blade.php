@@ -18,26 +18,35 @@
                 <h2 class="text-center text-lg font-extrabold tracking-tight text-ink">Masuk ke papan Anda</h2>
                 <p class="mt-1 text-center text-xs text-ink-faint">Gunakan akun yang diberikan oleh tata usaha.</p>
 
-                <form class="mt-6 space-y-4" action="#" method="POST">
+                <form class="mt-6 space-y-4" action="{{ route('login.attempt') }}" method="POST">
                     @csrf
-                    <x-ui.field label="Username atau Email" required>
-                        <x-ui.input name="login" autocomplete="username" placeholder="admin@madrasah.sch.id" required autofocus />
+                    @if ($errors->any())
+                        <x-ui.alert variant="danger" dismissible>
+                            {{ $errors->first() }}
+                        </x-ui.alert>
+                    @endif
+                    <x-ui.field label="Username atau Email" required :error="$errors->first('login')">
+                        <x-ui.input name="login" :value="old('login')" autocomplete="username" placeholder="guru.umar atau admin@madrasah.sch.id" required autofocus />
                     </x-ui.field>
-                    <x-ui.field label="Kata Sandi" required>
-                        <div class="relative">
-                            <x-ui.input name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
-                            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-ink-faint transition hover:text-ink" aria-label="Tampilkan kata sandi">
-                                <x-svg-eye class="size-4" aria-hidden="true" />
+                    <x-ui.field label="Kata Sandi" required :error="$errors->first('password')">
+                        <div class="relative" x-data="{ show: false }">
+                            <x-ui.input name="password" x-bind:type="show ? 'text' : 'password'" autocomplete="current-password" placeholder="••••••••" required />
+                            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-ink-faint transition hover:text-ink" aria-label="Tampilkan kata sandi" :aria-pressed="show" @click="show = !show">
+                                <template x-if="!show">
+                                    <x-svg-eye class="size-4" aria-hidden="true" />
+                                </template>
+                                <template x-if="show">
+                                    <x-svg-eye-slash class="size-4" aria-hidden="true" />
+                                </template>
                             </button>
                         </div>
                     </x-ui.field>
 
                     <div class="flex items-center justify-between">
                         <label class="flex items-center gap-2 text-xs font-medium text-ink-soft">
-                            <input type="checkbox" class="size-4 rounded border-rule-strong text-primary focus:ring-primary" checked />
+                            <input type="checkbox" name="remember" class="size-4 rounded border-rule-strong text-primary focus:ring-primary" checked />
                             Ingat saya
                         </label>
-                        <a href="#" class="text-xs font-bold text-primary transition hover:text-primary-strong">Lupa kata sandi?</a>
                     </div>
 
                     <x-ui.button type="submit" variant="primary" size="lg" icon="arrow-right-on-rectangle" class="w-full">Masuk ke Sistem</x-ui.button>

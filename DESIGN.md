@@ -26,6 +26,11 @@ colors:
   info: "#1d5fa5"
   info-soft: "#e6f0fa"
 typography:
+  scale:
+    xs: "10px"
+    sm: "11px"
+    md: "13px"
+    lg: "15px"
   display:
     fontFamily: "Plus Jakarta Sans, ui-sans-serif, system-ui, sans-serif"
     fontWeight: 800
@@ -71,6 +76,11 @@ typography:
     fontFamily: "JetBrains Mono, ui-monospace, Menlo, monospace"
     fontWeight: 600
     fontFeature: "\"tnum\""
+  print:
+    fontFamily: "DejaVu Sans, DejaVu Sans Mono, sans-serif"
+    fontWeight: 400
+    fontSize: "15px"
+    lineHeight: 1.4
 rounded:
   sm: "0.625rem"
   md: "0.875rem"
@@ -195,6 +205,7 @@ Palet terang dengan satu aksen hijau yang memegang struktur navigasi dan tindaka
 - **Item** (600, 0.8125rem, lh 1.4): baris daftar "Perlu Tindakan", detail.
 - **Meta** (JetBrains Mono 600, 0.6875rem, `tabular-nums`): ID lembar (P-0042), NIS kecil.
 - **Data** (JetBrains Mono 600, `tabular-nums`): KPI digit-bank, NIS, nominal Rupiah, pagination, tanggal.
+- **Print (PDF rapor)** (DejaVu Sans, 11px dasar): hanya untuk template cetak DomPDF (`resources/views/pdf/`), yang tidak bisa memakai font web; kop 15px, judul section 13px, label tabel 10px.
 
 ### Named Rules
 **The Digit-Bank Rule.** Semua angka data memakai font mono tabular (JetBrains Mono + `font-variant-numeric: tabular-nums`), sehingga kolom angka berbaris tegak dan berubah nilai tanpa bergeser.

@@ -6,16 +6,41 @@
 @php
     $groups = config('navigation');
     $active = $activeRoute ?? request()->route()?->getName();
+
+    $roleCanReach = function (string $routeName) use ($role): bool {
+        if ($role === 'super_admin') {
+            return \Illuminate\Support\Facades\Route::has($routeName);
+        }
+        if (! \Illuminate\Support\Facades\Route::has($routeName)) {
+            return false;
+        }
+        $route = \Illuminate\Support\Facades\Route::getRoutes()->getByName($routeName);
+        $middleware = collect($route?->gatherMiddleware() ?? []);
+        $roleRestrictions = $middleware->filter(fn ($m) => is_string($m) && str_starts_with($m, 'role:'))
+            ->flatMap(fn ($m) => explode(':', $m)[1] ? explode('|', explode(':', $m)[1]) : []);
+        if ($roleRestrictions->isEmpty()) {
+            return true;
+        }
+        return $roleRestrictions->contains($role);
+    };
 @endphp<nav aria-label="Navigasi utama" class="flex-1 overflow-y-auto px-3 py-4">
     <ul class="space-y-5">
         @foreach ($groups as $group)
+            @php
+                $visibleItems = collect($group['items'])->filter(function ($item) use ($role, $roleCanReach) {
+                    if (!in_array('*', $item['roles']) && !in_array($role, $item['roles'])) {
+                        return false;
+                    }
+                    return $roleCanReach($item['route']);
+                })->values();
+            @endphp
+            @if ($visibleItems->isEmpty())
+                @continue
+            @endif
             <li>
                 <p class="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-board-ink/60">{{ $group['label'] }}</p>
                 <ul class="space-y-0.5">
-                    @foreach ($group['items'] as $item)
-                        @if (!in_array('*', $item['roles']) && !in_array($role, $item['roles']))
-                            @continue
-                        @endif
+                    @foreach ($visibleItems as $item)
                         @php
                             $isActive = $active === $item['route'];
                             $href = route($item['route']);

@@ -2,6 +2,13 @@
 
 return [
     [
+        'label' => 'Beranda Saya',
+        'items' => [
+            ['label' => 'Penugasan Mengajar', 'route' => 'guru.penugasan', 'icon' => 'clipboard-document-list', 'roles' => ['guru']],
+            ['label' => 'Anak Saya', 'route' => 'ortu.dashboard', 'icon' => 'user-group', 'roles' => ['orang_tua']],
+        ],
+    ],
+    [
         'label' => 'Fondasi & Pengaturan',
         'items' => [
             ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home', 'roles' => ['*']],
