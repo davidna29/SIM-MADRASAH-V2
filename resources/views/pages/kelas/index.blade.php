@@ -21,6 +21,14 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="mt-6">
+                <x-ui.alert variant="danger" dismissible>
+                    @foreach ($errors->all() as $error) {{ $error }} @endforeach
+                </x-ui.alert>
+            </div>
+        @endif
+
         <!-- Sub-menu tingkat -->
         <nav class="mt-6 flex flex-wrap items-center gap-1.5" aria-label="Filter tingkat">
             <a href="{{ route('kelas.index') }}"
@@ -79,7 +87,7 @@
                                 :title="$classGroup->name"
                                 :subtitle="'Tingkat ' . $classGroup->grade_level"
                                 pinned
-                                :actions="view('components.ui.button', ['variant' => 'secondary', 'size' => 'sm', 'icon' => 'arrow-up-right', 'href' => route('kelas.show', $classGroup)])->withSlot('Kelola')->render()">
+                                :actions="view('pages.kelas._actions', ['classGroup' => $classGroup])->render()">
                                 <div class="flex items-center justify-between">
                                     <x-ui.badge variant="info" icon="academic-cap">{{ $classGroup->enrollments_count }} siswa aktif</x-ui.badge>
                                 </div>

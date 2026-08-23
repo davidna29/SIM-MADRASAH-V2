@@ -13,6 +13,11 @@
             </div>
             <div class="flex items-center gap-2">
                 <x-ui.button variant="secondary" icon="pencil-square" href="{{ route('kelas.edit', $classGroup) }}">Ubah Kelas</x-ui.button>
+                <form method="POST" action="{{ route('kelas.destroy', $classGroup) }}" onsubmit="return confirm('Hapus kelas {{ $classGroup->name }}?');">
+                    @csrf
+                    @method('DELETE')
+                    <x-ui.button type="submit" variant="danger" icon="trash">Hapus</x-ui.button>
+                </form>
             </div>
         </div>
 

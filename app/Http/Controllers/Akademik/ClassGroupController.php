@@ -128,6 +128,10 @@ class ClassGroupController extends Controller
     {
         $this->authorize('delete', $classGroup);
 
+        if ($classGroup->enrollments()->where('status', 'aktif')->exists() || $classGroup->assignments()->exists()) {
+            return back()->withErrors(['delete' => "Kelas {$classGroup->name} masih memiliki siswa aktif atau penugasan mengajar dan tidak dapat dihapus."]);
+        }
+
         $classGroup->delete();
 
         activity('akademik')->performedOn($classGroup)->log('kelas_dihapus');

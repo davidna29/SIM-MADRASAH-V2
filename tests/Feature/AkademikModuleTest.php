@@ -128,6 +128,33 @@ class AkademikModuleTest extends TestCase
         $response->assertSessionHasErrors('name');
     }
 
+    public function test_class_destroy_is_blocked_when_has_active_students(): void
+    {
+        $class = ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
+        $student = Student::create(['nis' => '240101', 'name' => 'Aisyah', 'gender' => 'P']);
+        StudentEnrollment::create([
+            'academic_year_id' => AcademicYear::active()->id,
+            'class_group_id' => $class->id,
+            'student_id' => $student->id,
+            'status' => 'aktif',
+        ]);
+
+        $response = $this->actingAs($this->admin)->delete(route('kelas.destroy', $class));
+
+        $response->assertSessionHasErrors('delete');
+        $this->assertDatabaseHas('class_groups', ['id' => $class->id]);
+    }
+
+    public function test_class_destroy_succeeds_when_empty(): void
+    {
+        $class = ClassGroup::create(['name' => 'VI-B', 'grade_level' => 'VI']);
+
+        $response = $this->actingAs($this->admin)->delete(route('kelas.destroy', $class));
+
+        $response->assertRedirect(route('kelas.index'));
+        $this->assertDatabaseMissing('class_groups', ['id' => $class->id]);
+    }
+
     public function test_place_student_into_class(): void
     {
         $class = ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
