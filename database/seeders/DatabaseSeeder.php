@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             WalkingSkeletonSeeder::class,
             KepegawaianSeeder::class,
+            AkademikSeeder::class,
         ]);
     }
 }

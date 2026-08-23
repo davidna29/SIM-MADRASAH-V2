@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Akademik\ClassGroupController;
+use App\Http\Controllers\Akademik\SubjectController;
 use App\Http\Controllers\Guru\NilaiController;
 use App\Http\Controllers\Kepegawaian\EmployeeController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
@@ -60,6 +62,25 @@ Route::middleware('auth')->group(function () {
         Route::get('/kepegawaian/data-guru/{employee}/edit', [EmployeeController::class, 'edit'])->name('pegawai.edit');
         Route::put('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'update'])->name('pegawai.update');
         Route::delete('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'destroy'])->name('pegawai.destroy');
+
+        // Modul Mata Pelajaran
+        Route::get('/akademik/mata-pelajaran', [SubjectController::class, 'index'])->name('mapel.index');
+        Route::get('/akademik/mata-pelajaran/tambah', [SubjectController::class, 'create'])->name('mapel.create');
+        Route::post('/akademik/mata-pelajaran', [SubjectController::class, 'store'])->name('mapel.store');
+        Route::get('/akademik/mata-pelajaran/{subject}/edit', [SubjectController::class, 'edit'])->name('mapel.edit');
+        Route::put('/akademik/mata-pelajaran/{subject}', [SubjectController::class, 'update'])->name('mapel.update');
+        Route::delete('/akademik/mata-pelajaran/{subject}', [SubjectController::class, 'destroy'])->name('mapel.destroy');
+
+        // Modul Kelas & Penempatan
+        Route::get('/akademik/kelas', [ClassGroupController::class, 'index'])->name('kelas.index');
+        Route::get('/akademik/kelas/tambah', [ClassGroupController::class, 'create'])->name('kelas.create');
+        Route::post('/akademik/kelas', [ClassGroupController::class, 'store'])->name('kelas.store');
+        Route::get('/akademik/kelas/{classGroup}', [ClassGroupController::class, 'show'])->name('kelas.show');
+        Route::get('/akademik/kelas/{classGroup}/edit', [ClassGroupController::class, 'edit'])->name('kelas.edit');
+        Route::put('/akademik/kelas/{classGroup}', [ClassGroupController::class, 'update'])->name('kelas.update');
+        Route::delete('/akademik/kelas/{classGroup}', [ClassGroupController::class, 'destroy'])->name('kelas.destroy');
+        Route::post('/akademik/kelas/{classGroup}/penempatan', [ClassGroupController::class, 'place'])->name('kelas.place');
+        Route::post('/akademik/kelas/{classGroup}/penempatan/{enrollment}/lepas', [ClassGroupController::class, 'unplace'])->name('kelas.unplace');
     });
 
     // Guru — walking skeleton: penugasan → input nilai → terbitkan rapor
