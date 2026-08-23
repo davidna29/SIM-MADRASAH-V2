@@ -52,6 +52,20 @@
                     <x-ui.badge variant="neutral" :dot="false">{{ count($rombel) }} rombel</x-ui.badge>
                     <x-ui.badge variant="neutral" :dot="false">{{ $model->slots->count() }} jam/hari</x-ui.badge>
                 </div>
+
+                <div class="mt-3 flex flex-wrap items-center gap-2 border-t border-rule/70 pt-3">
+                    <form method="POST" action="{{ route('jadwal.generate', $model) }}" class="flex flex-wrap items-center gap-2"
+                        onsubmit="return confirm('Generate jadwal untuk model ini? Data tahun tujuan yang sudah ada tidak akan ditimpa.');">
+                        @csrf
+                        <select name="mode" class="rounded-[var(--radius-control)] bg-sheet px-2.5 py-2 text-xs text-ink ring-1 ring-inset ring-rule-strong focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Mode generate">
+                            <option value="blank">Kerangka kosong</option>
+                            <option value="copy">Salin dari tahun sebelumnya</option>
+                        </select>
+                        <x-ui.button type="submit" variant="secondary" size="sm" icon="sparkles">Generate Jadwal</x-ui.button>
+                    </form>
+                    <span class="mx-1 h-4 w-px bg-rule-strong/70" aria-hidden="true"></span>
+                    <span class="text-xs text-ink-faint">Cetak tersedia di tampilan per-kelas & per-guru.</span>
+                </div>
             </div>
 
             <div class="mt-4 overflow-x-auto rounded-sheet bg-sheet shadow-sheet ring-1 ring-inset ring-rule/60">
@@ -172,7 +186,15 @@
 
                     <footer class="flex items-center justify-end gap-2 border-t border-rule/70 px-5 py-4">
                         <x-ui.button variant="ghost" size="sm" @click="cellModalOpen = false">Batal</x-ui.button>
-                        <x-ui.button variant="primary" size="sm" icon="check" @click="applyCell">Sematkan ke Sel</x-ui.button>
+                        <form method="POST" :action="'{{ route('jadwal.penyusunan.store', $model) }}'" @submit.prevent="applyCell">
+                            @csrf
+                            <input type="hidden" name="cells[0][class_group_id]" :value="cellClassId">
+                            <input type="hidden" name="cells[0][day]" :value="cellDay">
+                            <input type="hidden" name="cells[0][period_no]" :value="cellPeriod">
+                            <input type="hidden" name="cells[0][teacher_id]" :value="selectedTeacher ?? ''">
+                            <input type="hidden" name="cells[0][subject_id]" :value="selectedSubject ?? ''">
+                            <x-ui.button type="submit" variant="primary" size="sm" icon="check">Sematkan ke Sel</x-ui.button>
+                        </form>
                     </footer>
                 </div>
             </div>
@@ -225,10 +247,9 @@
                     this.subjectQuery = '';
                     this.cellModalOpen = true;
                 },
-                applyCell() {
-                    // Checkpoint 2: interaksi frontend — simpan/persist ke backend di checkpoint 3.
-                    window.Alpine.store('toasts')?.push('Sel diisi (belum disimpan — penyimpanan di checkpoint berikutnya).', 'warning');
-                    this.cellModalOpen = false;
+                applyCell(e) {
+                    // Submit form per-sel; backend memvalidasi konflik guru (hard-block)
+                    e?.target?.closest('form')?.submit();
                 },
             };
         }

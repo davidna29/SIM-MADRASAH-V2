@@ -27,6 +27,7 @@ colors:
   info-soft: "#e6f0fa"
 typography:
   scale:
+    print: "9px"
     xs: "10px"
     sm: "11px"
     md: "13px"

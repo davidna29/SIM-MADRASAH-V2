@@ -11,6 +11,7 @@
                     {{ $teacher->name }} — jadwal mengajar lintas rombel (turunan dari tabel master).
                 </p>
             </div>
+            <x-ui.button variant="primary" icon="arrow-down-tray" href="{{ route('jadwal.guru.cetak', $teacher) }}">Cetak PDF</x-ui.button>
         </div>
 
         <div class="mt-6 overflow-x-auto rounded-sheet bg-sheet shadow-sheet ring-1 ring-inset ring-rule/60">

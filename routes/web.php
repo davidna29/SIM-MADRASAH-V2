@@ -96,8 +96,12 @@ Route::middleware('auth')->group(function () {
 
         // Penyusunan (tabel master) + view turunan
         Route::get('/akademik/jadwal-pelajaran/penyusunan', [ScheduleCellController::class, 'penyusunan'])->name('jadwal.penyusunan');
+        Route::post('/akademik/jadwal-pelajaran/penyusunan/{model}', [ScheduleCellController::class, 'store'])->name('jadwal.penyusunan.store');
+        Route::post('/akademik/jadwal-pelajaran/penyusunan/{model}/generate', [ScheduleCellController::class, 'generate'])->name('jadwal.generate');
         Route::get('/akademik/jadwal-pelajaran/kelas/{classGroup}', [ScheduleCellController::class, 'perKelas'])->name('jadwal.kelas');
+        Route::get('/akademik/jadwal-pelajaran/kelas/{classGroup}/cetak', [ScheduleCellController::class, 'cetakKelas'])->name('jadwal.kelas.cetak');
         Route::get('/akademik/jadwal-pelajaran/guru/{teacher}', [ScheduleCellController::class, 'perGuru'])->name('jadwal.guru');
+        Route::get('/akademik/jadwal-pelajaran/guru/{teacher}/cetak', [ScheduleCellController::class, 'cetakGuru'])->name('jadwal.guru.cetak');
     });
 
     // Guru — walking skeleton: penugasan → input nilai → terbitkan rapor

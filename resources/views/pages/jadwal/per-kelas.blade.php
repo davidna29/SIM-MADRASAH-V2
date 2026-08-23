@@ -11,6 +11,7 @@
                     Tampilan turunan dari tabel master penyusunan — siap ditempel atau dicetak.
                 </p>
             </div>
+            <x-ui.button variant="primary" icon="arrow-down-tray" href="{{ route('jadwal.kelas.cetak', $classGroup) }}">Cetak PDF</x-ui.button>
         </div>
 
         <div class="mt-6 overflow-x-auto rounded-sheet bg-sheet shadow-sheet ring-1 ring-inset ring-rule/60">

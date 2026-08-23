@@ -54,7 +54,7 @@ return new class extends Migration
             $table->foreignId('teacher_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('subject_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
-            $table->unique(['schedule_model_id', 'class_group_id', 'day', 'period_no'], 'schedule_cell_unique');
+            $table->unique(['schedule_model_id', 'academic_year_id', 'class_group_id', 'day', 'period_no'], 'schedule_cell_unique');
         });
     }
 
