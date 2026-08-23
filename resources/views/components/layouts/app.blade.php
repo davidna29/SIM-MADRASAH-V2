@@ -16,7 +16,15 @@
     $initials = $user ? mb_strtoupper(mb_substr(collect(preg_split('/\s+/', $user->name))->first(), 0, 2)) : 'AM';
 @endphp
 
-<div x-data="{ mobileOpen: false, userOpen: false, notifOpen: false }" class="min-h-screen lg:flex">
+<div
+    x-data="{
+        mobileOpen: false,
+        userOpen: false,
+        notifOpen: false,
+        collapsed: localStorage.getItem('sim-sidebar-collapsed') === '1',
+    }"
+    x-init="$watch('collapsed', value => localStorage.setItem('sim-sidebar-collapsed', value ? '1' : '0'))"
+    class="min-h-screen lg:flex">
     <!-- Backdrop mobile -->
     <div x-show="mobileOpen" x-cloak @click="mobileOpen = false"
         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -24,15 +32,18 @@
         class="fixed inset-0 z-40 bg-board-deep/60 backdrop-blur-[2px] lg:hidden"></div>
 
     <!-- Sidebar (Papan) -->
-    <aside :class="mobileOpen ? 'translate-x-0' : '-translate-x-full'"
-        class="board-face fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 flex-col shadow-sheet-raised transition-transform duration-200 ease-out lg:static lg:h-screen lg:translate-x-0 lg:shadow-none lg:transition-none">
+    <aside :class="[
+        mobileOpen ? 'translate-x-0' : '-translate-x-full',
+        collapsed ? 'lg:w-[76px]' : 'lg:w-72',
+    ]"
+        class="board-face fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 flex-col shadow-sheet-raised transition-[width,transform] duration-300 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none">
 
         <!-- Kop papan -->
-        <div class="flex items-center gap-3 border-b border-white/10 px-5 py-4">
+        <div :class="collapsed ? 'lg:px-3' : 'lg:px-5'" class="flex items-center gap-3 border-b border-white/10 px-5 py-4">
             <div class="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-control)] bg-board-ink text-board">
                 <x-svg-academic-cap class="size-6" aria-hidden="true" />
             </div>
-            <div class="min-w-0">
+            <div x-cloak :class="collapsed ? 'lg:hidden' : 'lg:flex'" class="hidden min-w-0 flex-1 flex-col">
                 <p class="truncate text-sm font-extrabold leading-tight tracking-tight text-board-ink">{{ $madrasah }}</p>
                 <p class="mt-0.5 text-[11px] font-medium text-board-ink/60">Sistem Informasi Manajemen</p>
             </div>
@@ -45,13 +56,13 @@
 
         <!-- Pengguna papan -->
         <div class="border-t border-white/10 p-3">
-            <div class="flex items-center gap-3 rounded-[var(--radius-control)] bg-board-soft/40 px-3 py-2.5">
+            <div :class="collapsed ? 'lg:justify-center lg:px-0' : 'lg:justify-start lg:px-3'" class="flex items-center gap-3 rounded-[var(--radius-control)] bg-board-soft/40 px-3 py-2.5">
                 <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-extrabold text-primary-strong">{{ $initials }}</span>
-                <div class="min-w-0 flex-1">
+                <div x-cloak :class="collapsed ? 'lg:hidden' : 'lg:flex'" class="hidden min-w-0 flex-1 flex-col">
                     <p class="truncate text-[13px] font-bold text-board-ink">{{ $user?->name ?? "Admin Madrasah" }}</p>
                     <p class="truncate text-[11px] text-board-ink/60">{{ $roleLabel }}</p>
                 </div>
-                <span class="pin-dot size-2 bg-success" aria-hidden="true"></span>
+                <span x-cloak :class="collapsed ? 'lg:hidden' : 'lg:inline-flex'" class="hidden size-2 shrink-0 items-center rounded-full bg-success" aria-hidden="true"></span>
             </div>
         </div>
     </aside>
@@ -61,6 +72,13 @@
         <header class="sticky top-0 z-30 flex items-center gap-3 border-b border-rule-strong/70 bg-paper/85 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
             <button type="button" @click="mobileOpen = true" class="rounded-md p-2 text-ink-soft transition hover:bg-paper-deep hover:text-ink lg:hidden" aria-label="Buka menu">
                 <x-svg-menu class="size-5" aria-hidden="true" />
+            </button>
+
+            <button type="button" @click="collapsed = !collapsed"
+                class="hidden rounded-md p-2 text-ink-soft transition hover:bg-paper-deep hover:text-ink lg:inline-flex"
+                :aria-label="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
+                :title="collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'">
+                <x-svg-view-columns class="size-5" aria-hidden="true" />
             </button>
 
             <div class="min-w-0">
