@@ -7,7 +7,7 @@ use App\Http\Requests\StoreSubjectRequest;
 use App\Http\Requests\UpdateSubjectRequest;
 use App\Models\Subject;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class SubjectController extends Controller
@@ -18,8 +18,9 @@ class SubjectController extends Controller
 
         $subjects = Subject::query()
             ->when(request('q'), fn ($q, $search) => $q->where('name', 'like', "%{$search}%")->orWhere('code', 'like', "%{$search}%"))
+            ->orderBy('sort_order')
             ->orderBy('code')
-            ->paginate(12)
+            ->paginate(20)
             ->withQueryString();
 
         return view('pages.mapel.index', [
@@ -32,46 +33,18 @@ class SubjectController extends Controller
         ]);
     }
 
-    public function create(): View
-    {
-        $this->authorize('create', Subject::class);
-
-        return view('pages.mapel.create', [
-            'roleLabel' => 'Super Admin',
-            'breadcrumb' => [
-                ['label' => 'Akademik', 'href' => route('dashboard')],
-                ['label' => 'Mata Pelajaran', 'href' => route('mapel.index')],
-                ['label' => 'Tambah Mata Pelajaran'],
-            ],
-            'editing' => false,
-        ]);
-    }
-
     public function store(StoreSubjectRequest $request): RedirectResponse
     {
         $this->authorize('create', Subject::class);
 
-        $subject = Subject::create($request->validated());
+        $validated = $request->validated();
+        $validated['sort_order'] = (Subject::max('sort_order') ?? 0) + 1;
+
+        $subject = Subject::create($validated);
 
         activity('akademik')->performedOn($subject)->log('mapel_baru');
 
         return redirect()->route('mapel.index')->with('status', 'Mata pelajaran berhasil disimpan dan disematkan ke papan.');
-    }
-
-    public function edit(Subject $subject): View
-    {
-        $this->authorize('update', $subject);
-
-        return view('pages.mapel.create', [
-            'roleLabel' => 'Super Admin',
-            'breadcrumb' => [
-                ['label' => 'Akademik', 'href' => route('dashboard')],
-                ['label' => 'Mata Pelajaran', 'href' => route('mapel.index')],
-                ['label' => 'Ubah '.$subject->name],
-            ],
-            'editing' => true,
-            'subject' => $subject,
-        ]);
     }
 
     public function update(UpdateSubjectRequest $request, Subject $subject): RedirectResponse
@@ -85,9 +58,31 @@ class SubjectController extends Controller
         return redirect()->route('mapel.index')->with('status', 'Mata pelajaran berhasil diperbarui.');
     }
 
+    public function reorder(Request $request): RedirectResponse
+    {
+        $this->authorize('create', Subject::class);
+
+        $validated = $request->validate([
+            'order' => ['required', 'array'],
+            'order.*' => ['integer', 'exists:subjects,id'],
+        ]);
+
+        foreach ($validated['order'] as $position => $id) {
+            Subject::whereKey($id)->update(['sort_order' => $position + 1]);
+        }
+
+        activity('akademik')->log('mapel_diurutkan');
+
+        return back()->with('status', 'Urutan mata pelajaran berhasil diperbarui.');
+    }
+
     public function destroy(Subject $subject): RedirectResponse
     {
         $this->authorize('delete', $subject);
+
+        if ($subject->assignments()->exists() || $subject->scores()->exists()) {
+            return back()->withErrors(['delete' => "Mata pelajaran {$subject->name} sudah dipakai pada penugasan/nilai dan tidak dapat dihapus."]);
+        }
 
         $subject->delete();
 

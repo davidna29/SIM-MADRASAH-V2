@@ -55,7 +55,52 @@ class AkademikModuleTest extends TestCase
         $teacher = User::factory()->create(['role' => 'guru']);
 
         $this->actingAs($teacher)->get(route('mapel.index'))->assertForbidden();
-        $this->actingAs($teacher)->get(route('mapel.create'))->assertForbidden();
+        $this->actingAs($teacher)->post(route('mapel.store'), [
+            'code' => 'FIQH', 'name' => 'Fikih',
+        ])->assertForbidden();
+    }
+
+    public function test_subject_destroy_is_blocked_when_in_use(): void
+    {
+        $subject = Subject::create(['code' => 'MAT', 'name' => 'Matematika', 'sort_order' => 1]);
+        $class = ClassGroup::create(['name' => 'VII-A', 'grade_level' => 'VII']);
+        $guru = User::factory()->create(['role' => 'guru']);
+
+        \App\Models\TeacherAssignment::create([
+            'academic_year_id' => AcademicYear::active()->id,
+            'class_group_id' => $class->id,
+            'subject_id' => $subject->id,
+            'user_id' => $guru->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)->delete(route('mapel.destroy', $subject));
+
+        $response->assertSessionHasErrors('delete');
+        $this->assertDatabaseHas('subjects', ['id' => $subject->id]);
+    }
+
+    public function test_subject_destroy_succeeds_when_unused(): void
+    {
+        $subject = Subject::create(['code' => 'SKI', 'name' => 'Sejarah Kebudayaan Islam', 'sort_order' => 2]);
+
+        $response = $this->actingAs($this->admin)->delete(route('mapel.destroy', $subject));
+
+        $response->assertRedirect(route('mapel.index'));
+        $this->assertDatabaseMissing('subjects', ['id' => $subject->id]);
+    }
+
+    public function test_subject_reorder_updates_sort_order(): void
+    {
+        $a = Subject::create(['code' => 'AAA', 'name' => 'Mapel A', 'sort_order' => 1]);
+        $b = Subject::create(['code' => 'BBB', 'name' => 'Mapel B', 'sort_order' => 2]);
+
+        $response = $this->actingAs($this->admin)->post(route('mapel.reorder'), [
+            'order' => [$b->id, $a->id],
+        ]);
+
+        $response->assertRedirect();
+        $this->assertSame(1, $b->fresh()->sort_order);
+        $this->assertSame(2, $a->fresh()->sort_order);
     }
 
     // ==== Kelas & Penempatan ====

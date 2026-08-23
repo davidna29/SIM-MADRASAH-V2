@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import Sortable from 'sortablejs';
 
 window.Alpine = Alpine;
 
@@ -27,6 +28,27 @@ document.addEventListener('alpine:init', () => {
             this.items = this.items.filter((t) => t.id !== id);
         },
     });
+
+    Alpine.data('sortableTable', (options = {}) => ({
+        init() {
+            const el = this.$root.querySelector('tbody');
+            if (!el || this.$root.querySelector('[data-sortable-inited]')) {
+                return;
+            }
+            this.$root.querySelector('[data-sortable-inited]')?.remove();
+            el.setAttribute('data-sortable-inited', '1');
+
+            Sortable.create(el, {
+                handle: options.handle || '[data-drag-handle]',
+                animation: 200,
+                ghostClass: 'opacity-40',
+                onEnd: () => {
+                    const order = [...el.querySelectorAll('tr[data-id]')].map((tr) => tr.dataset.id);
+                    this.$root.dispatchEvent(new CustomEvent('reorder', { detail: { order } }));
+                },
+            });
+        },
+    }));
 });
 
 Alpine.start();

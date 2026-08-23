@@ -66,9 +66,8 @@ Route::middleware('auth')->group(function () {
 
         // Modul Mata Pelajaran
         Route::get('/akademik/mata-pelajaran', [SubjectController::class, 'index'])->name('mapel.index');
-        Route::get('/akademik/mata-pelajaran/tambah', [SubjectController::class, 'create'])->name('mapel.create');
         Route::post('/akademik/mata-pelajaran', [SubjectController::class, 'store'])->name('mapel.store');
-        Route::get('/akademik/mata-pelajaran/{subject}/edit', [SubjectController::class, 'edit'])->name('mapel.edit');
+        Route::post('/akademik/mata-pelajaran/urutan', [SubjectController::class, 'reorder'])->name('mapel.reorder');
         Route::put('/akademik/mata-pelajaran/{subject}', [SubjectController::class, 'update'])->name('mapel.update');
         Route::delete('/akademik/mata-pelajaran/{subject}', [SubjectController::class, 'destroy'])->name('mapel.destroy');
 

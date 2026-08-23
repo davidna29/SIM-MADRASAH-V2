@@ -19,6 +19,7 @@
     "dependencies": {
         "alpinejs": "^3.16.2",
         "heroicons": "^2.2.0",
-        "playwright-core": "^1.62.1"
+        "playwright-core": "^1.62.1",
+        "sortablejs": "^1.15.7"
     }
 }

@@ -10,7 +10,7 @@ class Subject extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'name'];
+    protected $fillable = ['code', 'name', 'sort_order'];
 
     public function assignments(): HasMany
     {

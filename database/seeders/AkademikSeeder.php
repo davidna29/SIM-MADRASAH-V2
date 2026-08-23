@@ -23,8 +23,11 @@ class AkademikSeeder extends Seeder
             ['code' => 'BTA', 'name' => 'Baca Tulis Al-Qur\'an'],
         ];
 
-        foreach ($subjects as $s) {
-            Subject::updateOrCreate(['code' => $s['code']], $s);
+        foreach ($subjects as $i => $s) {
+            Subject::updateOrCreate(
+                ['code' => $s['code']],
+                ['name' => $s['name'], 'sort_order' => $i + 1]
+            );
         }
 
         $classes = [
