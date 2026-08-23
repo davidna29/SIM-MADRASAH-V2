@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             WalkingSkeletonSeeder::class,
             KepegawaianSeeder::class,
             AkademikSeeder::class,
+            PenugasanSeeder::class,
         ]);
     }
 }

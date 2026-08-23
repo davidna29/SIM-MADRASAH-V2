@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Akademik\ClassGroupController;
 use App\Http\Controllers\Akademik\SubjectController;
+use App\Http\Controllers\Akademik\TeacherAssignmentController;
 use App\Http\Controllers\Guru\NilaiController;
 use App\Http\Controllers\Kepegawaian\EmployeeController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
@@ -81,6 +82,14 @@ Route::middleware('auth')->group(function () {
         Route::delete('/akademik/kelas/{classGroup}', [ClassGroupController::class, 'destroy'])->name('kelas.destroy');
         Route::post('/akademik/kelas/{classGroup}/penempatan', [ClassGroupController::class, 'place'])->name('kelas.place');
         Route::post('/akademik/kelas/{classGroup}/penempatan/{enrollment}/lepas', [ClassGroupController::class, 'unplace'])->name('kelas.unplace');
+
+        // Modul Penugasan Mengajar
+        Route::get('/akademik/penugasan-mengajar', [TeacherAssignmentController::class, 'index'])->name('penugasan.index');
+        Route::get('/akademik/penugasan-mengajar/tambah', [TeacherAssignmentController::class, 'create'])->name('penugasan.create');
+        Route::post('/akademik/penugasan-mengajar', [TeacherAssignmentController::class, 'store'])->name('penugasan.store');
+        Route::get('/akademik/penugasan-mengajar/{assignment}/edit', [TeacherAssignmentController::class, 'edit'])->name('penugasan.edit');
+        Route::put('/akademik/penugasan-mengajar/{assignment}', [TeacherAssignmentController::class, 'update'])->name('penugasan.update');
+        Route::delete('/akademik/penugasan-mengajar/{assignment}', [TeacherAssignmentController::class, 'destroy'])->name('penugasan.destroy');
     });
 
     // Guru — walking skeleton: penugasan → input nilai → terbitkan rapor

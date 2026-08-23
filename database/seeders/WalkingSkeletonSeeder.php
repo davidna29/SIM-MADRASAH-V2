@@ -77,5 +77,15 @@ class WalkingSkeletonSeeder extends Seeder
             ['username' => 'admin'],
             ['name' => 'Admin Madrasah', 'email' => 'admin@madrasah.sch.id', 'password' => 'password', 'role' => 'super_admin']
         );
+
+        // Guru tambahan (untuk penugasan mengajar)
+        $guruImam = User::firstOrCreate(
+            ['username' => 'guru.imam'],
+            ['name' => 'Imam Syafii, S.Pd.', 'email' => 'guru.imam2@madrasah.sch.id', 'password' => 'password', 'role' => 'guru']
+        );
+        $guruNurul = User::firstOrCreate(
+            ['username' => 'guru.nurul'],
+            ['name' => 'Nurul Aini, S.Pd.', 'email' => 'guru.nurul@madrasah.sch.id', 'password' => 'password', 'role' => 'guru']
+        );
     }
 }
