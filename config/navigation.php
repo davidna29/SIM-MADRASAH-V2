@@ -109,9 +109,17 @@ return [
     [
         'label' => 'Publikasi & PPDB',
         'items' => [
-            ['label' => 'Berita & Agenda', 'route' => 'dashboard', 'icon' => 'megaphone', 'roles' => ['super_admin', 'wakamad_humas', 'editor_berita']],
+            [
+                'label' => 'Berita & Agenda',
+                'icon' => 'megaphone',
+                'roles' => ['super_admin', 'wakamad_humas', 'editor_berita', 'kepala_madrasah', 'tata_usaha', 'guru'],
+                'children' => [
+                    ['label' => 'Kelola Berita', 'route' => 'cms.berita.index', 'icon' => 'newspaper', 'roles' => ['super_admin', 'wakamad_humas', 'editor_berita', 'kepala_madrasah', 'tata_usaha', 'guru']],
+                    ['label' => 'Agenda & Pengumuman', 'route' => 'cms.agenda.index', 'icon' => 'calendar-days', 'roles' => ['super_admin', 'wakamad_humas', 'editor_berita', 'tata_usaha', 'kepala_madrasah']],
+                    ['label' => 'Website Publik', 'route' => 'publik.berita.index', 'icon' => 'globe-alt', 'roles' => ['*']],
+                ],
+            ],
             ['label' => 'PPDB Daring', 'route' => 'dashboard', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
-            ['label' => 'Website Publik', 'route' => 'dashboard', 'icon' => 'globe-alt', 'roles' => ['super_admin', 'wakamad_humas', 'editor_berita']],
         ],
     ],
     [

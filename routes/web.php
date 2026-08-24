@@ -8,6 +8,8 @@ use App\Http\Controllers\Akademik\ScheduleModelController;
 use App\Http\Controllers\Akademik\StudentController;
 use App\Http\Controllers\Akademik\SubjectController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Cms\AgendaController;
+use App\Http\Controllers\Cms\ArticleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
@@ -15,10 +17,17 @@ use App\Http\Controllers\Kepegawaian\EmployeeController;
 use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
+use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
+use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
+
+// Website publik (tanpa autentikasi)
+Route::get('/berita', [PublikBeritaController::class, 'index'])->name('publik.berita.index');
+Route::get('/berita/{article:slug}', [PublikBeritaController::class, 'show'])->name('publik.berita.show');
+Route::get('/agenda', [PublikAgendaController::class, 'index'])->name('publik.agenda.index');
 
 // ============================================================
 // Autentikasi
@@ -93,6 +102,25 @@ Route::middleware('auth')->group(function () {
     // Jurnal Mengajar — monitor (Wakamad Kurikulum / Kepala Madrasah)
     Route::middleware('role:super_admin|wakamad_kurikulum|kepala_madrasah')->group(function () {
         Route::get('/akademik/jurnal-mengajar', [JurnalController::class, 'index'])->name('jurnal.admin.index');
+    });
+
+    // CMS — Berita & Agenda (kontributor guru + editor/humas/kepala/TU/super admin)
+    Route::middleware('role:super_admin|wakamad_humas|editor_berita|kepala_madrasah|tata_usaha|guru')->prefix('publikasi')->name('cms.')->group(function () {
+        Route::get('/berita', [ArticleController::class, 'index'])->name('berita.index');
+        Route::get('/berita/tambah', [ArticleController::class, 'create'])->name('berita.create');
+        Route::post('/berita', [ArticleController::class, 'store'])->name('berita.store');
+        Route::get('/berita/{article}', [ArticleController::class, 'show'])->name('berita.show');
+        Route::get('/berita/{article}/edit', [ArticleController::class, 'edit'])->name('berita.edit');
+        Route::put('/berita/{article}', [ArticleController::class, 'update'])->name('berita.update');
+        Route::delete('/berita/{article}', [ArticleController::class, 'destroy'])->name('berita.destroy');
+        Route::post('/berita/{article}/transisi/{aksi}', [ArticleController::class, 'transition'])->name('berita.transition');
+
+        Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+        Route::get('/agenda/tambah', [AgendaController::class, 'create'])->name('agenda.create');
+        Route::post('/agenda', [AgendaController::class, 'store'])->name('agenda.store');
+        Route::get('/agenda/{agenda}/edit', [AgendaController::class, 'edit'])->name('agenda.edit');
+        Route::put('/agenda/{agenda}', [AgendaController::class, 'update'])->name('agenda.update');
+        Route::delete('/agenda/{agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
     });
 
     // Kehadiran Siswa — input harian + rekap bulanan (input tanggal lampau hanya untuk role privileged)
