@@ -8,6 +8,7 @@ use App\Http\Controllers\Akademik\ScheduleModelController;
 use App\Http\Controllers\Akademik\StudentController;
 use App\Http\Controllers\Akademik\SubjectController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
 use App\Http\Controllers\Kepegawaian\EmployeeController;
@@ -15,7 +16,6 @@ use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
-use App\Support\DemoData;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
@@ -28,19 +28,13 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
-    // Super Admin — dashboard & modul demo (Tahap 11)
-    Route::middleware('role:super_admin')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('pages.dashboard', [
-                'roleLabel' => 'Super Admin',
-                'breadcrumb' => [['label' => 'Fondasi & Pengaturan'], ['label' => 'Dashboard']],
-                'perluTindakan' => DemoData::perluTindakan(),
-                'pengumuman' => DemoData::pengumuman(),
-                'tagihan' => DemoData::tagihan(),
-                'aktivitas' => DemoData::aktivitas(),
-            ]);
-        })->name('dashboard');
+    // Dashboard admin — ringkasan kondisi madrasah (bukan data demo)
+    Route::middleware('role:super_admin|kepala_madrasah|wakamad_kurikulum|wakamad_kesiswaan|bendahara|tata_usaha')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    });
 
+    // Super Admin — modul demo (Tahap 11)
+    Route::middleware('role:super_admin')->group(function () {
         Route::get('/akademik/data-siswa', [StudentController::class, 'index'])->name('siswa.index');
         Route::get('/akademik/data-siswa/tambah', [StudentController::class, 'create'])->name('siswa.create');
         Route::post('/akademik/data-siswa', [StudentController::class, 'store'])->name('siswa.store');
