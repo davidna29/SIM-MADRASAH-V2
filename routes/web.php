@@ -139,6 +139,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/rapor/{student}/unduh', [OrtuDashboardController::class, 'unduh'])->name('rapor.unduh');
         Route::get('/spp', [OrtuSppController::class, 'index'])->name('spp.index');
         Route::get('/spp/{student}', [OrtuSppController::class, 'show'])->name('spp.show');
+        Route::get('/anak/{student}', [OrtuDashboardController::class, 'ringkasan'])->name('ringkasan');
     });
 
     // SPP — rekap & pembayaran. Index boleh dilihat kepala_madrasah (read-only);

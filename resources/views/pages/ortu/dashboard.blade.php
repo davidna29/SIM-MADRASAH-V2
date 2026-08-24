@@ -23,7 +23,7 @@
                     :title="$student->name"
                     :subtitle="'NIS ' . $student->nis"
                     pinned
-                    :actions="$terbit ? view('components.ui.button', ['variant' => 'primary', 'size' => 'sm', 'icon' => 'eye', 'href' => route('ortu.rapor', $student)])->withSlot('Lihat Rapor')->render() : view('components.ui.badge', ['variant' => 'neutral', 'dot' => false])->withSlot('Menunggu')->render()">
+                    :actions="view('components.ui.button', ['variant' => 'primary', 'size' => 'sm', 'icon' => 'user', 'href' => route('ortu.ringkasan', $student)])->withSlot('Buka Ringkasan')->render() . ($terbit ? view('components.ui.button', ['variant' => 'secondary', 'size' => 'sm', 'icon' => 'eye', 'href' => route('ortu.rapor', $student)])->withSlot('Rapor')->render() : '')">
                     <div class="flex items-center gap-2">
                         @if ($terbit)
                             <x-ui.badge variant="success" icon="check">Rapor telah terbit</x-ui.badge>

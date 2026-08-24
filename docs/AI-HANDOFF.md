@@ -18,7 +18,8 @@
   - Jurnal Mengajar (guru catat per penugasan + lampiran, monitor Wakamad Kurikulum/Kepala Madrasah)
   - Rapor multi-mapel (redesain — lihat §4)
   - SPP Bulanan (nominal default, keringanan, pembayaran manual per bulan, portal ortu)
-- **Sisa MVP (PRD 8.1):** Portal Orang Tua/Siswa (nilai, kehadiran, tagihan, rapor).
+  - Portal Orang Tua (ringkasan anak: nilai/rapor, kehadiran bulanan, SPP)
+- **Sisa MVP (PRD 8.1):** Portal Siswa (lanjutan) · Perluasan tagihan non-SPP.
 
 ## 2. Cara Menjalankan
 
@@ -26,7 +27,7 @@
 # di folder proyek
 php artisan serve            # buka http://localhost:8000
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 91 test
+php artisan test             # 95 test
 npm run build                # asset produksi
 ```
 
@@ -68,6 +69,7 @@ Fitur penting:
 - **Modul Jurnal Mengajar:** `teaching_journals` (per `teacher_assignment_id` + tanggal + jam ke opsional; unik dicek di controller karena kolom jam nullable). Guru: `/guru/jurnal*` (index → show + form → edit). Monitor: `/akademik/jurnal-mengajar` (Wakamad Kurikulum/Kepala Madrasah). Status `draft`/`terisi` via tombol submit dua. **Jurnal Mingguan** (role `guru|tata_usaha|wakamad_kurikulum|kepala_madrasah|super_admin`): dua tampilan agregat read-only meniru formulir fisik — `/akademik/jurnal-mengajar/mingguan` (per Kelas: filter kelas+Senin, header bulan/rentang/kelas-semester/jumlah L-P dari enrollment aktif, kolom Guru=`recorder`) dan `/akademik/jurnal-mengajar/mingguan-guru` (per Guru: filter guru+Senin, header beban penugasan "X rombel · Y mapel", kolom Kelas). Keduanya filter `assignment.*`, hanya status `terisi`, hari kosong ditampilkan "Belum ada jurnal terisi", urut tanggal→`period_no`, tombol Cetak `window.print()` (chrome app disembunyikan via class `app-sidebar/app-topbar/app-footer` di CSS `@media print`).
 - **Rapor multi-mapel (redesain):** `reports` = parent, **1 per siswa+tahun+semester** (unique `report_unique` dikembalikan — dulu di-drop di 000003 karena tiap terbit versi baru; sekarang `version` tetap 1, idempotent). Detail nilai di tabel baru **`report_items`** (unique `report_id`+`subject_code`, snapshot `subject_name/class_name/teacher_name/score/sort_order`). `NilaiController::terbitkan()` → `Report::firstOrCreate` + `items()->updateOrCreate`, idempotent (republish memperbarui, bukan menambah baris). Migrasi **000013 konsolidasi/backfill**: salin item dari snapshot single-mapel lama + gabungkan rapor terfragmentasi jadi satu parent + pasang unique. `penugasan()`/`isClassReport()` filter via `whereHas('items')`. View guru/ortu/PDF rapor loop `$report->subjectItems()` (fallback ke snapshot lama bila items kosong); predikat via `App\Support\Rapor::predikat()`. Catatan: PRD 7.6 "versioning rapor" sengaja ditunda (snapshot tetap, versi tunggal).
 - **Modul SPP Bulanan:** tabel baru `tuition_settings` (nominal default, unique per tahun ajaran), `tuition_overrides` (keringanan per siswa, unique `student_enrollment_id`+`academic_year_id`), `tuition_payments` (unique `student_enrollment_id`+`academic_year_id`+`bulan`; bulan = angka kalender asli; nominal unsignedInteger Rupiah). Input **manual** per bulan oleh `bendahara|tata_usaha|super_admin` (tidak ada generate massal). Route: `/keuangan/spp` (index rekap, role 4 — `kepala_madrasah` read-only), `/keuangan/spp/nominal` & `/keringanan` & POST `/bayar` (role 3). Group middleware **terpisah** (bukan dalam `role:super_admin`). `TuitionController::pay()` pakai `updateOrCreate` idempotent; status `lunas` otomatis bila `tanggal_bayar` terisi. Portal ortu: `/ortu/spp` + `/ortu/spp/{student}` (read-only, `owns()` via guardian). Role `bendahara` & `tata_usaha` adalah string di kolom `users.role` (bukan enum DB) — sudah dipakai di `config/navigation.php`; user demo `bendahara` di seeder. Item sidebar placeholder **"Tagihan & Pembayaran" dihapus** (SPP menggantikannya). Nominal mendukung **0** (gratis/keringanan penuh) — frontend `min="0" step="1"` & backend `min:0` di `pay()`/`overridesStore()`.
+- **Portal Orang Tua (ringkasan anak):** `Ortu\DashboardController@ringkasan` → `GET /ortu/anak/{student}` (`ortu.ringkasan`, group `role:orang_tua`, `owns()` via guardian). Halaman `pages/ortu/ringkasan.blade.php` merangkum **Nilai/Rapor** (`report->subjectItems()`, placeholder bila belum terbit), **Kehadiran bulanan** (`Attendance` per enrollment dikelompokkan per bulan → H/S/I/A), dan **SPP** (jumlah lunas dari 6 bulan + pembayaran terakhir). Dashboard ortu kini punya tombol "Buka Ringkasan" per anak. Murni agregat read-only (PRD 8.2) — tanpa data baru.
 - **Design system:** semua komponen shared di `resources/views/components/ui/*` (`x-ui.button`, `x-ui.table`, `x-ui.sheet`, `x-ui.select`, `x-ui.badge`, dst). Jangan styling ad-hoc; gunakan komponen.
 - **Sidebar** dikonfigurasi di `config/navigation.php`; mendukung item `children` (sub-menu). Peran difilter otomatis dari middleware route.
 - **pagination**: `x-ui.pagination` pakai URL nyata (bukan `#`).
@@ -80,7 +82,7 @@ Fitur penting:
 
 Disiplin (PRD Bagian 16): **frontend → persetujuan pengguna → backend → test**. Mulai dari:
 
-1. **Portal Orang Tua/Siswa** (lihat nilai, kehadiran, tagihan/SPP, rapor).
+1. **Portal Siswa** (lanjutan dari portal ortu — siswa login melihat data sendiri).
 2. **Perluasan tagihan non-SPP** (uang gedung, seragam, dll — jika diperlukan).
 
 ## 6. Keputusan Terbuka (PRD Bagian 24)
