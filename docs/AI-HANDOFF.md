@@ -13,9 +13,12 @@
   - Mata Pelajaran (urutan drag-drop, form modal)
   - Kelas & Penempatan (jenjang I–VI, filter per tingkat)
   - Data Siswa (biodata via `people`, riwayat kelas)
-  - Kehadiran Siswa
+  - Kehadiran Siswa (input harian + rekap bulanan + lock review)
   - Jadwal Pelajaran (rombakan penuh — lihat §3)
-- **Sisa MVP (PRD 8.1):** Jurnal Mengajar · Tagihan & Pembayaran · Portal Orang Tua/Siswa · Rapor multi-mapel.
+  - Jurnal Mengajar (guru catat per penugasan + lampiran, monitor Wakamad Kurikulum/Kepala Madrasah)
+  - Rapor multi-mapel (redesain — lihat §4)
+  - SPP Bulanan (nominal default, keringanan, pembayaran manual per bulan, portal ortu)
+- **Sisa MVP (PRD 8.1):** Portal Orang Tua/Siswa (nilai, kehadiran, tagihan, rapor).
 
 ## 2. Cara Menjalankan
 
@@ -23,7 +26,7 @@
 # di folder proyek
 php artisan serve            # buka http://localhost:8000
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 46 test
+php artisan test             # 91 test
 npm run build                # asset produksi
 ```
 
@@ -33,6 +36,7 @@ npm run build                # asset produksi
 |---|---|
 | Super Admin | `admin` |
 | Guru | `guru.umar` |
+| Bendahara | `bendahara` |
 | Orang Tua | `ibu.aisy` |
 
 **Database:** MySQL 8.4 lokal — db `sim_madrasah`, user `sim_madrasah` / `SimMadrasah2026!`. DB test terpisah: `sim_madrasah_test` (diatur di `phpunit.xml`).
@@ -59,6 +63,11 @@ Fitur penting:
 ## 4. Konvensi & Jebakan yang Sudah Terjadi
 
 - **Route model binding:** nama route parameter **harus persis sama** dengan variabel method (`{employee}` → `Employee $employee`, `{model}` → `ScheduleModel $model`, `{student}` → `Student $student`). Jika beda, Laravel skip binding → model kosong (bug yang pernah muncul berkali-kali).
+- **RoleMiddleware** mendukung beberapa role dipisah `|` (`role:super_admin|wakamad_kurikulum`) — pemecahan baru ditambahkan di middleware (bukan hanya di parser sidebar). Route lintas-role yang bukan super_admin **jangan** ditaruh di dalam group `role:super_admin` (middleware berlapis = AND).
+- **Kehadiran Siswa:** rute `kehadiran.index/store/rekap` kini di group 6 role (`super_admin|wakamad_kesiswaan|wali_kelas|guru|kepala_madrasah|wakamad_kurikulum`) — sebelumnya super_admin-only. **Lock tanggal:** `AttendanceController::assertDateEditable()` — non-privileged hanya boleh tanggal hari ini (index & store abort 403 untuk tanggal lain). **Review:** `attendance_reviews` (unique `class_group_id`+`attendance_date`) di-`updateOrCreate` saat "Simpan Kehadiran"; `class_group_id` diturunkan dari enrollment payload (bukan field form). **Rekap bulanan** (`kehadiran.rekap`, `/kesiswaan/kehadiran/rekap-bulanan`): tabel siswa × tanggal, `•`/S/I/A, hari belum direview = `–` (bukan Alpha), hari efektif = jumlah tanggal direview (pembagi %), Jumlah=S+I+A, % Hadir per siswa, footer ringkasan kelas (total S/I/A, jumlah ketidakhadiran, % ketidakhadiran & % kehadiran).
+- **Modul Jurnal Mengajar:** `teaching_journals` (per `teacher_assignment_id` + tanggal + jam ke opsional; unik dicek di controller karena kolom jam nullable). Guru: `/guru/jurnal*` (index → show + form → edit). Monitor: `/akademik/jurnal-mengajar` (Wakamad Kurikulum/Kepala Madrasah). Status `draft`/`terisi` via tombol submit dua. **Jurnal Mingguan** (role `guru|tata_usaha|wakamad_kurikulum|kepala_madrasah|super_admin`): dua tampilan agregat read-only meniru formulir fisik — `/akademik/jurnal-mengajar/mingguan` (per Kelas: filter kelas+Senin, header bulan/rentang/kelas-semester/jumlah L-P dari enrollment aktif, kolom Guru=`recorder`) dan `/akademik/jurnal-mengajar/mingguan-guru` (per Guru: filter guru+Senin, header beban penugasan "X rombel · Y mapel", kolom Kelas). Keduanya filter `assignment.*`, hanya status `terisi`, hari kosong ditampilkan "Belum ada jurnal terisi", urut tanggal→`period_no`, tombol Cetak `window.print()` (chrome app disembunyikan via class `app-sidebar/app-topbar/app-footer` di CSS `@media print`).
+- **Rapor multi-mapel (redesain):** `reports` = parent, **1 per siswa+tahun+semester** (unique `report_unique` dikembalikan — dulu di-drop di 000003 karena tiap terbit versi baru; sekarang `version` tetap 1, idempotent). Detail nilai di tabel baru **`report_items`** (unique `report_id`+`subject_code`, snapshot `subject_name/class_name/teacher_name/score/sort_order`). `NilaiController::terbitkan()` → `Report::firstOrCreate` + `items()->updateOrCreate`, idempotent (republish memperbarui, bukan menambah baris). Migrasi **000013 konsolidasi/backfill**: salin item dari snapshot single-mapel lama + gabungkan rapor terfragmentasi jadi satu parent + pasang unique. `penugasan()`/`isClassReport()` filter via `whereHas('items')`. View guru/ortu/PDF rapor loop `$report->subjectItems()` (fallback ke snapshot lama bila items kosong); predikat via `App\Support\Rapor::predikat()`. Catatan: PRD 7.6 "versioning rapor" sengaja ditunda (snapshot tetap, versi tunggal).
+- **Modul SPP Bulanan:** tabel baru `tuition_settings` (nominal default, unique per tahun ajaran), `tuition_overrides` (keringanan per siswa, unique `student_enrollment_id`+`academic_year_id`), `tuition_payments` (unique `student_enrollment_id`+`academic_year_id`+`bulan`; bulan = angka kalender asli; nominal unsignedInteger Rupiah). Input **manual** per bulan oleh `bendahara|tata_usaha|super_admin` (tidak ada generate massal). Route: `/keuangan/spp` (index rekap, role 4 — `kepala_madrasah` read-only), `/keuangan/spp/nominal` & `/keringanan` & POST `/bayar` (role 3). Group middleware **terpisah** (bukan dalam `role:super_admin`). `TuitionController::pay()` pakai `updateOrCreate` idempotent; status `lunas` otomatis bila `tanggal_bayar` terisi. Portal ortu: `/ortu/spp` + `/ortu/spp/{student}` (read-only, `owns()` via guardian). Role `bendahara` & `tata_usaha` adalah string di kolom `users.role` (bukan enum DB) — sudah dipakai di `config/navigation.php`; user demo `bendahara` di seeder. Item sidebar placeholder **"Tagihan & Pembayaran" dihapus** (SPP menggantikannya). Nominal mendukung **0** (gratis/keringanan penuh) — frontend `min="0" step="1"` & backend `min:0` di `pay()`/`overridesStore()`.
 - **Design system:** semua komponen shared di `resources/views/components/ui/*` (`x-ui.button`, `x-ui.table`, `x-ui.sheet`, `x-ui.select`, `x-ui.badge`, dst). Jangan styling ad-hoc; gunakan komponen.
 - **Sidebar** dikonfigurasi di `config/navigation.php`; mendukung item `children` (sub-menu). Peran difilter otomatis dari middleware route.
 - **pagination**: `x-ui.pagination` pakai URL nyata (bukan `#`).
@@ -71,10 +80,8 @@ Fitur penting:
 
 Disiplin (PRD Bagian 16): **frontend → persetujuan pengguna → backend → test**. Mulai dari:
 
-1. **Jurnal Mengajar** (guru mencatat jurnal per jadwal/kelas/mapel).
-2. **Tagihan & Pembayaran** (status dihitung dari akumulasi, bukan manual).
-3. **Portal Orang Tua/Siswa** (lihat nilai, kehadiran, tagihan, rapor).
-4. **Rapor multi-mapel** (memakai data nilai per mata pelajaran).
+1. **Portal Orang Tua/Siswa** (lihat nilai, kehadiran, tagihan/SPP, rapor).
+2. **Perluasan tagihan non-SPP** (uang gedung, seragam, dll — jika diperlukan).
 
 ## 6. Keputusan Terbuka (PRD Bagian 24)
 

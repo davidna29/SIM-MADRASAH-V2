@@ -8,6 +8,7 @@ use App\Models\Report;
 use App\Models\Score;
 use App\Models\StudentEnrollment;
 use App\Models\TeacherAssignment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -24,11 +25,7 @@ class NilaiController extends Controller
             ->where('academic_year_id', $tahun->id)
             ->where('semester', $tahun->semester)
             ->where('status', 'terbit')
-            ->when($mapelNames->isNotEmpty(), fn ($q) => $q->where(function ($q) use ($mapelNames) {
-                foreach ($mapelNames as $name) {
-                    $q->orWhereJsonContains('snapshot->mapel', $name);
-                }
-            }))
+            ->when($mapelNames->isNotEmpty(), fn ($q) => $q->whereHas('items', fn ($items) => $items->whereIn('subject_name', $mapelNames)))
             ->orderByDesc('created_at')
             ->get();
 
@@ -95,6 +92,7 @@ class NilaiController extends Controller
                     ->where('academic_year_id', $assignment->academic_year_id)
                     ->where('semester', $tahun->semester)
                     ->delete();
+
                 continue;
             }
 
@@ -122,6 +120,8 @@ class NilaiController extends Controller
             ->where('class_group_id', $assignment->class_group_id)
             ->get();
 
+        $published = 0;
+
         foreach ($enrollments as $enrollment) {
             $score = Score::where('student_enrollment_id', $enrollment->id)
                 ->where('subject_id', $assignment->subject_id)
@@ -133,36 +133,57 @@ class NilaiController extends Controller
                 continue;
             }
 
-            // Snapshot rapor — tiap penerbitan adalah versi baru, versi lama tak pernah ditimpa (PRD 7.2, 7.6)
-            $snapshot = [
-                'tahun' => $tahun->name,
-                'semester' => $tahun->semester,
-                'kelas' => $assignment->classGroup->name,
-                'mapel' => $assignment->subject->name,
-                'kode_mapel' => $assignment->subject->code,
-                'guru' => auth()->user()->name,
-                'nis' => $enrollment->student->nis,
-                'siswa' => $enrollment->student->name,
-                'score' => $score->score,
-                'terbit_pada' => now()->toDateTimeString(),
-            ];
+            // Satu rapor per siswa+tahun+semester (invariant basis data). Penerbitan ulang
+            // bersifat idempotent: parent di-update, item mapel di-upsert — bukan baris baru.
+            $report = Report::firstOrCreate(
+                [
+                    'student_id' => $enrollment->student_id,
+                    'academic_year_id' => $assignment->academic_year_id,
+                    'semester' => $tahun->semester,
+                ],
+                [
+                    'version' => 1,
+                    'status' => 'terbit',
+                    'snapshot' => $this->buildSnapshot($enrollment, $assignment, $tahun),
+                ]
+            );
 
-            $latestVersion = Report::where('student_id', $enrollment->student_id)
-                ->where('academic_year_id', $assignment->academic_year_id)
-                ->where('semester', $tahun->semester)
-                ->max('version') ?? 0;
-
-            Report::create([
-                'student_id' => $enrollment->student_id,
-                'academic_year_id' => $assignment->academic_year_id,
-                'semester' => $tahun->semester,
-                'version' => $latestVersion + 1,
-                'snapshot' => $snapshot,
+            $report->update([
                 'status' => 'terbit',
+                'snapshot' => $this->buildSnapshot($enrollment, $assignment, $tahun),
             ]);
+
+            $report->items()->updateOrCreate(
+                ['subject_code' => $assignment->subject->code],
+                [
+                    'subject_name' => $assignment->subject->name,
+                    'class_group_id' => $assignment->class_group_id,
+                    'class_name' => $assignment->classGroup->name,
+                    'teacher_name' => auth()->user()->name,
+                    'score' => $score->score,
+                    'sort_order' => $assignment->subject->sort_order ?? 0,
+                ]
+            );
+
+            $published++;
         }
 
-        return redirect()->route('guru.penugasan')->with('status', 'Rapor Matematika kelas '.$assignment->classGroup->name.' diterbitkan.');
+        activity('akademik')->performedOn($assignment)->log('rapor_diterbitkan');
+
+        return redirect()->route('guru.penugasan')
+            ->with('status', 'Rapor '.$assignment->subject->name.' kelas '.$assignment->classGroup->name.' diterbitkan/diperbarui ('.$published.' siswa).');
+    }
+
+    protected function buildSnapshot(StudentEnrollment $enrollment, TeacherAssignment $assignment, AcademicYear $tahun): array
+    {
+        return [
+            'tahun' => $tahun->name,
+            'semester' => $tahun->semester,
+            'nis' => $enrollment->student->nis,
+            'siswa' => $enrollment->student->displayName(),
+            'kelas' => $assignment->classGroup->name,
+            'terbit_pada' => now()->toDateTimeString(),
+        ];
     }
 
     public function rapor(Report $report): View
@@ -184,10 +205,11 @@ class NilaiController extends Controller
     {
         abort_unless($this->isClassReport($report), 403);
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.rapor', ['report' => $report]);
+        $pdf = Pdf::loadView('pdf.rapor', ['report' => $report]);
         $tahun = str_replace('/', '-', data_get($report->snapshot, 'tahun'));
+        $nis = data_get($report->snapshot, 'nis') ?? $report->student->nis;
 
-        return $pdf->download('rapor-'.data_get($report->snapshot, 'nis').'-'.$tahun.'.pdf');
+        return $pdf->download('rapor-'.$nis.'-'.$tahun.'.pdf');
     }
 
     protected function owns(TeacherAssignment $assignment): bool
@@ -197,11 +219,8 @@ class NilaiController extends Controller
 
     protected function isClassReport(Report $report): bool
     {
-        $mapel = data_get($report->snapshot, 'mapel');
+        $mapel = auth()->user()->assignments()->with('subject')->get()->pluck('subject.name');
 
-        return auth()->user()->assignments()
-            ->with('subject')
-            ->get()
-            ->contains(fn ($a) => $a->subject->name === $mapel);
+        return $report->items()->whereIn('subject_name', $mapel)->exists();
     }
 }

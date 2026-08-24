@@ -5,7 +5,9 @@ return [
         'label' => 'Beranda Saya',
         'items' => [
             ['label' => 'Penugasan Mengajar', 'route' => 'guru.penugasan', 'icon' => 'clipboard-document-list', 'roles' => ['guru']],
+            ['label' => 'Jurnal Mengajar', 'route' => 'guru.jurnal.index', 'icon' => 'clipboard-document-check', 'roles' => ['guru']],
             ['label' => 'Anak Saya', 'route' => 'ortu.dashboard', 'icon' => 'user-group', 'roles' => ['orang_tua']],
+            ['label' => 'SPP Anak', 'route' => 'ortu.spp.index', 'icon' => 'banknotes', 'roles' => ['orang_tua']],
         ],
     ],
     [
@@ -33,14 +35,31 @@ return [
                     ['label' => 'Penyusunan', 'route' => 'jadwal.penyusunan', 'icon' => 'table-cells', 'roles' => ['super_admin', 'wakamad_kurikulum', 'guru']],
                 ],
             ],
-            ['label' => 'Jurnal & Penilaian', 'route' => 'dashboard', 'icon' => 'clipboard-document-list', 'roles' => ['super_admin', 'wakamad_kurikulum', 'guru']],
+            [
+                'label' => 'Jurnal Mengajar',
+                'icon' => 'clipboard-document-check',
+                'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah', 'guru', 'tata_usaha'],
+                'children' => [
+                    ['label' => 'Pantauan Jurnal', 'route' => 'jurnal.admin.index', 'icon' => 'clipboard-document-list', 'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah']],
+                    ['label' => 'Mingguan per Kelas', 'route' => 'jurnal.admin.mingguan', 'icon' => 'calendar-days', 'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah', 'guru', 'tata_usaha']],
+                    ['label' => 'Mingguan per Guru', 'route' => 'jurnal.admin.mingguan.guru', 'icon' => 'user', 'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah', 'guru', 'tata_usaha']],
+                ],
+            ],
             ['label' => 'Rapor', 'route' => 'dashboard', 'icon' => 'document-text', 'roles' => ['super_admin', 'wakamad_kurikulum', 'wali_kelas', 'kepala_madrasah']],
         ],
     ],
     [
         'label' => 'Kesiswaan',
         'items' => [
-            ['label' => 'Kehadiran Siswa', 'route' => 'kehadiran.index', 'icon' => 'clipboard-document-check', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru']],
+            [
+                'label' => 'Kehadiran Siswa',
+                'icon' => 'clipboard-document-check',
+                'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'kepala_madrasah', 'wakamad_kurikulum'],
+                'children' => [
+                    ['label' => 'Input Harian', 'route' => 'kehadiran.index', 'icon' => 'clipboard-document-list', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'kepala_madrasah', 'wakamad_kurikulum']],
+                    ['label' => 'Rekap Bulanan', 'route' => 'kehadiran.rekap', 'icon' => 'chart-bar', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'kepala_madrasah', 'wakamad_kurikulum']],
+                ],
+            ],
             ['label' => 'Prestasi & Pelanggaran', 'route' => 'dashboard', 'icon' => 'trophy', 'roles' => ['super_admin', 'wakamad_kesiswaan']],
             ['label' => 'Konseling (BK)', 'route' => 'dashboard', 'icon' => 'shield-check', 'roles' => ['super_admin', 'guru_bk']],
             ['label' => 'Ekstrakurikuler', 'route' => 'dashboard', 'icon' => 'star', 'roles' => ['super_admin', 'wakamad_kesiswaan']],
@@ -50,7 +69,16 @@ return [
     [
         'label' => 'Keuangan & TU',
         'items' => [
-            ['label' => 'Tagihan & Pembayaran', 'route' => 'dashboard', 'icon' => 'banknotes', 'roles' => ['super_admin', 'bendahara', 'kepala_madrasah']],
+            [
+                'label' => 'SPP Bulanan',
+                'icon' => 'wallet',
+                'roles' => ['super_admin', 'bendahara', 'tata_usaha', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Input & Rekap', 'route' => 'spp.index', 'icon' => 'clipboard-document-list', 'roles' => ['super_admin', 'bendahara', 'tata_usaha', 'kepala_madrasah']],
+                    ['label' => 'Nominal SPP', 'route' => 'spp.settings', 'icon' => 'banknotes', 'roles' => ['super_admin', 'bendahara', 'tata_usaha']],
+                    ['label' => 'Keringanan', 'route' => 'spp.overrides', 'icon' => 'scale', 'roles' => ['super_admin', 'bendahara', 'tata_usaha']],
+                ],
+            ],
             ['label' => 'Rekap Keuangan', 'route' => 'dashboard', 'icon' => 'chart-bar', 'roles' => ['super_admin', 'bendahara', 'kepala_madrasah']],
             ['label' => 'Surat Masuk / Keluar', 'route' => 'dashboard', 'icon' => 'envelope', 'roles' => ['super_admin', 'tata_usaha']],
             ['label' => 'Arsip & Dokumen', 'route' => 'dashboard', 'icon' => 'archive-box', 'roles' => ['super_admin', 'tata_usaha']],

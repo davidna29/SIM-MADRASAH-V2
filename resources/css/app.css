@@ -157,3 +157,12 @@
         font-feature-settings: 'tnum';
     }
 }
+
+/* Cetak: hanya konten kertas yang tercetak, sembunyikan kulit aplikasi */
+@media print {
+    .app-sidebar,
+    .app-topbar,
+    .app-footer {
+        display: none !important;
+    }
+}

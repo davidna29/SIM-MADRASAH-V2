@@ -5,11 +5,23 @@
     active-route="kehadiran.index">
 
     <div class="mx-auto max-w-5xl">
-        <div>
-            <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Kehadiran Siswa</h1>
-            <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-ink-soft">
-                Catat kehadiran harian per rombel pada Tahun Ajaran {{ $tahun->name }}.
-            </p>
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Kehadiran Siswa</h1>
+                <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-ink-soft">
+                    Catat kehadiran harian per rombel pada Tahun Ajaran {{ $tahun->name }}.
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                @if ($date->isToday())
+                    <x-ui.badge variant="primary" icon="check">Hari ini</x-ui.badge>
+                @elseif ($editable)
+                    <x-ui.badge variant="warning" icon="lock-open">Tanggal lampau · dibuka khusus</x-ui.badge>
+                @else
+                    <x-ui.badge variant="danger" icon="lock-closed">Terkunci</x-ui.badge>
+                @endif
+                <x-ui.button variant="secondary" size="sm" icon="chart-bar" href="{{ route('kehadiran.rekap', $selectedClass ? ['class_group_id' => $selectedClass->id] : []) }}">Rekap Bulanan</x-ui.button>
+            </div>
         </div>
 
         @if (session('status'))
@@ -35,7 +47,8 @@
                 </div>
                 <div>
                     <label for="date" class="block pb-1.5 text-xs font-bold text-ink">Tanggal</label>
-                    <input type="date" name="date" value="{{ $date->format('Y-m-d') }}" max="{{ now()->format('Y-m-d') }}"
+                    @php $isPrivileged = in_array(auth()->user()->role, ['super_admin', 'kepala_madrasah', 'wakamad_kurikulum', 'wakamad_kesiswaan'], true); @endphp
+                    <input type="date" name="date" value="{{ $date->format('Y-m-d') }}" max="{{ now()->format('Y-m-d') }}" @if (! $isPrivileged) min="{{ now()->format('Y-m-d') }}" @endif
                         class="rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink ring-1 ring-inset ring-rule-strong transition focus:outline-none focus:ring-2 focus:ring-primary">
                 </div>
                 <x-ui.button type="submit" variant="secondary" size="md">Muat</x-ui.button>
@@ -100,7 +113,7 @@
                             </table>
                         </div>
                         <div class="flex flex-col-reverse items-center justify-between gap-3 border-t border-rule/70 px-5 py-4 sm:flex-row">
-                            <p class="text-xs text-ink-faint">Status tidak diubah = Hadir.</p>
+                            <p class="text-xs text-ink-faint">Status tidak diubah = Hadir. Menyimpan otomatis menandai hari ini sudah direview.</p>
                             <x-ui.button type="submit" variant="primary" icon="check">Simpan Kehadiran</x-ui.button>
                         </div>
                     @endif

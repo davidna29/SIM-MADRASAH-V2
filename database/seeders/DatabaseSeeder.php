@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             PenugasanSeeder::class,
             SiswaSeeder::class,
             JadwalSeeder::class,
+            JurnalSeeder::class,
+            TuitionSeeder::class,
         ]);
     }
 }

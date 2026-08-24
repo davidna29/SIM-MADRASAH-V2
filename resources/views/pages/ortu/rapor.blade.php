@@ -3,6 +3,11 @@
     :roleLabel="$roleLabel"
     :breadcrumb="$breadcrumb">
 
+    @php
+        $items = $report->subjectItems();
+        $legacyMapel = data_get($report->snapshot, 'mapel');
+    @endphp
+
     <div class="mx-auto max-w-3xl">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -50,27 +55,42 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-rule/70">
-                            @php
-                                $score = (int) data_get($report->snapshot, 'score');
-                                $predikat = match (true) {
-                                    $score >= 90 => 'A',
-                                    $score >= 80 => 'B',
-                                    $score >= 70 => 'C',
-                                    $score >= 60 => 'D',
-                                    default => 'E',
-                                };
-                            @endphp
-                            <tr class="transition hover:bg-paper/60">
-                                <td class="px-4 py-3 font-semibold text-ink">{{ data_get($report->snapshot, 'mapel') }}</td>
-                                <td class="tabular px-4 py-3 text-right font-mono font-semibold text-ink">{{ $score }}</td>
-                                <td class="px-4 py-3 text-right"><x-ui.badge variant="success">{{ $predikat }}</x-ui.badge></td>
-                            </tr>
+                            @if ($items->isNotEmpty())
+                                @foreach ($items as $item)
+                                    @php $predikat = $item->score !== null ? \App\Support\Rapor::predikat($item->score) : '–'; @endphp
+                                    <tr class="transition hover:bg-paper/60">
+                                        <td class="px-4 py-3">
+                                            <p class="font-semibold text-ink">{{ $item->subject_name }}</p>
+                                            <p class="mt-0.5 text-[11px] text-ink-faint">{{ $item->teacher_name }}</p>
+                                        </td>
+                                        <td class="tabular px-4 py-3 text-right font-mono font-semibold text-ink">{{ $item->score ?? '–' }}</td>
+                                        <td class="px-4 py-3 text-right"><x-ui.badge variant="success">{{ $predikat }}</x-ui.badge></td>
+                                    </tr>
+                                @endforeach
+                            @elseif ($legacyMapel)
+                                @php
+                                    $score = (int) data_get($report->snapshot, 'score');
+                                    $predikat = \App\Support\Rapor::predikat($score);
+                                @endphp
+                                <tr class="transition hover:bg-paper/60">
+                                    <td class="px-4 py-3">
+                                        <p class="font-semibold text-ink">{{ $legacyMapel }}</p>
+                                        <p class="mt-0.5 text-[11px] text-ink-faint">{{ data_get($report->snapshot, 'guru') }}</p>
+                                    </td>
+                                    <td class="tabular px-4 py-3 text-right font-mono font-semibold text-ink">{{ $score }}</td>
+                                    <td class="px-4 py-3 text-right"><x-ui.badge variant="success">{{ $predikat }}</x-ui.badge></td>
+                                </tr>
+                            @else
+                                <tr>
+                                    <td colspan="3" class="px-4 py-8 text-center text-xs text-ink-faint">Belum ada nilai tercatat.</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
 
                 <p class="mt-6 border-t border-rule/70 pt-4 text-xs text-ink-faint">
-                    Diterbitkan pada {{ \Carbon\Carbon::parse(data_get($report->snapshot, 'terbit_pada'))->isoFormat('D MMM YYYY, HH:mm') }} oleh {{ data_get($report->snapshot, 'guru') }}.
+                    Diterbitkan pada {{ \Carbon\Carbon::parse(data_get($report->snapshot, 'terbit_pada'))->isoFormat('D MMM YYYY, HH:mm') }}.
                 </p>
             </x-ui.sheet>
         </div>

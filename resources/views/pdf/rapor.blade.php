@@ -20,6 +20,11 @@
     </style>
 </head>
 <body>
+    @php
+        $items = $report->subjectItems();
+        $teachers = $items->pluck('teacher_name')->filter()->unique()->values();
+        $legacyMapel = data_get($report->snapshot, 'mapel');
+    @endphp
     <div class="kop">
         <h1>MADRASAH TSANAWIYAH AL-IKHLAS MULIA</h1>
         <p>Laporan Hasil Belajar Siswa — Tahun Ajaran {{ data_get($report->snapshot, 'tahun') }} Semester {{ ucfirst(data_get($report->snapshot, 'semester')) }}</p>
@@ -29,7 +34,7 @@
         <tr><td class="label">NIS</td><td>{{ data_get($report->snapshot, 'nis') }}</td></tr>
         <tr><td class="label">Nama Siswa</td><td>{{ data_get($report->snapshot, 'siswa') }}</td></tr>
         <tr><td class="label">Kelas</td><td>{{ data_get($report->snapshot, 'kelas') }}</td></tr>
-        <tr><td class="label">Guru Pengampu</td><td>{{ data_get($report->snapshot, 'guru') }}</td></tr>
+        <tr><td class="label">Guru Pengampu</td><td>{{ $teachers->isNotEmpty() ? $teachers->implode(', ') : data_get($report->snapshot, 'guru') }}</td></tr>
     </table>
 
     <h2 style="margin-top:20px;">Hasil Belajar</h2>
@@ -42,21 +47,24 @@
             </tr>
         </thead>
         <tbody>
-            @php
-                $score = (int) data_get($report->snapshot, 'score');
-                $predikat = match (true) {
-                    $score >= 90 => 'A',
-                    $score >= 80 => 'B',
-                    $score >= 70 => 'C',
-                    $score >= 60 => 'D',
-                    default => 'E',
-                };
-            @endphp
-            <tr>
-                <td>{{ data_get($report->snapshot, 'mapel') }}</td>
-                <td class="num">{{ $score }}</td>
-                <td class="num">{{ $predikat }}</td>
-            </tr>
+            @if ($items->isNotEmpty())
+                @foreach ($items as $item)
+                    <tr>
+                        <td>{{ $item->subject_name }}</td>
+                        <td class="num">{{ $item->score ?? '–' }}</td>
+                        <td class="num">{{ $item->score !== null ? \App\Support\Rapor::predikat($item->score) : '–' }}</td>
+                    </tr>
+                @endforeach
+            @elseif ($legacyMapel)
+                @php $score = (int) data_get($report->snapshot, 'score'); @endphp
+                <tr>
+                    <td>{{ $legacyMapel }}</td>
+                    <td class="num">{{ $score }}</td>
+                    <td class="num">{{ \App\Support\Rapor::predikat($score) }}</td>
+                </tr>
+            @else
+                <tr><td colspan="3">Belum ada nilai tercatat.</td></tr>
+            @endif
         </tbody>
     </table>
 

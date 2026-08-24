@@ -11,7 +11,9 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (! Auth::check() || ! in_array(Auth::user()->role, $roles, true)) {
+        $allowed = collect($roles)->flatMap(fn (string $role) => explode('|', $role))->all();
+
+        if (! Auth::check() || ! in_array(Auth::user()->role, $allowed, true)) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 

@@ -37,4 +37,9 @@ class TeacherAssignment extends Model
     {
         return $this->hasMany(Score::class, 'subject_id', 'subject_id');
     }
+
+    public function journals(): HasMany
+    {
+        return $this->hasMany(TeachingJournal::class);
+    }
 }

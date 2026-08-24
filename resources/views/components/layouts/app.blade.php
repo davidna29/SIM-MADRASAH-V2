@@ -36,7 +36,7 @@
         mobileOpen ? 'translate-x-0' : '-translate-x-full',
         collapsed ? 'lg:w-[76px]' : 'lg:w-72',
     ]"
-        class="board-face fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 flex-col shadow-sheet-raised transition-[width,transform] duration-300 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none">
+        class="app-sidebar board-face fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 flex-col shadow-sheet-raised transition-[width,transform] duration-300 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none">
 
         <!-- Kop papan -->
         <div :class="collapsed ? 'lg:px-3' : 'lg:px-5'" class="flex items-center gap-3 border-b border-white/10 px-5 py-4">
@@ -69,7 +69,7 @@
 
     <div class="flex min-h-screen min-w-0 flex-1 flex-col">
         <!-- Topbar -->
-        <header class="sticky top-0 z-30 flex items-center gap-3 border-b border-rule-strong/70 bg-paper/85 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
+        <header class="app-topbar sticky top-0 z-30 flex items-center gap-3 border-b border-rule-strong/70 bg-paper/85 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
             <button type="button" @click="mobileOpen = true" class="rounded-md p-2 text-ink-soft transition hover:bg-paper-deep hover:text-ink lg:hidden" aria-label="Buka menu">
                 <x-svg-menu class="size-5" aria-hidden="true" />
             </button>
@@ -167,7 +167,7 @@
             {{ $slot }}
         </main>
 
-        <footer class="flex flex-col items-center justify-between gap-2 border-t border-rule-strong/60 px-4 py-4 text-center text-xs text-ink-faint sm:flex-row sm:px-6 sm:text-left">
+        <footer class="app-footer flex flex-col items-center justify-between gap-2 border-t border-rule-strong/60 px-4 py-4 text-center text-xs text-ink-faint sm:flex-row sm:px-6 sm:text-left">
             <p>© 2026 {{ $madrasah }} · SIM Madrasah v2.1 · Backup terakhir 02.00 WIB</p>
             <x-ui.badge variant="neutral" :dot="false">Data demo — bukan data riil</x-ui.badge>
         </footer>

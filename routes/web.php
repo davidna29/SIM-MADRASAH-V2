@@ -1,17 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Akademik\AttendanceController;
 use App\Http\Controllers\Akademik\ClassGroupController;
+use App\Http\Controllers\Akademik\JurnalController;
 use App\Http\Controllers\Akademik\ScheduleCellController;
 use App\Http\Controllers\Akademik\ScheduleModelController;
 use App\Http\Controllers\Akademik\StudentController;
 use App\Http\Controllers\Akademik\SubjectController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
 use App\Http\Controllers\Kepegawaian\EmployeeController;
+use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
+use App\Http\Controllers\Ortu\SppController as OrtuSppController;
 use App\Support\DemoData;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
 
@@ -71,10 +75,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/akademik/kelas/{classGroup}/penempatan', [ClassGroupController::class, 'place'])->name('kelas.place');
         Route::post('/akademik/kelas/{classGroup}/penempatan/{enrollment}/lepas', [ClassGroupController::class, 'unplace'])->name('kelas.unplace');
 
-        // Modul Kehadiran Siswa
-        Route::get('/kesiswaan/kehadiran', [AttendanceController::class, 'index'])->name('kehadiran.index');
-        Route::post('/kesiswaan/kehadiran', [AttendanceController::class, 'store'])->name('kehadiran.store');
-
         // Modul Jadwal Pelajaran — Model Jadwal
         Route::get('/akademik/jadwal-pelajaran', fn () => redirect()->route('jadwal.model.index'))->name('jadwal.index');
         Route::get('/akademik/jadwal-pelajaran/model', [ScheduleModelController::class, 'index'])->name('jadwal.model.index');
@@ -95,6 +95,24 @@ Route::middleware('auth')->group(function () {
         Route::get('/akademik/jadwal-pelajaran/guru/{teacher}/cetak', [ScheduleCellController::class, 'cetakGuru'])->name('jadwal.guru.cetak');
     });
 
+    // Jurnal Mengajar — monitor (Wakamad Kurikulum / Kepala Madrasah)
+    Route::middleware('role:super_admin|wakamad_kurikulum|kepala_madrasah')->group(function () {
+        Route::get('/akademik/jurnal-mengajar', [JurnalController::class, 'index'])->name('jurnal.admin.index');
+    });
+
+    // Kehadiran Siswa — input harian + rekap bulanan (input tanggal lampau hanya untuk role privileged)
+    Route::middleware('role:super_admin|wakamad_kesiswaan|wali_kelas|guru|kepala_madrasah|wakamad_kurikulum')->group(function () {
+        Route::get('/kesiswaan/kehadiran', [AttendanceController::class, 'index'])->name('kehadiran.index');
+        Route::post('/kesiswaan/kehadiran', [AttendanceController::class, 'store'])->name('kehadiran.store');
+        Route::get('/kesiswaan/kehadiran/rekap-bulanan', [AttendanceController::class, 'rekapBulanan'])->name('kehadiran.rekap');
+    });
+
+    // Jurnal Mingguan per Kelas & per Guru — tampilan agregat (semua guru, TU, wakamad, kepala, super admin)
+    Route::middleware('role:guru|tata_usaha|wakamad_kurikulum|kepala_madrasah|super_admin')->group(function () {
+        Route::get('/akademik/jurnal-mengajar/mingguan', [JurnalController::class, 'mingguan'])->name('jurnal.admin.mingguan');
+        Route::get('/akademik/jurnal-mengajar/mingguan-guru', [JurnalController::class, 'mingguanGuru'])->name('jurnal.admin.mingguan.guru');
+    });
+
     // Guru — walking skeleton: penugasan → input nilai → terbitkan rapor
     Route::middleware('role:guru')->prefix('guru')->name('guru.')->group(function () {
         Route::get('/penugasan', [NilaiController::class, 'penugasan'])->name('penugasan');
@@ -103,6 +121,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/penugasan/{assignment}/terbitkan', [NilaiController::class, 'terbitkan'])->name('nilai.terbitkan');
         Route::get('/rapor/{report}', [NilaiController::class, 'rapor'])->name('rapor');
         Route::get('/rapor/{report}/unduh', [NilaiController::class, 'unduhRapor'])->name('rapor.unduh');
+
+        // Jurnal Mengajar — guru mencatat jurnal per penugasan
+        Route::get('/jurnal', [GuruJurnalController::class, 'index'])->name('jurnal.index');
+        Route::get('/jurnal/{assignment}', [GuruJurnalController::class, 'show'])->name('jurnal.show');
+        Route::post('/jurnal/{assignment}', [GuruJurnalController::class, 'store'])->name('jurnal.store');
+        Route::get('/jurnal/{assignment}/entri/{journal}/edit', [GuruJurnalController::class, 'edit'])->name('jurnal.edit');
+        Route::put('/jurnal/{assignment}/entri/{journal}', [GuruJurnalController::class, 'update'])->name('jurnal.update');
+        Route::delete('/jurnal/entri/{journal}', [GuruJurnalController::class, 'destroy'])->name('jurnal.destroy');
+        Route::get('/jurnal/{assignment}/entri/{journal}/lampiran', [GuruJurnalController::class, 'lampiran'])->name('jurnal.lampiran');
     });
 
     // Orang tua — walking skeleton: lihat rapor anak
@@ -110,5 +137,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [OrtuDashboardController::class, 'dashboard'])->name('dashboard');
         Route::get('/rapor/{student}', [OrtuDashboardController::class, 'rapor'])->name('rapor');
         Route::get('/rapor/{student}/unduh', [OrtuDashboardController::class, 'unduh'])->name('rapor.unduh');
+        Route::get('/spp', [OrtuSppController::class, 'index'])->name('spp.index');
+        Route::get('/spp/{student}', [OrtuSppController::class, 'show'])->name('spp.show');
+    });
+
+    // SPP — rekap & pembayaran. Index boleh dilihat kepala_madrasah (read-only);
+    // kelola (bayar/nominal/keringanan) hanya bendahara/tata_usaha/super_admin.
+    Route::middleware('role:super_admin|bendahara|tata_usaha|kepala_madrasah')->group(function () {
+        Route::get('/keuangan/spp', [TuitionController::class, 'index'])->name('spp.index');
+    });
+
+    Route::middleware('role:super_admin|bendahara|tata_usaha')->group(function () {
+        Route::get('/keuangan/spp/nominal', [TuitionController::class, 'settings'])->name('spp.settings');
+        Route::post('/keuangan/spp/nominal', [TuitionController::class, 'settingsStore'])->name('spp.settings.store');
+        Route::get('/keuangan/spp/keringanan', [TuitionController::class, 'overrides'])->name('spp.overrides');
+        Route::post('/keuangan/spp/keringanan', [TuitionController::class, 'overridesStore'])->name('spp.overrides.store');
+        Route::post('/keuangan/spp/bayar', [TuitionController::class, 'pay'])->name('spp.pay');
     });
 });
