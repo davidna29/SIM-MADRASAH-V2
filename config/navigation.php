@@ -11,6 +11,12 @@ return [
         ],
     ],
     [
+        'label' => 'Portal Siswa',
+        'items' => [
+            ['label' => 'Data Saya', 'route' => 'siswa.dashboard', 'icon' => 'user', 'roles' => ['siswa']],
+        ],
+    ],
+    [
         'label' => 'Fondasi & Pengaturan',
         'items' => [
             ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home', 'roles' => ['*']],

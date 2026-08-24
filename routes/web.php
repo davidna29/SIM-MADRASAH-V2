@@ -14,6 +14,7 @@ use App\Http\Controllers\Kepegawaian\EmployeeController;
 use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
+use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
 use App\Support\DemoData;
 use Illuminate\Support\Facades\Route;
 
@@ -140,6 +141,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/spp', [OrtuSppController::class, 'index'])->name('spp.index');
         Route::get('/spp/{student}', [OrtuSppController::class, 'show'])->name('spp.show');
         Route::get('/anak/{student}', [OrtuDashboardController::class, 'ringkasan'])->name('ringkasan');
+    });
+
+    // Portal Siswa — data diri sendiri (read-only)
+    Route::middleware('role:siswa')->prefix('siswa')->name('siswa.')->group(function () {
+        Route::get('/', [SiswaPortalController::class, 'dashboard'])->name('dashboard');
+        Route::get('/rapor', [SiswaPortalController::class, 'rapor'])->name('rapor');
+        Route::get('/rapor/unduh', [SiswaPortalController::class, 'raporUnduh'])->name('rapor.unduh');
+        Route::get('/spp', [SiswaPortalController::class, 'spp'])->name('spp');
     });
 
     // SPP — rekap & pembayaran. Index boleh dilihat kepala_madrasah (read-only);

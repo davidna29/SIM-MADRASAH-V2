@@ -49,6 +49,7 @@ class AuthController extends Controller
         return match (Auth::user()->role) {
             'guru' => redirect()->route('guru.penugasan'),
             'orang_tua' => redirect()->route('ortu.dashboard'),
+            'siswa' => redirect()->route('siswa.dashboard'),
             default => redirect()->route('dashboard'),
         };
     }

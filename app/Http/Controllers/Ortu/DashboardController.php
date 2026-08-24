@@ -4,12 +4,9 @@ namespace App\Http\Controllers\Ortu;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
-use App\Models\Attendance;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
-use App\Models\TuitionPayment;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
+use App\Support\RingkasanSiswa;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -36,40 +33,6 @@ class DashboardController extends Controller
             ->where('status', 'aktif')
             ->first();
 
-        $months = $tahun->semester === 'ganjil' ? range(7, 12) : range(1, 6);
-
-        $report = $student->reports()
-            ->where('academic_year_id', $tahun->id)
-            ->where('semester', $tahun->semester)
-            ->where('status', 'terbit')
-            ->latest()
-            ->first();
-        $items = $report?->subjectItems() ?? collect();
-
-        $attendanceByMonth = Attendance::where('student_enrollment_id', $enrollment?->id)
-            ->get()
-            ->groupBy(fn ($a) => (int) $a->attendance_date->format('n'));
-
-        $kehadiran = collect($months)->map(function ($bulan) use ($attendanceByMonth) {
-            $rows = $attendanceByMonth->get($bulan, collect());
-
-            return [
-                'bulan' => $bulan,
-                'H' => $rows->where('status', 'hadir')->count(),
-                'S' => $rows->where('status', 'sakit')->count(),
-                'I' => $rows->where('status', 'izin')->count(),
-                'A' => $rows->where('status', 'alpha')->count(),
-            ];
-        });
-
-        $spp = TuitionPayment::where('student_enrollment_id', $enrollment?->id)
-            ->whereIn('bulan', $months)
-            ->get()
-            ->keyBy('bulan');
-        $sppLunas = $spp->where('status', 'lunas')->count();
-        $sppTotal = count($months);
-        $sppTerakhir = $spp->where('status', 'lunas')->sortByDesc('bulan')->first();
-
         return view('pages.ortu.ringkasan', [
             'roleLabel' => 'Orang Tua / Wali',
             'breadcrumb' => [
@@ -79,15 +42,7 @@ class DashboardController extends Controller
             'student' => $student,
             'enrollment' => $enrollment,
             'tahun' => $tahun,
-            'months' => $months,
-            'monthsLabel' => collect($months)->mapWithKeys(fn ($bulan) => [$bulan => Carbon::create(null, $bulan, 1)->locale('id')->translatedFormat('F')]),
-            'items' => $items,
-            'report' => $report,
-            'kehadiran' => $kehadiran,
-            'spp' => $spp,
-            'sppLunas' => $sppLunas,
-            'sppTotal' => $sppTotal,
-            'sppTerakhir' => $sppTerakhir,
+            ...RingkasanSiswa::build($enrollment, $tahun),
         ]);
     }
 

@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -17,6 +19,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'student_id',
     ];
 
     protected $hidden = [
@@ -37,8 +40,13 @@ class User extends Authenticatable
         return $this->hasMany(TeacherAssignment::class, 'user_id');
     }
 
-    public function guardian(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function guardian(): HasOne
     {
         return $this->hasOne(Guardian::class);
+    }
+
+    public function student(): BelongsTo
+    {
+        return $this->belongsTo(Student::class);
     }
 }
