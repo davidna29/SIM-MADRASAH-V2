@@ -14,6 +14,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
 use App\Http\Controllers\Kepegawaian\EmployeeController;
+use App\Http\Controllers\Kesiswaan\AchievementController;
+use App\Http\Controllers\Kesiswaan\OffenseController;
 use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
@@ -121,6 +123,25 @@ Route::middleware('auth')->group(function () {
         Route::get('/agenda/{agenda}/edit', [AgendaController::class, 'edit'])->name('agenda.edit');
         Route::put('/agenda/{agenda}', [AgendaController::class, 'update'])->name('agenda.update');
         Route::delete('/agenda/{agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
+    });
+
+    // Kesiswaan — Prestasi & Pelanggaran
+    Route::middleware('role:super_admin|wakamad_kesiswaan|wali_kelas|guru|guru_bk|kepala_madrasah')->group(function () {
+        Route::get('/kesiswaan/prestasi', [AchievementController::class, 'index'])->name('prestasi.index');
+        Route::get('/kesiswaan/prestasi/tambah', [AchievementController::class, 'create'])->name('prestasi.create');
+        Route::post('/kesiswaan/prestasi', [AchievementController::class, 'store'])->name('prestasi.store');
+        Route::get('/kesiswaan/prestasi/{achievement}/edit', [AchievementController::class, 'edit'])->name('prestasi.edit');
+        Route::put('/kesiswaan/prestasi/{achievement}', [AchievementController::class, 'update'])->name('prestasi.update');
+        Route::delete('/kesiswaan/prestasi/{achievement}', [AchievementController::class, 'destroy'])->name('prestasi.destroy');
+        Route::post('/kesiswaan/prestasi/{achievement}/verifikasi', [AchievementController::class, 'verifikasi'])->name('prestasi.verifikasi');
+        Route::post('/kesiswaan/prestasi/{achievement}/publikasi', [AchievementController::class, 'publikasi'])->name('prestasi.publikasi');
+
+        Route::get('/kesiswaan/pelanggaran', [OffenseController::class, 'index'])->name('pelanggaran.index');
+        Route::get('/kesiswaan/pelanggaran/tambah', [OffenseController::class, 'create'])->name('pelanggaran.create');
+        Route::post('/kesiswaan/pelanggaran', [OffenseController::class, 'store'])->name('pelanggaran.store');
+        Route::get('/kesiswaan/pelanggaran/{offense}/edit', [OffenseController::class, 'edit'])->name('pelanggaran.edit');
+        Route::put('/kesiswaan/pelanggaran/{offense}', [OffenseController::class, 'update'])->name('pelanggaran.update');
+        Route::delete('/kesiswaan/pelanggaran/{offense}', [OffenseController::class, 'destroy'])->name('pelanggaran.destroy');
     });
 
     // Kehadiran Siswa — input harian + rekap bulanan (input tanggal lampau hanya untuk role privileged)

@@ -22,6 +22,7 @@
   - Portal Siswa (Data Saya: nilai/rapor + PDF, kehadiran, SPP — read-only)
   - Dashboard nyata (menggantikan data demo — agregat kondisi madrasah)
   - Berita & Agenda (CMS — alur 8 status + halaman publik)
+  - Prestasi & Pelanggaran siswa (kesiswaan)
 - **Sisa MVP (PRD 8.1):** Perluasan tagihan non-SPP (opsional).
 
 ## 2. Cara Menjalankan
@@ -30,7 +31,7 @@
 # di folder proyek
 php artisan serve            # buka http://localhost:8000
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 110 test
+php artisan test             # 116 test
 npm run build                # asset produksi
 ```
 
@@ -78,6 +79,7 @@ Fitur penting:
 - **Portal Siswa:** role `siswa` (string) + relasi **`users.student_id`** (FK unique nullable, migration 000015) → `User::student()`. Group `role:siswa`, prefix `/siswa`: `siswa.dashboard` (Data Saya — ringkasan nilai/rapor, kehadiran, SPP), `siswa.rapor` (+ `rapor.unduh` PDF reuse `pdf.rapor`), `siswa.spp`. Logika agregat dipindah ke **`App\Support\RingkasanSiswa::build()`** — dipakai bersama `Ortu\DashboardController@ringkasan` (DRY). `AuthController::redirectToRole` → `siswa.dashboard`. Akun demo `siswa.aisy` (terhubung Aisyah NIS 240101). Rapor/spp siswa 404 bila data belum ada.
 - **Dashboard nyata:** `App\Support\DashboardData` (KPI: siswa aktif, guru/pegawai aktif, SPP terkumpul semester, % kehadiran hari ini; Perlu Tindakan: rombel belum review hari ini, SPP belum lunas bulan berjalan, rapor belum terbit; Kehadiran per Rombel; 6 tagihan lunas terakhir; 8 `activity_log` terakhir dengan deskripsi dipetakan ke Bahasa Indonesia). `DashboardController@index` menggantikan closure; route `/dashboard` pindah ke group 6 role admin (`super_admin|kepala_madrasah|wakamad_kurikulum|wakamad_kesiswaan|bendahara|tata_usaha`), nav "Dashboard" tidak lagi `['*']`. Tabel tagihan pakai `:empty="$tagihan->isEmpty()"` (bukan hanya `emptySlot`).
 - **Berita & Agenda (CMS):** tabel `articles` (8 status: draft→diajukan→review→revisi→disetujui→dijadwalkan→publish→arsip; transisi divalidasi `Article::transitions()`) & `agenda` (agenda/pengumuman, target publik/internal, masa tampil). Role string: kontributor `guru` + `editor_berita|wakamad_humas|kepala_madrasah|tata_usaha|super_admin`. Admin: `/publikasi/berita*` & `/publikasi/agenda*` (group `cms.`), policy `ArticlePolicy`/`AgendaPolicy`. **Auto-publish**: command `berita:publish-terjadwal` dijadwalkan `everyMinute()` di `routes/console.php` (butuh cron `schedule:run`). Halaman publik tanpa auth: `/berita` (hanya `publish`), `/agenda` (aktif, target publik, dalam masa tampil), layout `x-layouts.publik`. `storage:link` sudah dibuat (featured image). User demo `editor.humas`.
+- **Prestasi & Pelanggaran (kesiswaan):** tabel `achievements` (jenis akademik/nonakademik, tingkat sekolah…internasional, status_verifikasi menunggu/terverifikasi/ditolak, status_publikasi publik/internal) & `offenses` (tingkat ringan/sedang/berat, poin 0–100, pemanggilan_ortu, surat_peringatan sp1–3, status_penyelesaian proses/selesai/dibebaskan). Route `/kesiswaan/prestasi*` & `/kesiswaan/pelanggaran*` (group role `super_admin|wakamad_kesiswaan|wali_kelas|guru|guru_bk|kepala_madrasah`; Policy: `kepala_madrasah` hanya lihat, `guru_bk` hanya pelanggaran, wali/guru hanya prestasi, hapus hanya wakamad/super_admin). Form memuat siswa per kelas via `class_group_id`. Nav "Prestasi & Pelanggaran" kini parent. Seeder: contoh terverifikasi & selesai.
 - **Design system:** semua komponen shared di `resources/views/components/ui/*` (`x-ui.button`, `x-ui.table`, `x-ui.sheet`, `x-ui.select`, `x-ui.badge`, dst). Jangan styling ad-hoc; gunakan komponen.
 - **Sidebar** dikonfigurasi di `config/navigation.php`; mendukung item `children` (sub-menu). Peran difilter otomatis dari middleware route.
 - **pagination**: `x-ui.pagination` pakai URL nyata (bukan `#`).

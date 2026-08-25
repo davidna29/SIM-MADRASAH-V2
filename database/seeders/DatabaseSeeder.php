@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             JurnalSeeder::class,
             TuitionSeeder::class,
             BeritaSeeder::class,
+            KesiswaanSeeder::class,
         ]);
     }
 }

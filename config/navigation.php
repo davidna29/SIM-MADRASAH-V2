@@ -66,7 +66,15 @@ return [
                     ['label' => 'Rekap Bulanan', 'route' => 'kehadiran.rekap', 'icon' => 'chart-bar', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'kepala_madrasah', 'wakamad_kurikulum']],
                 ],
             ],
-            ['label' => 'Prestasi & Pelanggaran', 'route' => 'dashboard', 'icon' => 'trophy', 'roles' => ['super_admin', 'wakamad_kesiswaan']],
+            [
+                'label' => 'Prestasi & Pelanggaran',
+                'icon' => 'trophy',
+                'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'guru_bk', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Prestasi', 'route' => 'prestasi.index', 'icon' => 'trophy', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'kepala_madrasah']],
+                    ['label' => 'Pelanggaran', 'route' => 'pelanggaran.index', 'icon' => 'shield-exclamation', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru_bk', 'kepala_madrasah']],
+                ],
+            ],
             ['label' => 'Konseling (BK)', 'route' => 'dashboard', 'icon' => 'shield-check', 'roles' => ['super_admin', 'guru_bk']],
             ['label' => 'Ekstrakurikuler', 'route' => 'dashboard', 'icon' => 'star', 'roles' => ['super_admin', 'wakamad_kesiswaan']],
             ['label' => 'Portofolio Digital', 'route' => 'dashboard', 'icon' => 'document-arrow-up', 'roles' => ['*']],
