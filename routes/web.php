@@ -16,6 +16,7 @@ use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
 use App\Http\Controllers\Kepegawaian\EmployeeController;
 use App\Http\Controllers\Kesiswaan\AchievementController;
+use App\Http\Controllers\Kesiswaan\ExtracurricularController;
 use App\Http\Controllers\Kesiswaan\OffenseController;
 use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
@@ -169,6 +170,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/kesiswaan/pelanggaran/{offense}/edit', [OffenseController::class, 'edit'])->name('pelanggaran.edit');
         Route::put('/kesiswaan/pelanggaran/{offense}', [OffenseController::class, 'update'])->name('pelanggaran.update');
         Route::delete('/kesiswaan/pelanggaran/{offense}', [OffenseController::class, 'destroy'])->name('pelanggaran.destroy');
+
+        // Ekstrakurikuler
+        Route::get('/kesiswaan/ekstrakurikuler', [ExtracurricularController::class, 'index'])->name('ekskul.index');
+        Route::get('/kesiswaan/ekstrakurikuler/tambah', [ExtracurricularController::class, 'create'])->name('ekskul.create');
+        Route::post('/kesiswaan/ekstrakurikuler', [ExtracurricularController::class, 'store'])->name('ekskul.store');
+        Route::get('/kesiswaan/ekstrakurikuler/{ekskul}', [ExtracurricularController::class, 'show'])->name('ekskul.show');
+        Route::get('/kesiswaan/ekstrakurikuler/{ekskul}/edit', [ExtracurricularController::class, 'edit'])->name('ekskul.edit');
+        Route::put('/kesiswaan/ekstrakurikuler/{ekskul}', [ExtracurricularController::class, 'update'])->name('ekskul.update');
+        Route::delete('/kesiswaan/ekstrakurikuler/{ekskul}', [ExtracurricularController::class, 'destroy'])->name('ekskul.destroy');
+        Route::post('/kesiswaan/ekstrakurikuler/{ekskul}/anggota', [ExtracurricularController::class, 'memberStore'])->name('ekskul.member.store');
+        Route::delete('/kesiswaan/ekstrakurikuler/{ekskul}/anggota/{member}', [ExtracurricularController::class, 'memberDestroy'])->name('ekskul.member.destroy');
+        Route::post('/kesiswaan/ekstrakurikuler/{ekskul}/presensi', [ExtracurricularController::class, 'presensi'])->name('ekskul.presensi');
     });
 
     // Kehadiran Siswa — input harian + rekap bulanan (input tanggal lampau hanya untuk role privileged)

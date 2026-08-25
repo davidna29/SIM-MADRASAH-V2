@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             BeritaSeeder::class,
             KesiswaanSeeder::class,
             GaleriSeeder::class,
+            EkstrakurikulerSeeder::class,
         ]);
     }
 }

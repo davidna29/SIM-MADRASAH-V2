@@ -76,7 +76,7 @@ return [
                 ],
             ],
             ['label' => 'Konseling (BK)', 'route' => 'dashboard', 'icon' => 'shield-check', 'roles' => ['super_admin', 'guru_bk']],
-            ['label' => 'Ekstrakurikuler', 'route' => 'dashboard', 'icon' => 'star', 'roles' => ['super_admin', 'wakamad_kesiswaan']],
+            ['label' => 'Ekstrakurikuler', 'route' => 'ekskul.index', 'icon' => 'star', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'guru', 'wali_kelas', 'kepala_madrasah']],
             ['label' => 'Portofolio Digital', 'route' => 'dashboard', 'icon' => 'document-arrow-up', 'roles' => ['*']],
         ],
     ],
