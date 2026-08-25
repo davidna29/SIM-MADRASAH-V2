@@ -23,7 +23,14 @@
         }
         return $roleRestrictions->contains($role);
     };
-@endphp<nav aria-label="Navigasi utama" class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4">
+@endphp<nav aria-label="Navigasi utama" class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4"
+    x-data
+    x-init="
+        const saved = parseInt(localStorage.getItem('sim-sidebar-scroll') || '0', 10);
+        if (! Number.isNaN(saved)) { $el.scrollTop = saved; }
+        $el.querySelector('[aria-current=&quot;page&quot;]')?.scrollIntoView({ block: 'nearest' });
+    "
+    @scroll.passive.throttle.150ms="localStorage.setItem('sim-sidebar-scroll', String(Math.round($el.scrollTop)))">
     <ul class="space-y-5">
         @foreach ($groups as $group)
             @php
