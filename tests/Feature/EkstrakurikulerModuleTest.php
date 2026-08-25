@@ -197,11 +197,40 @@ class EkstrakurikulerModuleTest extends TestCase
         $pembinaPage->assertOk();
         $pembinaPage->assertSee('Simpan Presensi');
         $pembinaPage->assertSee('Tambah Anggota');
+        // Pembina kelola isi, bukan detail -> tidak lihat tombol "Ubah"
+        $pembinaPage->assertDontSee(route('ekskul.edit', $ekskul));
 
         $guruLainPage = $this->actingAs($this->guruLain)->get(route('ekskul.show', $ekskul));
         $guruLainPage->assertOk();
         $guruLainPage->assertDontSee('Simpan Presensi');
         $guruLainPage->assertDontSee('Tambah Anggota');
+    }
+
+    public function test_admin_sees_edit_button_but_pembina_does_not(): void
+    {
+        $ekskul = $this->makeEkskul($this->pembina);
+
+        $this->actingAs($this->admin)->get(route('ekskul.show', $ekskul))
+            ->assertOk()
+            ->assertSee(route('ekskul.edit', $ekskul));
+
+        $this->actingAs($this->pembina)->get(route('ekskul.show', $ekskul))
+            ->assertOk()
+            ->assertDontSee(route('ekskul.edit', $ekskul));
+    }
+
+    public function test_index_hides_admin_actions_from_guru(): void
+    {
+        $this->makeEkskul($this->pembina);
+
+        $adminIndex = $this->actingAs($this->admin)->get(route('ekskul.index'));
+        $adminIndex->assertOk();
+        $adminIndex->assertSee('Tambah Ekskul');
+
+        $guruIndex = $this->actingAs($this->guruLain)->get(route('ekskul.index'));
+        $guruIndex->assertOk();
+        $guruIndex->assertDontSee('Tambah Ekskul');
+        $guruIndex->assertDontSee('Hapus ekskul beserta anggota & presensinya?');
     }
 
     public function test_role_access(): void

@@ -12,7 +12,9 @@
                     Daftar ekskul, pembina, jadwal, anggota, presensi & penilaian predikat.
                 </p>
             </div>
-            <x-ui.button variant="primary" icon="plus" href="{{ route('ekskul.create') }}">Tambah Ekskul</x-ui.button>
+            @can('create', \App\Models\Extracurricular::class)
+                <x-ui.button variant="primary" icon="plus" href="{{ route('ekskul.create') }}">Tambah Ekskul</x-ui.button>
+            @endcan
         </div>
 
         @if (session('status'))
@@ -61,12 +63,14 @@
                                 <td class="px-4 py-3"><x-ui.badge :variant="$ekskul->status === 'aktif' ? 'success' : 'neutral'">{{ ucfirst($ekskul->status) }}</x-ui.badge></td>
                                 <td class="whitespace-nowrap px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1.5">
-                                        <x-ui.button size="sm" variant="secondary" icon="eye" href="{{ route('ekskul.show', $ekskul) ?>">Kelola</x-ui.button>
-                                        <form method="POST" action="{{ route('ekskul.destroy', $ekskul) }}" onsubmit="return confirm('Hapus ekskul beserta anggota & presensinya?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <x-ui.button type="submit" size="sm" variant="ghost" icon="trash">Hapus</x-ui.button>
-                                        </form>
+                                        <x-ui.button size="sm" variant="secondary" icon="eye" href="{{ route('ekskul.show', $ekskul) }}">Kelola</x-ui.button>
+                                        @can('delete', $ekskul)
+                                            <form method="POST" action="{{ route('ekskul.destroy', $ekskul) }}" onsubmit="return confirm('Hapus ekskul beserta anggota & presensinya?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <x-ui.button type="submit" size="sm" variant="ghost" icon="trash">Hapus</x-ui.button>
+                                            </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>

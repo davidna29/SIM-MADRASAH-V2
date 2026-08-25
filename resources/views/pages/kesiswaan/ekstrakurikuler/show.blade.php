@@ -18,9 +18,9 @@
                 </p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                @if (auth()->user()->can('update', $ekskul))
+                @can('delete', $ekskul)
                     <x-ui.button variant="secondary" size="sm" icon="pencil-square" href="{{ route('ekskul.edit', $ekskul) }}">Ubah</x-ui.button>
-                @endif
+                @endcan
                 <x-ui.badge :variant="$ekskul->status === 'aktif' ? 'success' : 'neutral'">{{ ucfirst($ekskul->status) }}</x-ui.badge>
             </div>
         </div>
