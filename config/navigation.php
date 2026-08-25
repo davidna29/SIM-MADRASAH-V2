@@ -3,6 +3,7 @@
 return [
     [
         'label' => 'Beranda Saya',
+        'icon' => 'home',
         'items' => [
             ['label' => 'Penugasan Mengajar', 'route' => 'guru.penugasan', 'icon' => 'clipboard-document-list', 'roles' => ['guru']],
             ['label' => 'Jurnal Mengajar', 'route' => 'guru.jurnal.index', 'icon' => 'clipboard-document-check', 'roles' => ['guru']],
@@ -12,21 +13,24 @@ return [
     ],
     [
         'label' => 'Portal Siswa',
+        'icon' => 'user',
         'items' => [
             ['label' => 'Data Saya', 'route' => 'siswa.dashboard', 'icon' => 'user', 'roles' => ['siswa']],
         ],
     ],
     [
-        'label' => 'Fondasi & Pengaturan',
+        'label' => 'Sistem',
+        'icon' => 'cog-6-tooth',
         'items' => [
             ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home', 'roles' => ['super_admin', 'kepala_madrasah', 'wakamad_kurikulum', 'wakamad_kesiswaan', 'bendahara', 'tata_usaha']],
             ['label' => 'Pengguna & Role', 'route' => 'pengguna.index', 'icon' => 'user-group', 'roles' => ['super_admin']],
-            ['label' => 'Struktur Organisasi', 'route' => 'dashboard', 'icon' => 'building-library', 'roles' => ['super_admin']],
-            ['label' => 'Pengaturan Sistem', 'route' => 'dashboard', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin']],
+            ['label' => 'Struktur Organisasi', 'route' => 'dashboard', 'icon' => 'building-library', 'roles' => ['super_admin'], 'placeholder' => true],
+            ['label' => 'Pengaturan Sistem', 'route' => 'dashboard', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin'], 'placeholder' => true],
         ],
     ],
     [
         'label' => 'Akademik',
+        'icon' => 'book-open',
         'items' => [
             ['label' => 'Data Siswa', 'route' => 'siswa.index', 'icon' => 'academic-cap', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'tata_usaha', 'wali_kelas', 'kepala_madrasah']],
             ['label' => 'Data Guru & Pegawai', 'route' => 'pegawai.index', 'icon' => 'user-group', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
@@ -51,11 +55,12 @@ return [
                     ['label' => 'Mingguan per Guru', 'route' => 'jurnal.admin.mingguan.guru', 'icon' => 'user', 'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah', 'guru', 'tata_usaha']],
                 ],
             ],
-            ['label' => 'Rapor', 'route' => 'dashboard', 'icon' => 'document-text', 'roles' => ['super_admin', 'wakamad_kurikulum', 'wali_kelas', 'kepala_madrasah']],
+            ['label' => 'Rapor', 'route' => 'dashboard', 'icon' => 'document-text', 'roles' => ['super_admin', 'wakamad_kurikulum', 'wali_kelas', 'kepala_madrasah'], 'placeholder' => true],
         ],
     ],
     [
         'label' => 'Kesiswaan',
+        'icon' => 'user-group',
         'items' => [
             [
                 'label' => 'Kehadiran Siswa',
@@ -77,11 +82,12 @@ return [
             ],
             ['label' => 'Konseling (BK)', 'route' => 'konseling.index', 'icon' => 'shield-check', 'roles' => ['super_admin', 'guru_bk', 'kepala_madrasah']],
             ['label' => 'Ekstrakurikuler', 'route' => 'ekskul.index', 'icon' => 'star', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'guru', 'wali_kelas', 'kepala_madrasah']],
-            ['label' => 'Portofolio Digital', 'route' => 'dashboard', 'icon' => 'document-arrow-up', 'roles' => ['*']],
+            ['label' => 'Portofolio Digital', 'route' => 'dashboard', 'icon' => 'document-arrow-up', 'roles' => ['*'], 'placeholder' => true],
         ],
     ],
     [
         'label' => 'Keuangan & TU',
+        'icon' => 'banknotes',
         'items' => [
             [
                 'label' => 'SPP Bulanan',
@@ -93,7 +99,7 @@ return [
                     ['label' => 'Keringanan', 'route' => 'spp.overrides', 'icon' => 'scale', 'roles' => ['super_admin', 'bendahara', 'tata_usaha']],
                 ],
             ],
-            ['label' => 'Rekap Keuangan', 'route' => 'dashboard', 'icon' => 'chart-bar', 'roles' => ['super_admin', 'bendahara', 'kepala_madrasah']],
+            ['label' => 'Rekap Keuangan', 'route' => 'dashboard', 'icon' => 'chart-bar', 'roles' => ['super_admin', 'bendahara', 'kepala_madrasah'], 'placeholder' => true],
             [
                 'label' => 'Surat Masuk / Keluar',
                 'icon' => 'envelope',
@@ -103,11 +109,12 @@ return [
                     ['label' => 'Surat Keluar', 'route' => 'surat.index', 'routeParams' => ['type' => 'keluar'], 'icon' => 'paper-airplane', 'roles' => ['super_admin', 'tata_usaha']],
                 ],
             ],
-            ['label' => 'Arsip & Dokumen', 'route' => 'dashboard', 'icon' => 'archive-box', 'roles' => ['super_admin', 'tata_usaha']],
+            ['label' => 'Arsip & Dokumen', 'route' => 'dashboard', 'icon' => 'archive-box', 'roles' => ['super_admin', 'tata_usaha'], 'placeholder' => true],
         ],
     ],
     [
         'label' => 'Sarpras & Perpustakaan',
+        'icon' => 'building-library',
         'items' => [
             [
                 'label' => 'Inventaris Barang',
@@ -118,7 +125,7 @@ return [
                     ['label' => 'Kategori', 'route' => 'inventaris.kategori.index', 'icon' => 'tag', 'roles' => ['super_admin', 'wakamad_sarpras']],
                 ],
             ],
-            ['label' => 'Ruangan & Lab', 'route' => 'dashboard', 'icon' => 'building-library', 'roles' => ['super_admin', 'wakamad_sarpras']],
+            ['label' => 'Ruangan & Lab', 'route' => 'dashboard', 'icon' => 'building-library', 'roles' => ['super_admin', 'wakamad_sarpras'], 'placeholder' => true],
             [
                 'label' => 'Perpustakaan',
                 'icon' => 'book-open',
@@ -133,14 +140,16 @@ return [
     ],
     [
         'label' => 'Mutu & Akreditasi',
+        'icon' => 'shield-check',
         'items' => [
-            ['label' => 'PKKM Center', 'route' => 'dashboard', 'icon' => 'shield-check', 'roles' => ['super_admin', 'kepala_madrasah']],
-            ['label' => 'Akreditasi (8 SNP)', 'route' => 'dashboard', 'icon' => 'flag', 'roles' => ['super_admin', 'kepala_madrasah']],
-            ['label' => 'Rencana Kerja Madrasah', 'route' => 'dashboard', 'icon' => 'clipboard-document-list', 'roles' => ['super_admin', 'kepala_madrasah']],
+            ['label' => 'PKKM Center', 'route' => 'dashboard', 'icon' => 'shield-check', 'roles' => ['super_admin', 'kepala_madrasah'], 'placeholder' => true],
+            ['label' => 'Akreditasi (8 SNP)', 'route' => 'dashboard', 'icon' => 'flag', 'roles' => ['super_admin', 'kepala_madrasah'], 'placeholder' => true],
+            ['label' => 'Rencana Kerja Madrasah', 'route' => 'dashboard', 'icon' => 'clipboard-document-list', 'roles' => ['super_admin', 'kepala_madrasah'], 'placeholder' => true],
         ],
     ],
     [
-        'label' => 'Publikasi & PPDB',
+        'label' => 'Publikasi',
+        'icon' => 'megaphone',
         'items' => [
             [
                 'label' => 'Berita & Agenda',
@@ -153,16 +162,17 @@ return [
                     ['label' => 'Website Publik', 'route' => 'publik.berita.index', 'icon' => 'globe-alt', 'roles' => ['*'], 'external' => true],
                 ],
             ],
-            ['label' => 'PPDB Daring', 'route' => 'dashboard', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
+            ['label' => 'PPDB Daring', 'route' => 'dashboard', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah'], 'placeholder' => true],
         ],
     ],
     [
-        'label' => 'Pemeliharaan',
+        'label' => 'Pemeliharaan Sistem',
+        'icon' => 'wrench-screwdriver',
         'items' => [
-            ['label' => 'Pusat Laporan', 'route' => 'dashboard', 'icon' => 'chart-bar', 'roles' => ['*']],
-            ['label' => 'Pusat Dokumen', 'route' => 'dashboard', 'icon' => 'folder-open', 'roles' => ['*']],
+            ['label' => 'Pusat Laporan', 'route' => 'dashboard', 'icon' => 'chart-bar', 'roles' => ['*'], 'placeholder' => true],
+            ['label' => 'Pusat Dokumen', 'route' => 'dashboard', 'icon' => 'folder-open', 'roles' => ['*'], 'placeholder' => true],
             ['label' => 'Activity & Audit Log', 'route' => 'activity-log.index', 'icon' => 'arrow-path', 'roles' => ['super_admin']],
-            ['label' => 'Backup & Restore', 'route' => 'dashboard', 'icon' => 'archive-box-arrow-down', 'roles' => ['super_admin']],
+            ['label' => 'Backup & Restore', 'route' => 'dashboard', 'icon' => 'archive-box-arrow-down', 'roles' => ['super_admin'], 'placeholder' => true],
         ],
     ],
 ];
