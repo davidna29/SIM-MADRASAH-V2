@@ -128,6 +128,12 @@ Route::middleware('auth')->group(function () {
     // Kesiswaan — Prestasi & Pelanggaran
     Route::middleware('role:super_admin|wakamad_kesiswaan|wali_kelas|guru|guru_bk|kepala_madrasah')->group(function () {
         Route::get('/kesiswaan/prestasi', [AchievementController::class, 'index'])->name('prestasi.index');
+        Route::get('/kesiswaan/prestasi/template', [AchievementController::class, 'template'])->name('prestasi.template');
+        Route::get('/kesiswaan/prestasi/import', [AchievementController::class, 'import'])->name('prestasi.import');
+        Route::post('/kesiswaan/prestasi/import/preview', [AchievementController::class, 'processImport'])->name('prestasi.import.process');
+        Route::get('/kesiswaan/prestasi/import/preview', [AchievementController::class, 'previewImport'])->name('prestasi.import.preview');
+        Route::post('/kesiswaan/prestasi/import/simpan', [AchievementController::class, 'simpanImport'])->name('prestasi.import.simpan');
+        Route::post('/kesiswaan/prestasi/import/batal', [AchievementController::class, 'batalImport'])->name('prestasi.import.batal');
         Route::get('/kesiswaan/prestasi/tambah', [AchievementController::class, 'create'])->name('prestasi.create');
         Route::post('/kesiswaan/prestasi', [AchievementController::class, 'store'])->name('prestasi.store');
         Route::get('/kesiswaan/prestasi/{achievement}/edit', [AchievementController::class, 'edit'])->name('prestasi.edit');

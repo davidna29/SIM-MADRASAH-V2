@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers\Kesiswaan;
 
+use App\Exports\PrestasiTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Imports\PrestasiImport;
 use App\Models\AcademicYear;
 use App\Models\Achievement;
 use App\Models\ClassGroup;
 use App\Models\StudentEnrollment;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class AchievementController extends Controller
 {
@@ -171,6 +177,210 @@ class AchievementController extends Controller
         activity('kesiswaan')->performedOn($achievement)->log('prestasi_publikasi_'.$validated['status_publikasi']);
 
         return back()->with('status', 'Status publikasi prestasi diperbarui.');
+    }
+
+    public function template()
+    {
+        $this->authorize('create', Achievement::class);
+
+        return Excel::download(new PrestasiTemplateExport, 'template-prestasi.xlsx');
+    }
+
+    public function import(): View
+    {
+        $this->authorize('create', Achievement::class);
+
+        return view('pages.kesiswaan.prestasi.import', [
+            'roleLabel' => 'Kesiswaan',
+            'breadcrumb' => [
+                ['label' => 'Kesiswaan', 'href' => route('dashboard')],
+                ['label' => 'Prestasi & Pelanggaran', 'href' => route('prestasi.index')],
+                ['label' => 'Import Prestasi'],
+            ],
+        ]);
+    }
+
+    public function processImport(Request $request): RedirectResponse
+    {
+        $this->authorize('create', Achievement::class);
+
+        $request->validate(['file' => ['required', 'file', 'mimes:xlsx,xls']]);
+
+        $sheets = Excel::toArray(new PrestasiImport, $request->file('file'));
+        $rows = $sheets[0] ?? [];
+
+        $preview = collect($rows)->map(fn ($row) => $this->validateImportRow($row))->values()->all();
+
+        session(['prestasi_import' => $preview]);
+
+        return redirect()->route('prestasi.import.preview');
+    }
+
+    public function previewImport(): View
+    {
+        $this->authorize('create', Achievement::class);
+
+        $rows = collect(session('prestasi_import', []));
+        $ok = $rows->whereNull('error')->count();
+        $err = $rows->count() - $ok;
+
+        return view('pages.kesiswaan.prestasi.import-preview', [
+            'roleLabel' => 'Kesiswaan',
+            'breadcrumb' => [
+                ['label' => 'Kesiswaan', 'href' => route('dashboard')],
+                ['label' => 'Prestasi & Pelanggaran', 'href' => route('prestasi.index')],
+                ['label' => 'Preview Import'],
+            ],
+            'rows' => $rows,
+            'ok' => $ok,
+            'err' => $err,
+        ]);
+    }
+
+    public function simpanImport(): RedirectResponse
+    {
+        $this->authorize('create', Achievement::class);
+
+        $rows = collect(session('prestasi_import', []));
+        $disimpan = 0;
+        $gagal = 0;
+
+        DB::transaction(function () use ($rows, &$disimpan, &$gagal) {
+            foreach ($rows as $row) {
+                if (! empty($row['error']) || empty($row['data'])) {
+                    $gagal++;
+
+                    continue;
+                }
+
+                // Cegah duplikat saat commit
+                if (Achievement::where('student_id', $row['data']['student_id'])
+                    ->where('nama_kegiatan', $row['data']['nama_kegiatan'])
+                    ->exists()) {
+                    $gagal++;
+
+                    continue;
+                }
+
+                Achievement::create([
+                    ...$row['data'],
+                    'status_verifikasi' => 'menunggu',
+                    'created_by' => auth()->id(),
+                ]);
+
+                $disimpan++;
+            }
+        });
+
+        session()->forget('prestasi_import');
+
+        activity('kesiswaan')->log('prestasi_import');
+
+        return redirect()->route('prestasi.index')->with('status', "Import selesai — {$disimpan} prestasi disimpan, {$gagal} gagal.");
+    }
+
+    public function batalImport(): RedirectResponse
+    {
+        $this->authorize('create', Achievement::class);
+
+        session()->forget('prestasi_import');
+
+        return redirect()->route('prestasi.index');
+    }
+
+    protected function validateImportRow(array $row): array
+    {
+        $cell = fn ($key) => trim((string) ($row[$key] ?? ''));
+
+        $nis = $cell('nis');
+        $jenis = $cell('jenis');
+        $namaKegiatan = $cell('nama_kegiatan');
+        $tingkat = $cell('tingkat');
+        $penyelenggara = $cell('penyelenggara');
+        $tanggal = $cell('tanggal');
+        $peringkat = $cell('peringkat');
+        $pembimbing = $cell('pembimbing');
+        $statusPublikasi = $cell('status_publikasi') ?: 'publik';
+
+        $result = [
+            'nis' => $nis,
+            'nama' => '',
+            'nama_kegiatan' => $namaKegiatan,
+            'tingkat' => $tingkat,
+            'tanggal' => $tanggal ?: null,
+            'error' => null,
+            'data' => null,
+        ];
+
+        $invalid = function (string $pesan) use ($result) {
+            $result['error'] = $pesan;
+
+            return $result;
+        };
+
+        if ($nis === '') {
+            return $invalid('NIS kosong');
+        }
+
+        if (! in_array($jenis, ['akademik', 'nonakademik'], true)) {
+            return $invalid('Jenis tidak valid');
+        }
+
+        if ($namaKegiatan === '') {
+            return $invalid('Nama kegiatan wajib');
+        }
+
+        if (! in_array($tingkat, $this->tingkatList, true)) {
+            return $invalid('Tingkat tidak valid');
+        }
+
+        if (! in_array($statusPublikasi, ['publik', 'internal'], true)) {
+            return $invalid('Status publikasi tidak valid');
+        }
+
+        $tahun = AcademicYear::active();
+        $enrollment = StudentEnrollment::with('student')
+            ->where('academic_year_id', $tahun->id)
+            ->where('status', 'aktif')
+            ->whereHas('student', fn ($q) => $q->where('nis', $nis))
+            ->first();
+
+        if (! $enrollment) {
+            return $invalid('NIS tidak ditemukan di kelas aktif');
+        }
+
+        $tanggalNormal = null;
+        if ($tanggal !== '') {
+            try {
+                $tanggalNormal = is_numeric($tanggal)
+                    ? ExcelDate::excelToDateTimeObject((float) $tanggal)->format('Y-m-d')
+                    : Carbon::parse($tanggal)->format('Y-m-d');
+            } catch (\Throwable) {
+                return $invalid('Tanggal tidak valid');
+            }
+        }
+
+        if (Achievement::where('student_id', $enrollment->student_id)
+            ->where('nama_kegiatan', $namaKegiatan)
+            ->exists()) {
+            return $invalid('Duplikat — prestasi sudah tercatat');
+        }
+
+        $result['nama'] = $enrollment->student->displayName();
+        $result['tanggal'] = $tanggalNormal;
+        $result['data'] = [
+            'student_id' => $enrollment->student_id,
+            'jenis' => $jenis,
+            'nama_kegiatan' => $namaKegiatan,
+            'tingkat' => $tingkat,
+            'penyelenggara' => $penyelenggara ?: null,
+            'tanggal' => $tanggalNormal,
+            'peringkat' => $peringkat ?: null,
+            'pembimbing' => $pembimbing ?: null,
+            'status_publikasi' => $statusPublikasi,
+        ];
+
+        return $result;
     }
 
     protected function rules(): array

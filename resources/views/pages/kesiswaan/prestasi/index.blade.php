@@ -12,7 +12,11 @@
                     Prestasi akademik & nonakademik — verifikasi oleh wakamad kesiswaan, publikasi di portofolio.
                 </p>
             </div>
-            <x-ui.button variant="primary" icon="plus" href="{{ route('prestasi.create') }}">Catat Prestasi</x-ui.button>
+            <div class="flex flex-wrap items-center gap-2">
+                <x-ui.button variant="secondary" icon="arrow-down-tray" href="{{ route('prestasi.template') }}">Unduh Template</x-ui.button>
+                <x-ui.button variant="secondary" icon="plus" href="{{ route('prestasi.create') }}">Catat Prestasi</x-ui.button>
+                <x-ui.button variant="primary" icon="arrow-up-tray" href="{{ route('prestasi.import') }}">Import Excel</x-ui.button>
+            </div>
         </div>
 
         @if (session('status'))
