@@ -24,6 +24,7 @@
   - Berita & Agenda (CMS — alur 8 status + halaman publik)
   - Prestasi & Pelanggaran siswa (kesiswaan)
   - Activity & Audit Log (halaman lihat/filter jejak aktivitas)
+  - Galeri & Media (album foto + video tautan eksternal, halaman publik)
 - **Sisa MVP (PRD 8.1):** Perluasan tagihan non-SPP (opsional).
 
 ## 2. Cara Menjalankan
@@ -32,7 +33,7 @@
 # di folder proyek
 php artisan serve            # buka http://localhost:8000
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 126 test
+php artisan test             # 134 test
 npm run build                # asset produksi
 ```
 
@@ -82,6 +83,7 @@ Fitur penting:
 - **Berita & Agenda (CMS):** tabel `articles` (8 status: draft→diajukan→review→revisi→disetujui→dijadwalkan→publish→arsip; transisi divalidasi `Article::transitions()`) & `agenda` (agenda/pengumuman, target publik/internal, masa tampil). Role string: kontributor `guru` + `editor_berita|wakamad_humas|kepala_madrasah|tata_usaha|super_admin`. Admin: `/publikasi/berita*` & `/publikasi/agenda*` (group `cms.`), policy `ArticlePolicy`/`AgendaPolicy`. **Auto-publish**: command `berita:publish-terjadwal` dijadwalkan `everyMinute()` di `routes/console.php` (butuh cron `schedule:run`). Halaman publik tanpa auth: `/berita` (hanya `publish`), `/agenda` (aktif, target publik, dalam masa tampil), layout `x-layouts.publik`. `storage:link` sudah dibuat (featured image). User demo `editor.humas`.
 - **Prestasi & Pelanggaran (kesiswaan):** tabel `achievements` (jenis akademik/nonakademik, tingkat sekolah…internasional, status_verifikasi menunggu/terverifikasi/ditolak, status_publikasi publik/internal) & `offenses` (tingkat ringan/sedang/berat, poin 0–100, pemanggilan_ortu, surat_peringatan sp1–3, status_penyelesaian proses/selesai/dibebaskan). Route `/kesiswaan/prestasi*` & `/kesiswaan/pelanggaran*` (group role `super_admin|wakamad_kesiswaan|wali_kelas|guru|guru_bk|kepala_madrasah`; Policy: `kepala_madrasah` hanya lihat, `guru_bk` hanya pelanggaran, wali/guru hanya prestasi, hapus hanya wakamad/super_admin). Form memuat siswa per kelas via `class_group_id`. Nav "Prestasi & Pelanggaran" kini parent. Seeder: contoh terverifikasi & selesai. **Import Excel prestasi** (paket baru `maatwebsite/excel` v4): `App\Exports\PrestasiTemplateExport` (unduh template .xlsx, FromArray+WithHeadings), `App\Imports\PrestasiImport` (ToArray+WithHeadingRow — catatan v4: `array()` return `void`, data dibaca `Excel::toArray`). Alur: `GET /prestasi/template` · `GET /prestasi/import` · `POST /import/preview` (parse+validasi, simpan ke session `prestasi_import`) · `GET /import/preview` (tabel valid/error) · `POST /import/simpan` (insert hanya valid, cek duplikat `student+nama_kegiatan`, `DB::transaction`) · `POST /import/batal`. Validasi per baris: NIS harus di enrollment aktif, jenis/tingkat/status publikasi valid, tanggal dinormalisasi (serial Excel/string).
 - **Activity & Audit Log:** halaman read-only `Pemeliharaan\ActivityLogController@index` → `/pemeliharaan/activity-log` (role `super_admin`). Query `Spatie\Activitylog\Models\Activity` (tanpa tabel baru), filter `log_name` (distinct), `user_id` (causer), `q` (deskripsi), rentang `from`/`to`; urut desc + paginate 25. View menampilkan badge log_name, causer, deskripsi **dipetakan ke Bahasa Indonesia** via `App\Support\ActivityText::readable()` (dipakai juga dashboard — `DashboardData::aktivitasText` kini delegasi ke sana), subjek, dan panel expand `properties`/`attribute_changes`. Nav "Activity & Audit Log" kini menunjuk route (bukan placeholder). Empty state saat tabel kosong.
+- **Galeri & Media (MOD-010):** tabel `media_albums` (slug unique, status publik/**privat**, cover_image) & `media_items` (tipe foto/video, file_path, video_url, caption, sort_order). Pengelola: `super_admin|wakamad_humas|editor_berita|kepala_madrasah|tata_usaha` (`MediaAlbumPolicy`, tanpa guru). Admin `/publikasi/galeri*`: CRUD album + kelola isi album (**multi-upload foto** maks 10×4 MB, tambah **video via URL eksternal** — sesuai catatan PRD agar storage tidak penuh, hapus item, jadikan cover; cover otomatis dari foto pertama bila kosong). Publik: `/galeri` + `/galeri/{album:slug}` (hanya status `publik`; video YouTube otomatis di-embed). Layout publik punya link "Galeri". Seeder: album publik berisi placeholder PNG + album privat.
 - **Design system:** semua komponen shared di `resources/views/components/ui/*` (`x-ui.button`, `x-ui.table`, `x-ui.sheet`, `x-ui.select`, `x-ui.badge`, dst). Jangan styling ad-hoc; gunakan komponen.
 - **Sidebar** dikonfigurasi di `config/navigation.php`; mendukung item `children` (sub-menu). Peran difilter otomatis dari middleware route.
 - **pagination**: `x-ui.pagination` pakai URL nyata (bukan `#`).

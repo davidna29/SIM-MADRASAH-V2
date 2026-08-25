@@ -124,6 +124,7 @@ return [
                 'children' => [
                     ['label' => 'Kelola Berita', 'route' => 'cms.berita.index', 'icon' => 'newspaper', 'roles' => ['super_admin', 'wakamad_humas', 'editor_berita', 'kepala_madrasah', 'tata_usaha', 'guru']],
                     ['label' => 'Agenda & Pengumuman', 'route' => 'cms.agenda.index', 'icon' => 'calendar-days', 'roles' => ['super_admin', 'wakamad_humas', 'editor_berita', 'tata_usaha', 'kepala_madrasah']],
+                    ['label' => 'Galeri', 'route' => 'cms.galeri.index', 'icon' => 'photo', 'roles' => ['super_admin', 'wakamad_humas', 'editor_berita', 'kepala_madrasah', 'tata_usaha']],
                     ['label' => 'Website Publik', 'route' => 'publik.berita.index', 'icon' => 'globe-alt', 'roles' => ['*']],
                 ],
             ],

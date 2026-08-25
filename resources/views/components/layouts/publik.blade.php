@@ -13,6 +13,7 @@
                 <nav class="flex items-center gap-4 text-[13px] font-semibold text-board-ink/80">
                     <a href="{{ route('publik.berita.index') }}" class="transition hover:text-board-ink">Berita</a>
                     <a href="{{ route('publik.agenda.index') }}" class="transition hover:text-board-ink">Agenda</a>
+                    <a href="{{ route('publik.galeri.index') }}" class="transition hover:text-board-ink">Galeri</a>
                     <a href="{{ route('login') }}" class="rounded-[var(--radius-control)] bg-board-ink px-3 py-1.5 text-board transition hover:opacity-90">Masuk</a>
                 </nav>
             </div>

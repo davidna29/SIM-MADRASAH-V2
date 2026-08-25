@@ -10,6 +10,7 @@ use App\Http\Controllers\Akademik\SubjectController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Cms\AgendaController;
 use App\Http\Controllers\Cms\ArticleController;
+use App\Http\Controllers\Cms\GalleryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Ortu\SppController as OrtuSppController;
 use App\Http\Controllers\Pemeliharaan\ActivityLogController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
+use App\Http\Controllers\Publik\GaleriController as PublikGaleriController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +33,8 @@ Route::get('/', fn () => redirect()->route('login'));
 Route::get('/berita', [PublikBeritaController::class, 'index'])->name('publik.berita.index');
 Route::get('/berita/{article:slug}', [PublikBeritaController::class, 'show'])->name('publik.berita.show');
 Route::get('/agenda', [PublikAgendaController::class, 'index'])->name('publik.agenda.index');
+Route::get('/galeri', [PublikGaleriController::class, 'index'])->name('publik.galeri.index');
+Route::get('/galeri/{album:slug}', [PublikGaleriController::class, 'show'])->name('publik.galeri.show');
 
 // ============================================================
 // Autentikasi
@@ -127,6 +131,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/agenda/{agenda}/edit', [AgendaController::class, 'edit'])->name('agenda.edit');
         Route::put('/agenda/{agenda}', [AgendaController::class, 'update'])->name('agenda.update');
         Route::delete('/agenda/{agenda}', [AgendaController::class, 'destroy'])->name('agenda.destroy');
+
+        // Galeri & Media
+        Route::get('/galeri', [GalleryController::class, 'index'])->name('galeri.index');
+        Route::get('/galeri/tambah', [GalleryController::class, 'create'])->name('galeri.create');
+        Route::post('/galeri', [GalleryController::class, 'store'])->name('galeri.store');
+        Route::get('/galeri/{album}', [GalleryController::class, 'show'])->name('galeri.show');
+        Route::get('/galeri/{album}/edit', [GalleryController::class, 'edit'])->name('galeri.edit');
+        Route::put('/galeri/{album}', [GalleryController::class, 'update'])->name('galeri.update');
+        Route::delete('/galeri/{album}', [GalleryController::class, 'destroy'])->name('galeri.destroy');
+        Route::post('/galeri/{album}/foto', [GalleryController::class, 'uploadPhotos'])->name('galeri.foto');
+        Route::post('/galeri/{album}/video', [GalleryController::class, 'addVideo'])->name('galeri.video');
+        Route::post('/galeri/{album}/cover/{item}', [GalleryController::class, 'setCover'])->name('galeri.cover');
+        Route::delete('/galeri/{album}/item/{item}', [GalleryController::class, 'destroyItem'])->name('galeri.item.destroy');
     });
 
     // Kesiswaan — Prestasi & Pelanggaran
