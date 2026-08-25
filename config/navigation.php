@@ -101,7 +101,15 @@ return [
     [
         'label' => 'Sarpras & Perpustakaan',
         'items' => [
-            ['label' => 'Inventaris Barang', 'route' => 'dashboard', 'icon' => 'square-2-stack', 'roles' => ['super_admin', 'wakamad_sarpras']],
+            [
+                'label' => 'Inventaris Barang',
+                'icon' => 'square-2-stack',
+                'roles' => ['super_admin', 'wakamad_sarpras', 'tata_usaha', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Daftar Barang', 'route' => 'inventaris.index', 'icon' => 'square-2-stack', 'roles' => ['super_admin', 'wakamad_sarpras', 'tata_usaha', 'kepala_madrasah']],
+                    ['label' => 'Kategori', 'route' => 'inventaris.kategori.index', 'icon' => 'tag', 'roles' => ['super_admin', 'wakamad_sarpras']],
+                ],
+            ],
             ['label' => 'Ruangan & Lab', 'route' => 'dashboard', 'icon' => 'building-library', 'roles' => ['super_admin', 'wakamad_sarpras']],
             ['label' => 'Perpustakaan', 'route' => 'dashboard', 'icon' => 'book-open', 'roles' => ['super_admin', 'pustakawan']],
         ],

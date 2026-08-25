@@ -28,8 +28,9 @@
   - Galeri & Media (album foto + video tautan eksternal, halaman publik)
   - **Pengguna & Role Management** (CRUD pengguna, multi-role via pivot table, sidebar navigation)
   - **Konseling (BK)** (catatan sesi konseling, 3 level kerahasiaan, lampiran privat, authorization berbasis record)
-  - **Wali Kelas / Homeroom** (penugasan guru sebagai wali kelas per tahun ajaran, halaman kelas show, replace otomatis)
-- **Sisa MVP (PRD 8.1):** Perluasan tagihan non-SPP (opsional).
+-   **Wali Kelas / Homeroom** (penugasan guru sebagai wali kelas per tahun ajaran, halaman kelas show, replace otomatis)
+-   **Inventaris Barang** (sarpras: barang, kategori, mutasi dengan alur persetujuan, pemeliharaan)
+- **Sisa MVP (PRD 8.1):** Perluasan tagihan non-SPP dihapus dari proyek (sesuai keputusan — tidak akan dikerjakan).
 
 ## 2. Cara Menjalankan
 
@@ -37,7 +38,7 @@
 # di folder proyek
 composer serve               # buka http://localhost:8000 — menaikkan limit upload PHP
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 181 test
+php artisan test             # 192 test
 npm run build                # asset produksi
 ```
 
@@ -101,13 +102,14 @@ Fitur penting:
 - **Modul Pengguna & Role:** tabel `user_roles` (pivot multi-role, unique `user_id`+`role`), `UserController` di `Fondasi/` (super_admin only), sidebar "Pengguna & Role" navigasi ke `/fondasi/pengguna`. Role utama di kolom `users.role`, role tambahan di tabel `user_roles`. `User::allRoles()` menggabungkan keduanya. Soft deletes diaktifkan untuk users (proteksi self-delete + last super admin di Policy).
 - **Modul Konseling (BK):** tabel `counseling_sessions` (FK `student_enrollment_id` + `counselor_user_id`, 3 level kerahasiaan: `guru_bk_only`, `plus_kepala`, `plus_wali_kelas`). Policy record-level: Guru BK lihat semua sesi (termasuk yang dibuat admin/ lain); Kepala Madrasah lihat `plus_kepala` & `plus_wali_kelas`; Wali Kelas hanya `plus_wali_kelas`. Lampiran disimpan di `storage/app/private/counseling/` (disk `local`). Scope `visibleTo()` di model untuk filter query. Route `/kesiswaan/konseling*`, sidebar "Konseling (BK)" untuk role `super_admin|guru_bk|kepala_madrasah`.
 - **Modul Wali Kelas (Homeroom):** tabel `homeroom_assignments` (unique per class+year, replace otomatis: lama → `selesai`). Relasi `ClassGroup::homeroom()` returns `HasOne` aktif tahun berjalan. Controller `Akademik\HomeroomController` (store + destroy). Routes di middleware `super_admin|wakamad_kurikulum`. Tampilan di halaman `kelas/show.blade.php` sebagai sheet "Wali Kelas". Guru BK login redirect ke `konseling.index`.
+- **Modul Inventaris Barang (Sarpras):** tabel `inventory_categories`, `inventory_items`, `inventory_mutations`, `inventory_maintenances`. Route `/sarpras/inventaris*` (group `super_admin|wakamad_sarpras|tata_usaha|kepala_madrasah`; kepala read-only via Policy). **Policy `InventoryItemPolicy`** (ditemukan via konvensi nama model — pastikan nama `InventoryItemPolicy` untuk model `InventoryItem`): super_admin/wakamad kelola semua + approve mutasi; tata_usaha create/update (tanpa delete & tanpa approve); kepala hanya lihat. **Alur mutasi:** TU ajukan `pending` → wakamad/super_admin setujui (lokasi barang otomatis diupdate dari `from_location`→`to_location`) atau tolak; pending bisa dihapus oleh pemilik. **Pemeliharaan:** mencatat `berlangsung` → otomatis set `status=dalam_perawatan`; selesai → kembali `tersedia` bila tak ada pemeliharaan berlangsung lain. **Kode barang auto-gen** `INV-YYYYMM-NNN`. **Kategori** (CRUD, hapus diblokir bila berisi barang) route-nya ditaruh SEBELUM rute `{item}` agar tidak tertangkap wildcard. Seeder: 6 kategori, 9 barang, mutasi disetujui, 2 pemeliharaan. 11 feature test. Sidebar "Inventaris Barang" kini parent (Daftar Barang + Kategori).
 
 ## 5. Langkah Modul Berikutnya
 
 Disiplin (PRD Bagian 16): **frontend → persetujuan pengguna → backend → test**. Mulai dari:
 
-1. **Perluasan tagihan non-SPP** (uang gedung, seragam, dll — jika diperlukan).
-2. **Modul lain yang bisa dikerjakan:** Inventaris, Perpustakaan, Surat Masuk/Keluar, Portofolio Digital, Pusat Laporan, Backup & Restore.
+1. **Perluasan tagihan non-SPP** — dihapus dari proyek (keputusan pengguna).
+2. **Modul lain yang bisa dikerjakan:** Perpustakaan, Surat Masuk/Keluar, Portofolio Digital, Pusat Laporan, Backup & Restore.
 
 ## 6. Keputusan Terbuka (PRD Bagian 24)
 

@@ -28,6 +28,7 @@ use App\Http\Controllers\Pemeliharaan\ActivityLogController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Publik\GaleriController as PublikGaleriController;
+use App\Http\Controllers\Sarpras\InventoryController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
 use Illuminate\Support\Facades\Route;
 
@@ -260,6 +261,35 @@ Route::middleware('auth')->group(function () {
         Route::get('/rapor', [SiswaPortalController::class, 'rapor'])->name('rapor');
         Route::get('/rapor/unduh', [SiswaPortalController::class, 'raporUnduh'])->name('rapor.unduh');
         Route::get('/spp', [SiswaPortalController::class, 'spp'])->name('spp');
+    });
+
+    // Inventaris Barang (Sarpras) — kepala_madrasah read-only; kelola oleh super_admin/wakamad_sarpras/tata_usaha
+    Route::middleware('role:super_admin|wakamad_sarpras|tata_usaha|kepala_madrasah')->group(function () {
+        Route::get('/sarpras/inventaris', [InventoryController::class, 'index'])->name('inventaris.index');
+        Route::get('/sarpras/inventaris/tambah', [InventoryController::class, 'create'])->name('inventaris.create');
+        Route::post('/sarpras/inventaris', [InventoryController::class, 'store'])->name('inventaris.store');
+
+        // Kategori barang — sebelum rute {item} agar tidak tertangkap wildcard
+        Route::get('/sarpras/inventaris/kategori', [InventoryController::class, 'categoryIndex'])->name('inventaris.kategori.index');
+        Route::post('/sarpras/inventaris/kategori', [InventoryController::class, 'categoryStore'])->name('inventaris.kategori.store');
+        Route::put('/sarpras/inventaris/kategori/{category}', [InventoryController::class, 'categoryUpdate'])->name('inventaris.kategori.update');
+        Route::delete('/sarpras/inventaris/kategori/{category}', [InventoryController::class, 'categoryDestroy'])->name('inventaris.kategori.destroy');
+
+        Route::get('/sarpras/inventaris/{item}', [InventoryController::class, 'show'])->name('inventaris.show');
+        Route::get('/sarpras/inventaris/{item}/edit', [InventoryController::class, 'edit'])->name('inventaris.edit');
+        Route::put('/sarpras/inventaris/{item}', [InventoryController::class, 'update'])->name('inventaris.update');
+        Route::delete('/sarpras/inventaris/{item}', [InventoryController::class, 'destroy'])->name('inventaris.destroy');
+
+        // Mutasi barang
+        Route::post('/sarpras/inventaris/{item}/mutasi', [InventoryController::class, 'mutationStore'])->name('inventaris.mutasi.store');
+        Route::post('/sarpras/inventaris/{item}/mutasi/{mutation}/setujui', [InventoryController::class, 'mutationApprove'])->name('inventaris.mutasi.approve');
+        Route::post('/sarpras/inventaris/{item}/mutasi/{mutation}/tolak', [InventoryController::class, 'mutationReject'])->name('inventaris.mutasi.reject');
+        Route::delete('/sarpras/inventaris/{item}/mutasi/{mutation}', [InventoryController::class, 'mutationDestroy'])->name('inventaris.mutasi.destroy');
+
+        // Pemeliharaan barang
+        Route::post('/sarpras/inventaris/{item}/pemeliharaan', [InventoryController::class, 'maintenanceStore'])->name('inventaris.perawatan.store');
+        Route::post('/sarpras/inventaris/{item}/pemeliharaan/{maintenance}/selesai', [InventoryController::class, 'maintenanceDone'])->name('inventaris.perawatan.selesai');
+        Route::delete('/sarpras/inventaris/{item}/pemeliharaan/{maintenance}', [InventoryController::class, 'maintenanceDestroy'])->name('inventaris.perawatan.destroy');
     });
 
     // SPP — rekap & pembayaran. Index boleh dilihat kepala_madrasah (read-only);

@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             UserRoleSeeder::class,
             KonselingSeeder::class,
             HomeroomSeeder::class,
+            InventorySeeder::class,
         ]);
     }
 }
