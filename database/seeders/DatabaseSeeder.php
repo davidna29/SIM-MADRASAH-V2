@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             EkstrakurikulerSeeder::class,
             UserRoleSeeder::class,
             KonselingSeeder::class,
+            HomeroomSeeder::class,
         ]);
     }
 }

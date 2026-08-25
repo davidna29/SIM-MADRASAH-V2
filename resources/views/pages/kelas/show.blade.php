@@ -35,6 +35,43 @@
             </div>
         @endif
 
+        <!-- Wali Kelas Section -->
+        <x-ui.sheet title="Wali Kelas" subtitle="Penugasan wali kelas untuk TA {{ $tahun->name }}" class="mt-6">
+            @if ($classGroup->homeroom)
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-extrabold text-primary-strong">
+                            {{ mb_substr($classGroup->homeroom->teacher->name, 0, 1) }}
+                        </span>
+                        <div>
+                            <p class="text-sm font-semibold text-ink">{{ $classGroup->homeroom->teacher->name }}</p>
+                            <p class="text-xs text-ink-faint">Ditugaskan sejak {{ $classGroup->homeroom->created_at->format('d/m/Y') }}</p>
+                        </div>
+                    </div>
+                    @can('update', $classGroup)
+                        <form method="POST" action="{{ route('kelas.wali.destroy', [$classGroup, $classGroup->homeroom]) }}" onsubmit="return confirm('Lepas wali kelas ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <x-ui.button type="submit" size="sm" variant="ghost" icon="x-mark">Lepas</x-ui.button>
+                        </form>
+                    @endcan
+                </div>
+            @else
+                @can('update', $classGroup)
+                    <form method="POST" action="{{ route('kelas.wali.store', $classGroup) }}" class="flex items-end gap-3">
+                        @csrf
+                        <div class="flex-1">
+                            <label for="user_id" class="block text-xs font-bold text-ink">Pilih Guru</label>
+                            <x-ui.select name="user_id" id="user_id" :options="$teachers->pluck('name', 'id')" placeholder="Pilih guru sebagai wali kelas" class="mt-1.5" />
+                        </div>
+                        <x-ui.button type="submit" variant="primary" icon="user-plus" size="md">Tugaskan</x-ui.button>
+                    </form>
+                @else
+                    <p class="text-sm text-ink-faint">Belum ada wali kelas ditugaskan.</p>
+                @endcan
+            @endif
+        </x-ui.sheet>
+
         <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
             <!-- Daftar siswa -->
             <x-ui.sheet title="Siswa Aktif" :subtitle="count($enrollments) . ' siswa'" pinned :padding="false">

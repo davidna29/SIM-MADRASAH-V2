@@ -9,6 +9,7 @@ use App\Models\AcademicYear;
 use App\Models\ClassGroup;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -77,11 +78,12 @@ class ClassGroupController extends Controller
                 ['label' => 'Kelas & Penempatan', 'href' => route('kelas.index')],
                 ['label' => $classGroup->name],
             ],
-            'classGroup' => $classGroup,
+            'classGroup' => $classGroup->load('homeroom.teacher'),
             'tahun' => $tahun,
             'enrollments' => $enrollments,
             'availableStudents' => $availableStudents,
             'search' => request('q'),
+            'teachers' => User::whereIn('role', ['guru', 'guru_bk'])->orderBy('name')->get(),
         ]);
     }
 

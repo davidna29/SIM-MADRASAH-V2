@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Akademik\AttendanceController;
 use App\Http\Controllers\Akademik\ClassGroupController;
+use App\Http\Controllers\Akademik\HomeroomController;
 use App\Http\Controllers\Akademik\JurnalController;
 use App\Http\Controllers\Akademik\ScheduleCellController;
 use App\Http\Controllers\Akademik\ScheduleModelController;
@@ -124,6 +125,12 @@ Route::middleware('auth')->group(function () {
     // Jurnal Mengajar — monitor (Wakamad Kurikulum / Kepala Madrasah)
     Route::middleware('role:super_admin|wakamad_kurikulum|kepala_madrasah')->group(function () {
         Route::get('/akademik/jurnal-mengajar', [JurnalController::class, 'index'])->name('jurnal.admin.index');
+    });
+
+    // Wali Kelas (Homeroom) — accessible by super_admin + wakamad_kurikulum
+    Route::middleware('role:super_admin|wakamad_kurikulum')->group(function () {
+        Route::post('/akademik/kelas/{classGroup}/wali-kelas', [HomeroomController::class, 'store'])->name('kelas.wali.store');
+        Route::delete('/akademik/kelas/{classGroup}/wali-kelas/{homeroom}', [HomeroomController::class, 'destroy'])->name('kelas.wali.destroy');
     });
 
     // CMS — Berita & Agenda (kontributor guru + editor/humas/kepala/TU/super admin)

@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ClassGroup extends Model
 {
@@ -21,5 +21,17 @@ class ClassGroup extends Model
     public function assignments(): HasMany
     {
         return $this->hasMany(TeacherAssignment::class);
+    }
+
+    public function homeroom(): HasOne
+    {
+        return $this->hasOne(HomeroomAssignment::class)
+            ->where('academic_year_id', AcademicYear::active()->id)
+            ->where('status', 'aktif');
+    }
+
+    public function homerooms(): HasMany
+    {
+        return $this->hasMany(HomeroomAssignment::class);
     }
 }

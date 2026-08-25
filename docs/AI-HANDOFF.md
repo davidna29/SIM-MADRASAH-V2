@@ -28,6 +28,7 @@
   - Galeri & Media (album foto + video tautan eksternal, halaman publik)
   - **Pengguna & Role Management** (CRUD pengguna, multi-role via pivot table, sidebar navigation)
   - **Konseling (BK)** (catatan sesi konseling, 3 level kerahasiaan, lampiran privat, authorization berbasis record)
+  - **Wali Kelas / Homeroom** (penugasan guru sebagai wali kelas per tahun ajaran, halaman kelas show, replace otomatis)
 - **Sisa MVP (PRD 8.1):** Perluasan tagihan non-SPP (opsional).
 
 ## 2. Cara Menjalankan
@@ -36,7 +37,7 @@
 # di folder proyek
 composer serve               # buka http://localhost:8000 — menaikkan limit upload PHP
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 173 test
+php artisan test             # 181 test
 npm run build                # asset produksi
 ```
 
@@ -98,7 +99,8 @@ Fitur penting:
 - **MySQL strict**: FK & unique aktif — data invalid ditolak (beda dari SQLite dev).
 - **Validasi** memakai Form Request; otorisasi memakai Policy + `authorize()` (Controller base sudah pakai `AuthorizesRequests`).
 - **Modul Pengguna & Role:** tabel `user_roles` (pivot multi-role, unique `user_id`+`role`), `UserController` di `Fondasi/` (super_admin only), sidebar "Pengguna & Role" navigasi ke `/fondasi/pengguna`. Role utama di kolom `users.role`, role tambahan di tabel `user_roles`. `User::allRoles()` menggabungkan keduanya. Soft deletes diaktifkan untuk users (proteksi self-delete + last super admin di Policy).
-- **Modul Konseling (BK):** tabel `counseling_sessions` (FK `student_enrollment_id` + `counselor_user_id`, 3 level kerahasiaan: `guru_bk_only`, `plus_kepala`, `plus_wali_kelas`). Policy record-level: Guru BK hanya lihat sesi sendiri; Kepala Madrasah lihat `plus_kepala` & `plus_wali_kelas`; Wali Kelas hanya `plus_wali_kelas`. Lampiran disimpan di `storage/app/private/counseling/` (disk `local`). Scope `visibleTo()` di model untuk filter query. Route `/kesiswaan/konseling*`, sidebar "Konseling (BK)" untuk role `super_admin|guru_bk`.
+- **Modul Konseling (BK):** tabel `counseling_sessions` (FK `student_enrollment_id` + `counselor_user_id`, 3 level kerahasiaan: `guru_bk_only`, `plus_kepala`, `plus_wali_kelas`). Policy record-level: Guru BK lihat semua sesi (termasuk yang dibuat admin/ lain); Kepala Madrasah lihat `plus_kepala` & `plus_wali_kelas`; Wali Kelas hanya `plus_wali_kelas`. Lampiran disimpan di `storage/app/private/counseling/` (disk `local`). Scope `visibleTo()` di model untuk filter query. Route `/kesiswaan/konseling*`, sidebar "Konseling (BK)" untuk role `super_admin|guru_bk|kepala_madrasah`.
+- **Modul Wali Kelas (Homeroom):** tabel `homeroom_assignments` (unique per class+year, replace otomatis: lama → `selesai`). Relasi `ClassGroup::homeroom()` returns `HasOne` aktif tahun berjalan. Controller `Akademik\HomeroomController` (store + destroy). Routes di middleware `super_admin|wakamad_kurikulum`. Tampilan di halaman `kelas/show.blade.php` sebagai sheet "Wali Kelas". Guru BK login redirect ke `konseling.index`.
 
 ## 5. Langkah Modul Berikutnya
 
