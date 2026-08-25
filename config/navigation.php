@@ -94,7 +94,15 @@ return [
                 ],
             ],
             ['label' => 'Rekap Keuangan', 'route' => 'dashboard', 'icon' => 'chart-bar', 'roles' => ['super_admin', 'bendahara', 'kepala_madrasah']],
-            ['label' => 'Surat Masuk / Keluar', 'route' => 'dashboard', 'icon' => 'envelope', 'roles' => ['super_admin', 'tata_usaha']],
+            [
+                'label' => 'Surat Masuk / Keluar',
+                'icon' => 'envelope',
+                'roles' => ['super_admin', 'tata_usaha'],
+                'children' => [
+                    ['label' => 'Surat Masuk', 'route' => 'surat.index', 'routeParams' => ['type' => 'masuk'], 'icon' => 'inbox-arrow-down', 'roles' => ['super_admin', 'tata_usaha']],
+                    ['label' => 'Surat Keluar', 'route' => 'surat.index', 'routeParams' => ['type' => 'keluar'], 'icon' => 'paper-airplane', 'roles' => ['super_admin', 'tata_usaha']],
+                ],
+            ],
             ['label' => 'Arsip & Dokumen', 'route' => 'dashboard', 'icon' => 'archive-box', 'roles' => ['super_admin', 'tata_usaha']],
         ],
     ],
@@ -111,7 +119,16 @@ return [
                 ],
             ],
             ['label' => 'Ruangan & Lab', 'route' => 'dashboard', 'icon' => 'building-library', 'roles' => ['super_admin', 'wakamad_sarpras']],
-            ['label' => 'Perpustakaan', 'route' => 'dashboard', 'icon' => 'book-open', 'roles' => ['super_admin', 'pustakawan']],
+            [
+                'label' => 'Perpustakaan',
+                'icon' => 'book-open',
+                'roles' => ['super_admin', 'pustakawan', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Katalog Buku', 'route' => 'perpustakaan.index', 'icon' => 'book-open', 'roles' => ['super_admin', 'pustakawan', 'kepala_madrasah']],
+                    ['label' => 'Anggota', 'route' => 'perpustakaan.anggota.index', 'icon' => 'user-group', 'roles' => ['super_admin', 'pustakawan']],
+                    ['label' => 'Kategori', 'route' => 'perpustakaan.kategori.index', 'icon' => 'tag', 'roles' => ['super_admin', 'pustakawan']],
+                ],
+            ],
         ],
     ],
     [

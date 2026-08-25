@@ -28,6 +28,9 @@ class DatabaseSeeder extends Seeder
             KonselingSeeder::class,
             HomeroomSeeder::class,
             InventorySeeder::class,
+            LibrarySeeder::class,
+            LetterCategorySeeder::class,
+            LetterSeeder::class,
         ]);
     }
 }

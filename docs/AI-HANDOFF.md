@@ -30,6 +30,7 @@
   - **Konseling (BK)** (catatan sesi konseling, 3 level kerahasiaan, lampiran privat, authorization berbasis record)
 -   **Wali Kelas / Homeroom** (penugasan guru sebagai wali kelas per tahun ajaran, halaman kelas show, replace otomatis)
 -   **Inventaris Barang** (sarpras: barang, kategori, mutasi dengan alur persetujuan, pemeliharaan)
+  - **Perpustakaan** (katalog buku, anggota siswa/pegawai, peminjaman/pengembalian, kategori, ebook URL eksternal)
 - **Sisa MVP (PRD 8.1):** Perluasan tagihan non-SPP dihapus dari proyek (sesuai keputusan — tidak akan dikerjakan).
 
 ## 2. Cara Menjalankan
@@ -38,7 +39,7 @@
 # di folder proyek
 composer serve               # buka http://localhost:8000 — menaikkan limit upload PHP
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 192 test
+php artisan test             # 205 test
 npm run build                # asset produksi
 ```
 
@@ -53,6 +54,7 @@ npm run build                # asset produksi
 | Bendahara | `bendahara` |
 | Siswa | `siswa.aisy` |
 | Editor Berita | `editor.humas` |
+| Petugas Perpustakaan | `pustakawan` |
 | Orang Tua | `ibu.aisy` |
 
 **Database:** MySQL 8.4 lokal — db `sim_madrasah`, user `sim_madrasah` / `SimMadrasah2026!`. DB test terpisah: `sim_madrasah_test` (diatur di `phpunit.xml`).
@@ -102,14 +104,15 @@ Fitur penting:
 - **Modul Pengguna & Role:** tabel `user_roles` (pivot multi-role, unique `user_id`+`role`), `UserController` di `Fondasi/` (super_admin only), sidebar "Pengguna & Role" navigasi ke `/fondasi/pengguna`. Role utama di kolom `users.role`, role tambahan di tabel `user_roles`. `User::allRoles()` menggabungkan keduanya. Soft deletes diaktifkan untuk users (proteksi self-delete + last super admin di Policy).
 - **Modul Konseling (BK):** tabel `counseling_sessions` (FK `student_enrollment_id` + `counselor_user_id`, 3 level kerahasiaan: `guru_bk_only`, `plus_kepala`, `plus_wali_kelas`). Policy record-level: Guru BK lihat semua sesi (termasuk yang dibuat admin/ lain); Kepala Madrasah lihat `plus_kepala` & `plus_wali_kelas`; Wali Kelas hanya `plus_wali_kelas`. Lampiran disimpan di `storage/app/private/counseling/` (disk `local`). Scope `visibleTo()` di model untuk filter query. Route `/kesiswaan/konseling*`, sidebar "Konseling (BK)" untuk role `super_admin|guru_bk|kepala_madrasah`.
 - **Modul Wali Kelas (Homeroom):** tabel `homeroom_assignments` (unique per class+year, replace otomatis: lama → `selesai`). Relasi `ClassGroup::homeroom()` returns `HasOne` aktif tahun berjalan. Controller `Akademik\HomeroomController` (store + destroy). Routes di middleware `super_admin|wakamad_kurikulum`. Tampilan di halaman `kelas/show.blade.php` sebagai sheet "Wali Kelas". Guru BK login redirect ke `konseling.index`.
-- **Modul Inventaris Barang (Sarpras):** tabel `inventory_categories`, `inventory_items`, `inventory_mutations`, `inventory_maintenances`. Route `/sarpras/inventaris*` (group `super_admin|wakamad_sarpras|tata_usaha|kepala_madrasah`; kepala read-only via Policy). **Policy `InventoryItemPolicy`** (ditemukan via konvensi nama model — pastikan nama `InventoryItemPolicy` untuk model `InventoryItem`): super_admin/wakamad kelola semua + approve mutasi; tata_usaha create/update (tanpa delete & tanpa approve); kepala hanya lihat. **Alur mutasi:** TU ajukan `pending` → wakamad/super_admin setujui (lokasi barang otomatis diupdate dari `from_location`→`to_location`) atau tolak; pending bisa dihapus oleh pemilik. **Pemeliharaan:** mencatat `berlangsung` → otomatis set `status=dalam_perawatan`; selesai → kembali `tersedia` bila tak ada pemeliharaan berlangsung lain. **Kode barang auto-gen** `INV-YYYYMM-NNN`. **Kategori** (CRUD, hapus diblokir bila berisi barang) route-nya ditaruh SEBELUM rute `{item}` agar tidak tertangkap wildcard. Seeder: 6 kategori, 9 barang, mutasi disetujui, 2 pemeliharaan. 11 feature test. Sidebar "Inventaris Barang" kini parent (Daftar Barang + Kategori).
+- **Modul Perpustakaan:** tabel `library_categories`, `library_books` (auto-code `BUK-YYYYMM-NNN`, `total_qty`/`available_qty`, `is_ebook`+`ebook_url`), `library_members` (siswa/pegawai, auto-no `ANG-YYYY-001`, snapshot nama), `library_loans` (pinjam/kembali/terlambat, decrement/increment stok). Route `/perpustakaan*` (group `super_admin|pustakawan|kepala_madrasah`; kepala read-only via Policy). Policy per model: `LibraryBookPolicy`, `LibraryMemberPolicy`, `LibraryCategoryPolicy` — pustakawan/super_admin kelola penuh, kepala lihat saja. Akun demo `pustakawan`. Seeder: 5 kategori, 8 buku (1 ebook), 2 anggota, 2 contoh peminjaman. Sidebar "Perpustakaan" parent (Katalog Buku + Anggota + Kategori). Filter katalog (kategori/status/is_ebook/q) & modal Tambah Anggota/Kategori memakai komponen `x-ui.modal`; picker anggota memuat siswa aktif per rombel TA berjalan + pencarian nama/NIS, pegawai aktif + pencarian (pola Alpine JSON ala `jadwal/penyusunan`). `loanStore` menolak pinjam bila anggota (siswa/pegawai) sudah punya pinjaman aktif (`status=dipinjam`) untuk buku yang sama — cegah stok berkurang ganda. `update` sinkron `available_qty` otomatis berdasarkan selisih `total_qty` (menambah stok = menambah tersedia; mengurangi stok ditolak bila melewati jumlah dipinjam). Test: 23 feature test di `PerpustakaanModuleTest` (setUp membuat AcademicYear aktif — `AcademicYear::active()` dipakai controller).
+- **Modul Surat Masuk/Keluar:** tabel `letters` (type masuk/keluar, nomor surat, tanggal, dari/ke, perihal, status diterima/diproses/selesai/arsip, prioritas biasa/penting/segera/rahasia, kategori, disposisi ke/catatan, file lampiran) & `letter_categories` (kategori surat). Route `/tu/surat*` (group `super_admin|tata_usaha`). Policy `LetterPolicy` — super_admin & tata_usaha CRUD, super_admin saja disposisi. Sidebar "Surat Masuk / Keluar" di group "Keuangan & TU" dengan children (Surat Masuk + Surat Keluar). Auto-number surat keluar: `001/TK/MM/YYYY`. Filter (status/kategori/prioritas/tanggal/search). Seeder: 9 kategori, 5 surat masuk, 4 surat keluar. Test: 10 feature test di `LetterModuleTest`.
 
 ## 5. Langkah Modul Berikutnya
 
 Disiplin (PRD Bagian 16): **frontend → persetujuan pengguna → backend → test**. Mulai dari:
 
 1. **Perluasan tagihan non-SPP** — dihapus dari proyek (keputusan pengguna).
-2. **Modul lain yang bisa dikerjakan:** Perpustakaan, Surat Masuk/Keluar, Portofolio Digital, Pusat Laporan, Backup & Restore.
+2. **Modul lain yang bisa dikerjakan:** Portofolio Digital, Pusat Laporan, Backup & Restore.
 
 ## 6. Keputusan Terbuka (PRD Bagian 24)
 

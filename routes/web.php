@@ -25,11 +25,13 @@ use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
 use App\Http\Controllers\Pemeliharaan\ActivityLogController;
+use App\Http\Controllers\Perpustakaan\LibraryController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Publik\GaleriController as PublikGaleriController;
 use App\Http\Controllers\Sarpras\InventoryController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
+use App\Http\Controllers\Tu\LetterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('login'));
@@ -263,6 +265,33 @@ Route::middleware('auth')->group(function () {
         Route::get('/spp', [SiswaPortalController::class, 'spp'])->name('spp');
     });
 
+    // Perpustakaan — kelola oleh super_admin/pustakawan; kepala_madrasah read-only
+    Route::middleware('role:super_admin|pustakawan|kepala_madrasah')->prefix('perpustakaan')->name('perpustakaan.')->group(function () {
+        Route::get('/', [LibraryController::class, 'index'])->name('index');
+        Route::get('/tambah', [LibraryController::class, 'create'])->name('create');
+        Route::post('/', [LibraryController::class, 'store'])->name('store');
+
+        // Kategori — sebelum rute {book} agar tidak tertangkap wildcard
+        Route::get('/kategori', [LibraryController::class, 'categoryIndex'])->name('kategori.index');
+        Route::post('/kategori', [LibraryController::class, 'categoryStore'])->name('kategori.store');
+        Route::put('/kategori/{category}', [LibraryController::class, 'categoryUpdate'])->name('kategori.update');
+        Route::delete('/kategori/{category}', [LibraryController::class, 'categoryDestroy'])->name('kategori.destroy');
+
+        // Anggota — sebelum rute {book}
+        Route::get('/anggota', [LibraryController::class, 'memberIndex'])->name('anggota.index');
+        Route::post('/anggota', [LibraryController::class, 'memberStore'])->name('anggota.store');
+        Route::delete('/anggota/{member}', [LibraryController::class, 'memberDestroy'])->name('anggota.destroy');
+
+        Route::get('/{book}', [LibraryController::class, 'show'])->name('show');
+        Route::get('/{book}/edit', [LibraryController::class, 'edit'])->name('edit');
+        Route::put('/{book}', [LibraryController::class, 'update'])->name('update');
+        Route::delete('/{book}', [LibraryController::class, 'destroy'])->name('destroy');
+
+        // Pinjam / Kembalikan
+        Route::post('/{book}/pinjam', [LibraryController::class, 'loanStore'])->name('loan.store');
+        Route::post('/{book}/kembali/{loan}', [LibraryController::class, 'loanReturn'])->name('loan.return');
+    });
+
     // Inventaris Barang (Sarpras) — kepala_madrasah read-only; kelola oleh super_admin/wakamad_sarpras/tata_usaha
     Route::middleware('role:super_admin|wakamad_sarpras|tata_usaha|kepala_madrasah')->group(function () {
         Route::get('/sarpras/inventaris', [InventoryController::class, 'index'])->name('inventaris.index');
@@ -304,5 +333,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/keuangan/spp/keringanan', [TuitionController::class, 'overrides'])->name('spp.overrides');
         Route::post('/keuangan/spp/keringanan', [TuitionController::class, 'overridesStore'])->name('spp.overrides.store');
         Route::post('/keuangan/spp/bayar', [TuitionController::class, 'pay'])->name('spp.pay');
+    });
+
+    // Surat Masuk/Keluar — CRUD + disposisi
+    Route::middleware('role:super_admin|tata_usaha')->prefix('tu/surat')->name('surat.')->group(function () {
+        Route::get('/', [LetterController::class, 'index'])->name('index');
+        Route::get('/tambah', [LetterController::class, 'create'])->name('create');
+        Route::post('/', [LetterController::class, 'store'])->name('store');
+        Route::get('/{letter}', [LetterController::class, 'show'])->name('show');
+        Route::get('/{letter}/edit', [LetterController::class, 'edit'])->name('edit');
+        Route::put('/{letter}', [LetterController::class, 'update'])->name('update');
+        Route::delete('/{letter}', [LetterController::class, 'destroy'])->name('destroy');
+        Route::get('/{letter}/unduh', [LetterController::class, 'download'])->name('download');
+        Route::patch('/{letter}/disposisi', [LetterController::class, 'disposition'])->name('disposition');
     });
 });
