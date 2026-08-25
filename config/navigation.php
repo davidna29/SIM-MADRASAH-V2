@@ -135,7 +135,7 @@ return [
         'items' => [
             ['label' => 'Pusat Laporan', 'route' => 'dashboard', 'icon' => 'chart-bar', 'roles' => ['*']],
             ['label' => 'Pusat Dokumen', 'route' => 'dashboard', 'icon' => 'folder-open', 'roles' => ['*']],
-            ['label' => 'Activity & Audit Log', 'route' => 'dashboard', 'icon' => 'arrow-path', 'roles' => ['super_admin']],
+            ['label' => 'Activity & Audit Log', 'route' => 'activity-log.index', 'icon' => 'arrow-path', 'roles' => ['super_admin']],
             ['label' => 'Backup & Restore', 'route' => 'dashboard', 'icon' => 'archive-box-arrow-down', 'roles' => ['super_admin']],
         ],
     ],

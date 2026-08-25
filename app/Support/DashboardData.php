@@ -215,20 +215,6 @@ class DashboardData
 
     protected static function aktivitasText(string $description): string
     {
-        return match ($description) {
-            'kehadiran_diinput' => 'mencatat kehadiran siswa',
-            'jurnal_diisi' => 'mengisi jurnal mengajar',
-            'jurnal_diubah' => 'mengubah jurnal mengajar',
-            'jurnal_dihapus' => 'menghapus jurnal mengajar',
-            'jadwal_disusun' => 'menyusun jadwal pelajaran',
-            'jadwal_generate_blank' => 'membuat kerangka kosong jadwal',
-            'jadwal_generate_copy' => 'menyalin jadwal tahun sebelumnya',
-            'rapor_diterbitkan' => 'menerbitkan rapor',
-            'spp_dibayar' => 'mencatat pembayaran SPP',
-            'spp_diubah' => 'mengubah pembayaran SPP',
-            'spp_nominal_diatur' => 'mengatur nominal SPP',
-            'spp_override_diatur' => 'mengatur keringanan SPP',
-            default => ucfirst(str_replace('_', ' ', $description)),
-        };
+        return ActivityText::readable($description);
     }
 }

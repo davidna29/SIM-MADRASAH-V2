@@ -19,6 +19,7 @@ use App\Http\Controllers\Kesiswaan\OffenseController;
 use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
+use App\Http\Controllers\Pemeliharaan\ActivityLogController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
@@ -99,6 +100,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/akademik/jadwal-pelajaran/kelas/{classGroup}/cetak', [ScheduleCellController::class, 'cetakKelas'])->name('jadwal.kelas.cetak');
         Route::get('/akademik/jadwal-pelajaran/guru/{teacher}', [ScheduleCellController::class, 'perGuru'])->name('jadwal.guru');
         Route::get('/akademik/jadwal-pelajaran/guru/{teacher}/cetak', [ScheduleCellController::class, 'cetakGuru'])->name('jadwal.guru.cetak');
+
+        // Activity & Audit Log — pemeliharaan
+        Route::get('/pemeliharaan/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
     });
 
     // Jurnal Mengajar — monitor (Wakamad Kurikulum / Kepala Madrasah)
