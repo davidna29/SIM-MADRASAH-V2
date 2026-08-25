@@ -100,7 +100,7 @@ class KonselingModuleTest extends TestCase
         $response->assertSee('Motivasi Belajar');
     }
 
-    public function test_guru_bk_cannot_view_other_counselor_sessions(): void
+    public function test_guru_bk_can_view_other_counselor_sessions(): void
     {
         CounselingSession::create([
             ...$this->payload(['confidentiality_level' => 'guru_bk_only']),
@@ -110,7 +110,7 @@ class KonselingModuleTest extends TestCase
         $response = $this->actingAs($this->guruBk)->get(route('konseling.index'));
 
         $response->assertOk();
-        $response->assertDontSee('Motivasi Belajar');
+        $response->assertSee('Motivasi Belajar');
     }
 
     public function test_kepala_can_view_plus_kepala_sessions(): void

@@ -18,7 +18,7 @@ class CounselingSessionPolicy
             return true;
         }
 
-        if ($user->role === 'guru_bk' && $session->counselor_user_id === $user->id) {
+        if ($user->role === 'guru_bk') {
             return true;
         }
 

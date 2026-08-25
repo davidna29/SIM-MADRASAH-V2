@@ -54,7 +54,7 @@ class CounselingSession extends Model
         }
 
         if ($user->role === 'guru_bk') {
-            return $query->where('counselor_user_id', $user->id);
+            return $query;
         }
 
         if ($user->role === 'kepala_madrasah') {
