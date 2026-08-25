@@ -86,9 +86,9 @@
         </x-ui.sheet>
 
         {{-- Lampiran --}}
-        <x-ui.sheet title="Lampiran" subtitle="File pendukung (opsional, maks 10MB)" class="mb-6">
-            <x-ui.field label="File Lampiran" :error="$errors->first('file')">
-                <input type="file" name="file" class="w-full rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink ring-1 ring-inset ring-rule-strong transition duration-150 hover:ring-ink-faint/60 focus:outline-none focus:ring-2 focus:ring-primary file:mr-4 file:py-2 file:px-4 file:rounded-[var(--radius-control)] file:border-0 file:text-sm file:font-semibold file:bg-primary-soft file:text-primary hover:file:bg-primary/10" />
+        <x-ui.sheet title="Lampiran PDF" subtitle="Link ke file PDF (opsional)" class="mb-6">
+            <x-ui.field label="URL File PDF" hint="Masukkan link ke dokumen PDF (Google Drive, dll)" :error="$errors->first('file_url')">
+                <x-ui.input name="file_url" type="url" value="{{ old('file_url') }}" placeholder="https://drive.google.com/file/d/..." />
             </x-ui.field>
         </x-ui.sheet>
 

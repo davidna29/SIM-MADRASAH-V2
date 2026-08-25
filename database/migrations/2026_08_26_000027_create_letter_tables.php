@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('category')->nullable(); // Kategori surat (undangan, pemberitahuan, dll)
             $table->string('disposition_to')->nullable(); // Disposisi ke
             $table->text('disposition_note')->nullable(); // Catatan disposisi
-            $table->string('file_path')->nullable(); // File lampiran
+            $table->string('file_url')->nullable(); // URL file PDF lampiran
             $table->foreignId('recorded_by')->constrained('users');
             $table->foreignId('academic_year_id')->constrained('academic_years');
             $table->timestamps();

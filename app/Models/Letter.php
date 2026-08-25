@@ -23,7 +23,7 @@ class Letter extends Model
         'category',
         'disposition_to',
         'disposition_note',
-        'file_path',
+        'file_url',
         'recorded_by',
         'academic_year_id',
     ];

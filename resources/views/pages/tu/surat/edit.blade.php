@@ -86,18 +86,18 @@
         </x-ui.sheet>
 
         {{-- Lampiran --}}
-        <x-ui.sheet title="Lampiran" subtitle="File pendukung (opsional, maks 10MB)" class="mb-6">
-            @if($letter->file_path)
+        <x-ui.sheet title="Lampiran PDF" subtitle="Link ke file PDF (opsional)" class="mb-6">
+            @if($letter->file_url)
                 <div class="mb-4 flex items-center gap-3 rounded-[var(--radius-control)] bg-paper-deep p-3">
                     <x-svg-document-text class="size-6 text-ink-faint" />
                     <div>
-                        <p class="text-sm font-medium text-ink">{{ basename($letter->file_path) }}</p>
-                        <p class="text-xs text-ink-soft">File saat ini</p>
+                        <a href="{{ $letter->file_url }}" target="_blank" class="text-sm font-medium text-primary hover:underline">{{ $letter->file_url }}</a>
+                        <p class="text-xs text-ink-soft">Link PDF saat ini</p>
                     </div>
                 </div>
             @endif
-            <x-ui.field label="Ganti File" :error="$errors->first('file')">
-                <input type="file" name="file" class="w-full rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink ring-1 ring-inset ring-rule-strong transition duration-150 hover:ring-ink-faint/60 focus:outline-none focus:ring-2 focus:ring-primary file:mr-4 file:py-2 file:px-4 file:rounded-[var(--radius-control)] file:border-0 file:text-sm file:font-semibold file:bg-primary-soft file:text-primary hover:file:bg-primary/10" />
+            <x-ui.field label="URL File PDF" hint="Masukkan link ke dokumen PDF (Google Drive, dll)" :error="$errors->first('file_url')">
+                <x-ui.input name="file_url" type="url" value="{{ old('file_url', $letter->file_url) }}" placeholder="https://drive.google.com/file/d/..." />
             </x-ui.field>
         </x-ui.sheet>
 

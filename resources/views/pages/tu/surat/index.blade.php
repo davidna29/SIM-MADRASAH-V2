@@ -1,12 +1,18 @@
 <x-layouts.page :title="$type === 'masuk' ? 'Surat Masuk' : 'Surat Keluar'" :roleLabel="$roleLabel" :breadcrumb="$breadcrumb">
-    {{-- Header --}}
-    <x-slot:actions>
-        <x-ui.button variant="primary" icon="plus" href="{{ route('surat.create', ['type' => $type]) }}">
-            Tambah Surat {{ $type === 'masuk' ? 'Masuk' : 'Keluar' }}
-        </x-ui.button>
-    </x-slot:actions>
+    <div class="mx-auto max-w-6xl">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{{ $type === 'masuk' ? 'Surat Masuk' : 'Surat Keluar' }}</h1>
+                <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-ink-soft">
+                    Kelola surat {{ $type === 'masuk' ? 'masuk' : 'keluar' }} madrasah.
+                </p>
+            </div>
+            <x-ui.button variant="primary" icon="plus" href="{{ route('surat.create', ['type' => $type]) }}">
+                Tambah Surat {{ $type === 'masuk' ? 'Masuk' : 'Keluar' }}
+            </x-ui.button>
+        </div>
 
-    {{-- Flash messages --}}
+        {{-- Flash messages --}}
     @if(session('status'))
         <x-ui.alert variant="success" dismissible>{{ session('status') }}</x-ui.alert>
     @endif
@@ -120,4 +126,5 @@
             </div>
         @endif
     </x-ui.sheet>
+    </div>
 </x-layouts.page>

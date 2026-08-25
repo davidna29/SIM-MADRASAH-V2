@@ -344,7 +344,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/{letter}/edit', [LetterController::class, 'edit'])->name('edit');
         Route::put('/{letter}', [LetterController::class, 'update'])->name('update');
         Route::delete('/{letter}', [LetterController::class, 'destroy'])->name('destroy');
-        Route::get('/{letter}/unduh', [LetterController::class, 'download'])->name('download');
         Route::patch('/{letter}/disposisi', [LetterController::class, 'disposition'])->name('disposition');
     });
 });

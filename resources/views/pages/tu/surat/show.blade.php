@@ -82,13 +82,13 @@
             @endif
 
             {{-- Lampiran --}}
-            @if($letter->file_path)
-                <x-ui.sheet title="Lampiran">
+            @if($letter->file_url)
+                <x-ui.sheet title="Lampiran PDF">
                     <div class="flex items-center gap-3">
                         <x-svg-document-text class="size-8 text-ink-faint" />
                         <div>
-                            <p class="text-sm font-medium text-ink">{{ basename($letter->file_path) }}</p>
-                            <a href="{{ route('surat.download', $letter) }}" class="text-xs font-semibold text-primary hover:underline">Unduh File</a>
+                            <p class="text-sm font-medium text-ink">Dokumen PDF</p>
+                            <a href="{{ $letter->file_url }}" target="_blank" class="text-xs font-semibold text-primary hover:underline">Buka Dokumen ↗</a>
                         </div>
                     </div>
                 </x-ui.sheet>

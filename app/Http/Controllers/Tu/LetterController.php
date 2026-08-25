@@ -8,7 +8,6 @@ use App\Models\Letter;
 use App\Models\LetterCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class LetterController extends Controller
@@ -117,17 +116,12 @@ class LetterController extends Controller
             'category' => ['nullable', 'string', 'max:100'],
             'disposition_to' => ['nullable', 'string', 'max:255'],
             'disposition_note' => ['nullable', 'string'],
-            'file' => ['nullable', 'file', 'max:10240'], // Maks 10MB
+            'file_url' => ['nullable', 'url', 'max:500'],
         ]);
 
         // Generate nomor jika surat keluar dan belum diisi
         if ($validated['type'] === 'keluar' && empty($validated['number'])) {
             $validated['number'] = Letter::generateNumber();
-        }
-
-        // Handle file upload
-        if ($request->hasFile('file')) {
-            $validated['file_path'] = $request->file('file')->store('surat', 'local');
         }
 
         $validated['recorded_by'] = auth()->id();
@@ -206,17 +200,8 @@ class LetterController extends Controller
             'category' => ['nullable', 'string', 'max:100'],
             'disposition_to' => ['nullable', 'string', 'max:255'],
             'disposition_note' => ['nullable', 'string'],
-            'file' => ['nullable', 'file', 'max:10240'],
+            'file_url' => ['nullable', 'url', 'max:500'],
         ]);
-
-        // Handle file upload
-        if ($request->hasFile('file')) {
-            // Hapus file lama jika ada
-            if ($letter->file_path) {
-                Storage::disk('local')->delete($letter->file_path);
-            }
-            $validated['file_path'] = $request->file('file')->store('surat', 'local');
-        }
 
         $letter->update($validated);
 
@@ -232,11 +217,6 @@ class LetterController extends Controller
     public function destroy(Letter $letter): RedirectResponse
     {
         $this->authorize('delete', $letter);
-
-        // Hapus file lampiran jika ada
-        if ($letter->file_path) {
-            Storage::disk('local')->delete($letter->file_path);
-        }
 
         $letter->delete();
 
@@ -265,21 +245,5 @@ class LetterController extends Controller
 
         return redirect()->route('surat.show', $letter)
             ->with('status', 'Surat berhasil didisposisi.');
-    }
-
-    /**
-     * Download file lampiran
-     */
-    public function download(Letter $letter)
-    {
-        $this->authorize('view', $letter);
-
-        abort_unless($letter->file_path, 404);
-
-        $path = storage_path('app/'.$letter->file_path);
-
-        abort_unless(file_exists($path), 404);
-
-        return response()->download($path, basename($letter->file_path));
     }
 }
