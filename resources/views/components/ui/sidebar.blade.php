@@ -63,7 +63,10 @@
                                     }
                                     return $roleCanReach($child['route']);
                                 })->values();
-                                $anyChildActive = $visibleChildren->contains(fn ($c) => $active === $c['route']);
+                                $anyChildActive = $visibleChildren->contains(function ($c) use ($active) {
+                                    $params = $c['routeParams'] ?? [];
+                                    return $active === $c['route'] && empty(array_diff($params, request()->query()));
+                                });
                             @endphp
                             @if ($visibleChildren->isEmpty())
                                 @continue
@@ -74,8 +77,9 @@
                                 <ul class="space-y-0.5">
                                     @foreach ($visibleChildren as $child)
                                         @php
-                                            $isActive = $active === $child['route'];
-                                            $href = route($child['route']);
+                                            $childParams = $child['routeParams'] ?? [];
+                                            $isActive = $active === $child['route'] && empty(array_diff($childParams, request()->query()));
+                                            $href = route($child['route'], $childParams);
                                             $isExternal = (bool) ($child['external'] ?? false);
                                         @endphp
                                         <li>
