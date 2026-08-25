@@ -97,7 +97,7 @@
                 foreach ($item['children'] as $child) {
                     $flatMenu[] = [
                         'label' => $child['label'],
-                        'match' => trim($item['label'].' '.$child['label']),
+                        'match' => trim($group['label'].' '.$item['label'].' '.$child['label']),
                         'route' => $child['route'] ?? null,
                         'routeParams' => $child['routeParams'] ?? [],
                         'icon' => $child['icon'] ?? 'arrow-small-right',
@@ -124,23 +124,22 @@
         }
     }
     $activeSlugMap = collect($activeSlugs)->unique()->mapWithKeys(fn ($slug) => [$slug => true])->all();
-    $searchLabels = collect($flatMenu)->pluck('match')->values()->all();
 @endphp
+
+{{-- Data JSON untuk inisialisasi Alpine — diletakkan di <script>, bukan di atribut x-data
+     (JSON dengan tanda kutip ganda akan memotong atribut HTML). --}}
+<script type="application/json" id="sim-sidebar-active">@json($activeSlugMap)</script>
 
 <nav aria-label="Navigasi utama" class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4"
     x-data="{
         query: '',
-        labels: @json($searchLabels),
         open: Object.assign(
             JSON.parse(localStorage.getItem('sim-nav-open') || '{}'),
-            @json($activeSlugMap)
+            JSON.parse(document.getElementById('sim-sidebar-active').textContent)
         ),
         matches(label) {
             const q = this.query.trim().toLowerCase();
             return q === '' || String(label).toLowerCase().includes(q);
-        },
-        anyMatch() {
-            return this.labels.some(label => this.matches(label));
         },
         toggle(key) {
             this.open[key] = !this.open[key];
@@ -172,7 +171,7 @@
                     $href = $menu['route'] ? route($menu['route'], $menu['routeParams']) : '#';
                     $isExternal = (bool) $menu['external'];
                 @endphp
-                <li x-show="matches(@json($menu['match']))">
+                <li x-show="matches($el.dataset.navMatch)" data-nav-match="{{ $menu['match'] }}">
                     <a href="{{ $href }}"
                         @if ($isExternal)
                             rel="noopener" x-on:click.prevent="$dispatch('open-external-link', { url: '{{ $href }}', label: '{{ addslashes($menu['label']) }}' })"
@@ -183,7 +182,7 @@
                     </a>
                 </li>
             @endforeach
-            <li x-show="query !== '' && !anyMatch()" class="px-2.5 py-2 text-xs text-board-ink/50">Tidak ada menu yang cocok.</li>
+            <li x-show="query !== '' && !Array.from($root.querySelectorAll('[data-nav-match]')).some(el => String(el.dataset.navMatch).toLowerCase().includes(query.trim().toLowerCase()))" class="px-2.5 py-2 text-xs text-board-ink/50">Tidak ada menu yang cocok.</li>
         </ul>
     </div>
 
