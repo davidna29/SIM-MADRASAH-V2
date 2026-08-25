@@ -31,11 +31,13 @@
 
 ```bash
 # di folder proyek
-php artisan serve            # buka http://localhost:8000
+composer serve               # buka http://localhost:8000 — menaikkan limit upload PHP
 php artisan migrate:fresh --seed   # reset DB + data demo
 php artisan test             # 134 test
 npm run build                # asset produksi
 ```
+
+> **Jangan jalankan `php artisan serve` polos** untuk fitur unggah: script `serve` di `composer.json` membawa `-d post_max_size=64M -d upload_max_filesize=8M` (unggahan galeri/prestasi bisa ±40 MB). Deploy shared hosting: samakan via cPanel *MultiPHP INI Editor* atau `.user.ini`.
 
 **Akun demo (password semua `password`):**
 
