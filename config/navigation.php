@@ -20,7 +20,7 @@ return [
         'label' => 'Fondasi & Pengaturan',
         'items' => [
             ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home', 'roles' => ['super_admin', 'kepala_madrasah', 'wakamad_kurikulum', 'wakamad_kesiswaan', 'bendahara', 'tata_usaha']],
-            ['label' => 'Pengguna & Role', 'route' => 'dashboard', 'icon' => 'user-group', 'roles' => ['super_admin']],
+            ['label' => 'Pengguna & Role', 'route' => 'pengguna.index', 'icon' => 'user-group', 'roles' => ['super_admin']],
             ['label' => 'Struktur Organisasi', 'route' => 'dashboard', 'icon' => 'building-library', 'roles' => ['super_admin']],
             ['label' => 'Pengaturan Sistem', 'route' => 'dashboard', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin']],
         ],

@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             KesiswaanSeeder::class,
             GaleriSeeder::class,
             EkstrakurikulerSeeder::class,
+            UserRoleSeeder::class,
         ]);
     }
 }

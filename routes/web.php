@@ -12,6 +12,7 @@ use App\Http\Controllers\Cms\AgendaController;
 use App\Http\Controllers\Cms\ArticleController;
 use App\Http\Controllers\Cms\GalleryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Fondasi\UserController;
 use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
 use App\Http\Controllers\Kepegawaian\EmployeeController;
@@ -108,6 +109,15 @@ Route::middleware('auth')->group(function () {
 
         // Activity & Audit Log — pemeliharaan
         Route::get('/pemeliharaan/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+
+        // Pengguna & Role Management
+        Route::get('/fondasi/pengguna', [UserController::class, 'index'])->name('pengguna.index');
+        Route::get('/fondasi/pengguna/tambah', [UserController::class, 'create'])->name('pengguna.create');
+        Route::post('/fondasi/pengguna', [UserController::class, 'store'])->name('pengguna.store');
+        Route::get('/fondasi/pengguna/{user}', [UserController::class, 'show'])->name('pengguna.show');
+        Route::get('/fondasi/pengguna/{user}/edit', [UserController::class, 'edit'])->name('pengguna.edit');
+        Route::put('/fondasi/pengguna/{user}', [UserController::class, 'update'])->name('pengguna.update');
+        Route::delete('/fondasi/pengguna/{user}', [UserController::class, 'destroy'])->name('pengguna.destroy');
     });
 
     // Jurnal Mengajar — monitor (Wakamad Kurikulum / Kepala Madrasah)
