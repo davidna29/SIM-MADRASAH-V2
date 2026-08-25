@@ -28,6 +28,6 @@ class ExtracurricularMember extends Model
 
     public function enrollment(): BelongsTo
     {
-        return $this->belongsTo(StudentEnrollment::class);
+        return $this->belongsTo(StudentEnrollment::class, 'student_enrollment_id');
     }
 }

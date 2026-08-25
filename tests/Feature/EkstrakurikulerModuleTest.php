@@ -172,6 +172,38 @@ class EkstrakurikulerModuleTest extends TestCase
         $response->assertSee('B');
     }
 
+    public function test_show_renders_with_members(): void
+    {
+        $ekskul = $this->makeEkskul();
+        $this->actingAs($this->admin)->post(route('ekskul.member.store', $ekskul), [
+            'student_enrollment_id' => $this->enrollment->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('ekskul.show', $ekskul));
+
+        $response->assertOk();
+        $response->assertSee('Aisyah');
+        $response->assertSee('Anggota (1)');
+    }
+
+    public function test_pembina_sees_management_ui_but_guru_lain_does_not(): void
+    {
+        $ekskul = $this->makeEkskul($this->pembina);
+        $this->actingAs($this->pembina)->post(route('ekskul.member.store', $ekskul), [
+            'student_enrollment_id' => $this->enrollment->id,
+        ]);
+
+        $pembinaPage = $this->actingAs($this->pembina)->get(route('ekskul.show', $ekskul));
+        $pembinaPage->assertOk();
+        $pembinaPage->assertSee('Simpan Presensi');
+        $pembinaPage->assertSee('Tambah Anggota');
+
+        $guruLainPage = $this->actingAs($this->guruLain)->get(route('ekskul.show', $ekskul));
+        $guruLainPage->assertOk();
+        $guruLainPage->assertDontSee('Simpan Presensi');
+        $guruLainPage->assertDontSee('Tambah Anggota');
+    }
+
     public function test_role_access(): void
     {
         $ekskul = $this->makeEkskul();

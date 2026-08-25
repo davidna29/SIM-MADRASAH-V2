@@ -137,6 +137,7 @@ class ExtracurricularController extends Controller
                 ['label' => $ekskul->name],
             ],
             'ekskul' => $ekskul,
+            'members' => $members,
             'canManage' => auth()->user()->can('update', $ekskul),
             'tanggal' => $tanggal,
             'presensi' => $presensi,

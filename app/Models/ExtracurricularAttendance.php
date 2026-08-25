@@ -29,7 +29,7 @@ class ExtracurricularAttendance extends Model
 
     public function enrollment(): BelongsTo
     {
-        return $this->belongsTo(StudentEnrollment::class);
+        return $this->belongsTo(StudentEnrollment::class, 'student_enrollment_id');
     }
 
     /** Predikat akhir dari rata-rata poin (A=4 … D=1). */

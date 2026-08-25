@@ -172,6 +172,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/kesiswaan/pelanggaran/{offense}', [OffenseController::class, 'destroy'])->name('pelanggaran.destroy');
 
         // Ekstrakurikuler
+        // Ekstrakurikuler
         Route::get('/kesiswaan/ekstrakurikuler', [ExtracurricularController::class, 'index'])->name('ekskul.index');
         Route::get('/kesiswaan/ekstrakurikuler/tambah', [ExtracurricularController::class, 'create'])->name('ekskul.create');
         Route::post('/kesiswaan/ekstrakurikuler', [ExtracurricularController::class, 'store'])->name('ekskul.store');
