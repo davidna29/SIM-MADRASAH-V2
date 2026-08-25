@@ -92,6 +92,9 @@
                     <input type="search" placeholder="Cari data, menu, atau fitur…" class="w-44 bg-transparent text-sm text-ink placeholder:text-ink-faint focus:outline-none lg:w-56" aria-label="Pencarian global">
                 </div>
 
+                <!-- Mode terang/gelap -->
+                <x-ui.theme-toggle />
+
                 <!-- Notifikasi -->
                 <div class="relative">
                     <button type="button" @click="notifOpen = !notifOpen; userOpen = false"

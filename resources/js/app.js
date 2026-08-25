@@ -15,6 +15,32 @@ Alpine.directive('pin-animate', (el) => {
 });
 
 document.addEventListener('alpine:init', () => {
+    // Theme store — terang/gelap
+    Alpine.store('theme', {
+        mode: localStorage.getItem('sim-theme')
+            || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
+
+        toggle() {
+            this.mode = this.mode === 'dark' ? 'light' : 'dark';
+            this.apply();
+            localStorage.setItem('sim-theme', this.mode);
+        },
+
+        apply() {
+            document.documentElement.classList.toggle('dark', this.mode === 'dark');
+        },
+
+        init() {
+            this.apply();
+            matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                if (!localStorage.getItem('sim-theme')) {
+                    this.mode = e.matches ? 'dark' : 'light';
+                    this.apply();
+                }
+            });
+        },
+    });
+
     Alpine.store('toasts', {
         items: [],
         push(message, type = 'success') {
