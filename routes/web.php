@@ -17,6 +17,7 @@ use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
 use App\Http\Controllers\Kepegawaian\EmployeeController;
 use App\Http\Controllers\Kesiswaan\AchievementController;
+use App\Http\Controllers\Kesiswaan\CounselingController;
 use App\Http\Controllers\Kesiswaan\ExtracurricularController;
 use App\Http\Controllers\Kesiswaan\OffenseController;
 use App\Http\Controllers\Keuangan\TuitionController;
@@ -193,6 +194,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/kesiswaan/ekstrakurikuler/{ekskul}/anggota', [ExtracurricularController::class, 'memberStore'])->name('ekskul.member.store');
         Route::delete('/kesiswaan/ekstrakurikuler/{ekskul}/anggota/{member}', [ExtracurricularController::class, 'memberDestroy'])->name('ekskul.member.destroy');
         Route::post('/kesiswaan/ekstrakurikuler/{ekskul}/presensi', [ExtracurricularController::class, 'presensi'])->name('ekskul.presensi');
+
+        // Konseling (BK)
+        Route::get('/kesiswaan/konseling', [CounselingController::class, 'index'])->name('konseling.index');
+        Route::get('/kesiswaan/konseling/tambah', [CounselingController::class, 'create'])->name('konseling.create');
+        Route::post('/kesiswaan/konseling', [CounselingController::class, 'store'])->name('konseling.store');
+        Route::get('/kesiswaan/konseling/{session}', [CounselingController::class, 'show'])->name('konseling.show');
+        Route::get('/kesiswaan/konseling/{session}/edit', [CounselingController::class, 'edit'])->name('konseling.edit');
+        Route::put('/kesiswaan/konseling/{session}', [CounselingController::class, 'update'])->name('konseling.update');
+        Route::delete('/kesiswaan/konseling/{session}', [CounselingController::class, 'destroy'])->name('konseling.destroy');
     });
 
     // Kehadiran Siswa — input harian + rekap bulanan (input tanggal lampau hanya untuk role privileged)

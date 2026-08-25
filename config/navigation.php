@@ -75,7 +75,7 @@ return [
                     ['label' => 'Pelanggaran', 'route' => 'pelanggaran.index', 'icon' => 'shield-exclamation', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru_bk', 'kepala_madrasah']],
                 ],
             ],
-            ['label' => 'Konseling (BK)', 'route' => 'dashboard', 'icon' => 'shield-check', 'roles' => ['super_admin', 'guru_bk']],
+            ['label' => 'Konseling (BK)', 'route' => 'konseling.index', 'icon' => 'shield-check', 'roles' => ['super_admin', 'guru_bk']],
             ['label' => 'Ekstrakurikuler', 'route' => 'ekskul.index', 'icon' => 'star', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'guru', 'wali_kelas', 'kepala_madrasah']],
             ['label' => 'Portofolio Digital', 'route' => 'dashboard', 'icon' => 'document-arrow-up', 'roles' => ['*']],
         ],

@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             GaleriSeeder::class,
             EkstrakurikulerSeeder::class,
             UserRoleSeeder::class,
+            KonselingSeeder::class,
         ]);
     }
 }

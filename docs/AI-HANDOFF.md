@@ -27,6 +27,7 @@
   - Activity & Audit Log (halaman lihat/filter jejak aktivitas)
   - Galeri & Media (album foto + video tautan eksternal, halaman publik)
   - **Pengguna & Role Management** (CRUD pengguna, multi-role via pivot table, sidebar navigation)
+  - **Konseling (BK)** (catatan sesi konseling, 3 level kerahasiaan, lampiran privat, authorization berbasis record)
 - **Sisa MVP (PRD 8.1):** Perluasan tagihan non-SPP (opsional).
 
 ## 2. Cara Menjalankan
@@ -35,7 +36,7 @@
 # di folder proyek
 composer serve               # buka http://localhost:8000 — menaikkan limit upload PHP
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 159 test
+php artisan test             # 173 test
 npm run build                # asset produksi
 ```
 
@@ -97,13 +98,14 @@ Fitur penting:
 - **MySQL strict**: FK & unique aktif — data invalid ditolak (beda dari SQLite dev).
 - **Validasi** memakai Form Request; otorisasi memakai Policy + `authorize()` (Controller base sudah pakai `AuthorizesRequests`).
 - **Modul Pengguna & Role:** tabel `user_roles` (pivot multi-role, unique `user_id`+`role`), `UserController` di `Fondasi/` (super_admin only), sidebar "Pengguna & Role" navigasi ke `/fondasi/pengguna`. Role utama di kolom `users.role`, role tambahan di tabel `user_roles`. `User::allRoles()` menggabungkan keduanya. Soft deletes diaktifkan untuk users (proteksi self-delete + last super admin di Policy).
+- **Modul Konseling (BK):** tabel `counseling_sessions` (FK `student_enrollment_id` + `counselor_user_id`, 3 level kerahasiaan: `guru_bk_only`, `plus_kepala`, `plus_wali_kelas`). Policy record-level: Guru BK hanya lihat sesi sendiri; Kepala Madrasah lihat `plus_kepala` & `plus_wali_kelas`; Wali Kelas hanya `plus_wali_kelas`. Lampiran disimpan di `storage/app/private/counseling/` (disk `local`). Scope `visibleTo()` di model untuk filter query. Route `/kesiswaan/konseling*`, sidebar "Konseling (BK)" untuk role `super_admin|guru_bk`.
 
 ## 5. Langkah Modul Berikutnya
 
 Disiplin (PRD Bagian 16): **frontend → persetujuan pengguna → backend → test**. Mulai dari:
 
 1. **Perluasan tagihan non-SPP** (uang gedung, seragam, dll — jika diperlukan).
-2. **Modul lain yang bisa dikerjakan:** Konseling (BK), Inventaris, Perpustakaan, Surat Masuk/Keluar, Portofolio Digital, Pusat Laporan, Backup & Restore.
+2. **Modul lain yang bisa dikerjakan:** Inventaris, Perpustakaan, Surat Masuk/Keluar, Portofolio Digital, Pusat Laporan, Backup & Restore.
 
 ## 6. Keputusan Terbuka (PRD Bagian 24)
 
