@@ -76,10 +76,15 @@
                                         @php
                                             $isActive = $active === $child['route'];
                                             $href = route($child['route']);
+                                            $isExternal = (bool) ($child['external'] ?? false);
                                         @endphp
                                         <li>
                                             <a href="{{ $href }}"
-                                                :title="collapsed ? '{{ $child['label'] }}' : ''"
+                                                @if ($isExternal)
+                                                    rel="noopener"
+                                                    x-on:click.prevent="$dispatch('open-external-link', { url: '{{ $href }}', label: '{{ addslashes($child['label']) }}' })"
+                                                @endif
+                                                :title="collapsed ? '{{ addslashes($child['label']) }}' : ''"
                                                 @class([
                                                     'group/nav relative flex items-center gap-2.5 rounded-[var(--radius-control)] px-2.5 py-2 pl-6 text-[13px] font-semibold transition duration-150 ease-out',
                                                     'bg-board-soft/40 text-board-ink ring-1 ring-inset ring-board-soft/60 shadow-sm' => $isActive,
@@ -103,10 +108,15 @@
                         @php
                             $isActive = $active === $item['route'];
                             $href = route($item['route']);
+                            $isExternal = (bool) ($item['external'] ?? false);
                         @endphp
                         <li>
                             <a href="{{ $href }}"
-                                :title="collapsed ? '{{ $item['label'] }}' : ''"
+                                @if ($isExternal)
+                                    rel="noopener"
+                                    x-on:click.prevent="$dispatch('open-external-link', { url: '{{ $href }}', label: '{{ addslashes($item['label']) }}' })"
+                                @endif
+                                :title="collapsed ? '{{ addslashes($item['label']) }}' : ''"
                                 @class([
                                     'group/nav relative flex items-center gap-2.5 rounded-[var(--radius-control)] px-2.5 py-2 text-[13px] font-semibold transition duration-150 ease-out',
                                     'bg-board-soft/40 text-board-ink ring-1 ring-inset ring-board-soft/60 shadow-sm' => $isActive,

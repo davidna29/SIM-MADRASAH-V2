@@ -100,6 +100,18 @@ class DashboardTest extends TestCase
         $response->assertSee('mencatat pembayaran SPP');
     }
 
+    public function test_website_publik_nav_uses_confirmation_and_new_tab(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('dashboard'));
+
+        $response->assertOk();
+        // Link disadap lalu konfirmasi via modal sebelum buka tab baru
+        $response->assertSee('open-external-link');
+        $response->assertSee('Buka Website Publik');
+        $response->assertSee('Buka Tab Baru');
+        $response->assertSee(route('publik.berita.index'));
+    }
+
     public function test_dashboard_without_data_still_renders(): void
     {
         $response = $this->actingAs($this->admin)->get(route('dashboard'));

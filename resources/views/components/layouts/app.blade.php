@@ -172,4 +172,38 @@
             <x-ui.badge variant="neutral" :dot="false">Data demo — bukan data riil</x-ui.badge>
         </footer>
     </div>
+
+    <!-- Modal konfirmasi tautan eksternal (mis. Website Publik — buka di tab baru) -->
+    <div x-data="{ open: false, url: '', label: '' }"
+        @open-external-link.window="url = $event.detail.url ?? ''; label = $event.detail.label ?? ''; open = true"
+        @keydown.escape.window="open = false"
+        x-cloak>
+        <div x-show="open" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-board-deep/60 backdrop-blur-[2px]" @click="open = false"></div>
+
+            <div class="relative w-full max-w-md rounded-sheet bg-sheet shadow-sheet-raised ring-1 ring-inset ring-rule"
+                x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 translate-y-3 scale-[0.98]" x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-100" x-transition:leave-end="opacity-0 translate-y-3 scale-[0.98]"
+                role="dialog" aria-modal="true" aria-labelledby="external-link-title">
+                <header class="flex items-center justify-between border-b border-rule/70 px-5 py-4">
+                    <h3 id="external-link-title" class="text-sm font-bold tracking-tight text-ink">Buka Website Publik</h3>
+                    <button type="button" @click="open = false" class="rounded-md p-1 text-ink-faint transition hover:bg-paper-deep hover:text-ink" aria-label="Tutup">
+                        <x-svg-x-mark class="size-5" aria-hidden="true" />
+                    </button>
+                </header>
+                <div class="px-5 py-5 text-sm leading-relaxed text-ink-soft">
+                    Anda akan membuka halaman <span class="font-semibold text-ink" x-text="label || 'Website Publik'"></span>
+                    di <strong>tab baru</strong>. Panel admin tetap terbuka di tab ini.
+                </div>
+                <footer class="flex items-center justify-end gap-2 border-t border-rule/70 px-5 py-4">
+                    <x-ui.button type="button" variant="ghost" size="sm" @click="open = false">Batal</x-ui.button>
+                    <a :href="url" target="_blank" rel="noopener" @click="open = false"
+                        class="inline-flex h-8 items-center gap-1.5 rounded-[var(--radius-control)] bg-primary px-3 text-xs font-semibold text-white shadow-sm transition hover:bg-primary-strong active:scale-[0.98]">
+                        <x-svg-arrow-top-right-on-square class="size-4 shrink-0" aria-hidden="true" />
+                        Buka Tab Baru
+                    </a>
+                </footer>
+            </div>
+        </div>
+    </div>
 </div>
