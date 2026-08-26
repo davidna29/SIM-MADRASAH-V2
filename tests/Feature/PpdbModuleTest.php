@@ -98,6 +98,16 @@ class PpdbModuleTest extends TestCase
         $response->assertSee('PPDB');
     }
 
+    public function test_summary_binds_reactively_to_step(): void
+    {
+        // Ringkasan langkah 7 harus membaca nilai DOM saat wizard mencapai step 7,
+        // bukan hanya saat init. Binding x-text wajib bergantung pada `step`
+        // (via `step, document.querySelector(...)`) agar berisi data yang diisi.
+        $response = $this->get(route('ppdb.form'));
+        $response->assertOk();
+        $response->assertSee("step, document.querySelector('[name=name]')", false);
+    }
+
     public function test_can_submit_registration(): void
     {
         $response = $this->post(route('ppdb.store'), $this->validData());
