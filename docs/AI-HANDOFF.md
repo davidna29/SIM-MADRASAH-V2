@@ -39,7 +39,7 @@
 # di folder proyek
 composer serve               # buka http://localhost:8000 — menaikkan limit upload PHP
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 284 test
+php artisan test             # 289 test
 npm run build                # asset produksi
 ```
 
@@ -115,7 +115,31 @@ Fitur penting:
 
 - **Modul Pengaturan Sistem:** tabel `settings` (key-value, unique key). Model `Setting` dengan static helpers `get()`, `set()`, `getAll()`, `setMany()`. Route `/fondasi/pengaturan` (group `super_admin`). Controller `Fondasi\PengaturanController`: index (form identitas lembaga), update (validasi + upload logo). Sidebar "Pengaturan Sistem" di group "Sistem" (placeholder dihapus). View menampilkan 6 sections: Data Utama (nama, NSM, NPSN, jenjang RA/MI/MTs/MA, status negeri/swasta, tahun berdiri), Alamat & Lokasi (jalan, desa, kecamatan, kabupaten, provinsi, kode pos, lat/lng), Kontak (telepon, email, website), Legalitas (SK pendirian + tanggal, SK izin operasional), Akreditasi & Naungan, Logo (upload JPG/PNG max 2MB). Default settings di-seed via `SettingSeeder`. Hardcoded "MTs Al-Ikhlas Mulia" di layout app, publik, login diganti `Setting::get('madrasah_name')`. Test: 8 feature test di `PengaturanModuleTest`.
 
-- **Modul PPDB Daring:** tabel `ppdb_registrations` (~90 kolom: data siswa A, kesehatan B, berkebutuhan khusus C, alamat siswa D, orang tua E, alamat orang tua F, sekolah asal G, admin-only: kelas/rombel/NIS). Tabel `nis_counters` (counter NIS per tahun). Multi-step wizard publik (7 step via Alpine.js) di `/ppdb` tanpa auth — form pendaftaran lengkap dengan validasi. Admin routes `/ppdb/admin*` (group `super_admin|tata_usaha|kepala_madrasah`). Controller `Publik\PpdbController` (public form + store) dan `Ppdb\AdminPpdbController` (index, show, accept, reject, assignClass, generateNis, commitNis, exportExcel). Accept workflow: buat Person → Student → Guardian → update status. NIS generate: NSM(12 digit dari settings) + Tahun Masuk(2) + Nomor Urut(4) = 18 digit, counter berkelanjutan via `NisCounter`. Export Excel via `Maatwebsite\Excel` dengan mapping kolom EMIS-compatible. Enum reusable: `Pendidikan`, `Pekerjaan`, `Penghasilan`, `Kecamatan`. Migration `guardians.user_id` dijadikan nullable untuk PPDB. Google Drive links untuk dokumen (bukan file upload). Test: 15 feature test di `PpdbModuleTest`. Sidebar "PPDB Daring" di group "Publikasi" (placeholder dihapus). Link PPDB ditambahkan di navigasi publik.
+- **Modul PPDB Daring:** tabel `ppdb_registrations` (~90 kolom: data siswa A, kesehatan B, berkebutuhan khusus C, alamat siswa D, orang tua E, alamat orang tua F, sekolah asal G, admin-only: kelas/rombel/NIS). Tabel `nis_counters` (counter NIS per tahun). Multi-step wizard publik (7 step via Alpine.js) di `/ppdb` tanpa auth — form pendaftaran lengkap dengan validasi. Admin routes `/ppdb/admin*` (group `super_admin|tata_usaha|kepala_madrasah`). Controller `Publik\PpdbController` (public form + store) dan `Ppdb\AdminPpdbController` (index, show, accept, reject, assignClass, generateNis, updateNisCounter, commitNis, exportExcel). Accept workflow: buat Person → Student → Guardian → update status (enrollment dibuat saat assign kelas). NIS generate: NSM(12 digit dari settings) + Tahun Masuk(2) + Nomor Urut(4) = 18 digit, counter berkelanjutan via `NisCounter` — ada field "Acuan Nomor Urut Terakhir" di halaman Generate NIS (`updateNisCounter`) agar operator bisa set titik awal NIS (untuk siswa pindahan yang NIS-nya di luar PPDB). Export Excel via `Maatwebsite\Excel` dengan mapping kolom EMIS-compatible. Enum reusable: `Pendidikan`, `Pekerjaan`, `Penghasilan`, `Kecamatan`. Migration `guardians.user_id` dijadikan nullable untuk PPDB. Google Drive links untuk dokumen (bukan file upload). **Penentuan kelas pakai dropdown kelas yang SUDAH ADA** di `ClassGroup` (validasi ketat — tolak jika kelas tidak ada, arahkan buat dulu di Kelas & Penempatan); menampilkan jumlah siswa per kelas agar merata. Fix: label pendidikan/pekerjaan/penghasilan ditampilkan di detail admin (bukan kode mentah). Test: **20 feature test** di `PpdbModuleTest`. Sidebar "PPDB Daring" di group "Publikasi" (placeholder dihapus). Link PPDB ditambahkan di navigasi publik.
+
+### 4.1 PPDB — Catatan Progress Sementara (sesi berjalan)
+
+Status: **PENSI (belum selesai final)** — user masih mengamati alur nyata & akan memberi umpan balik di sesi berikutnya. Yang SUDAH dikerjakan di sesi ini:
+
+1. **Form publik** — wizard 7 langkah lengkap (~90 field), validasi ketat (NIK 16 digit, RT/RW 3 digit, kode pos 5 digit), dokumen via link Google Drive.
+2. **Opsi Pendidikan/Pekerjaan** dikoreksi ke format EMIS: Pendidikan `D4-S1`; Pekerjaan `03 PNS (Selain poin 05 dan 10)`, `09 Seniman/Pelukis/Artis/Sejenis`, `15 Buruh (Tani/Pabrik/Bangunan)`. Label di form + detail admin + enum `Pekerjaan` disinkronkan.
+3. **Urutan field** — Tanggal Lahir Ayah & Wali dipindah setelah NIK.
+4. **Detail admin** menampilkan **label** (bukan kode mentah) untuk pendidikan/pekerjaan/penghasilan, plus Tempat Lahir Ibu ditambahkan.
+5. **Generate NIS** — ditambah field "Acuan Nomor Urut Terakhir" (`ppdb.update-nis-counter`) sebagai titik awal penomoran; counter per tahun ajaran di `nis_counters`.
+6. **Penentuan kelas** — alur diubah: operator pilih kelas dari **dropdown kelas yang sudah ada** di `ClassGroup` (bukan ketik bebas); validasi tolak jika kelas belum dibuat; tampilkan jumlah siswa per kelas; alert jika belum ada kelas.
+7. **Seeder** — `PpdbDemoSeeder` di-update: default pakai `??=` (nilai eksplisit tidak ditimpa), tambah record lengkap "MUHAMMAD FARHAN RAMADHAN" (semua field terisi kecuali admin-only).
+
+**Catatan pengamat untuk sesi berikutnya** (isi sesuai hasil observasi user):
+- [ ] Apakah data calon siswa id=4 (`/ppdb/admin/4`) tampil benar dengan semua label?
+- [ ] Apakah flow NIS (atur acuan → preview → finalisasi) sudah sesuai kebutuhan operator?
+- [ ] Apakah flow penentuan kelas (buat kelas dulu → dropdown) sudah intuitif?
+- [ ] Umpan balik user tentang kesesuaian field/form dengan formulir Google Form asli.
+
+**Jebakan yang perlu diingat:**
+- `class_group_id` di `student_enrollments` NOT NULL → enrollment siswa PPDB hanya dibuat saat assign kelas (bukan saat accept).
+- `guardians.user_id` dijadikan nullable (migration `alter_guardians_user_id_nullable`) karena orang tua PPDB belum punya akun.
+- Jangan pakai `{{ }}` di dalam tag komponen Blade (mis. `<x-ui.button>`) untuk atribut dinamis — pakai `:prop="ekspresi"` (PHP) atau `x-bind:` (Alpine), bukan `{{ }}` (memicu ParseError "unexpected token endif").
+- Route PPDB fixed (generate-nis, commit-nis, dll) HARUS didefinisikan SEBELUM `{registration}` wildcard.
 
 ## 5. Langkah Modul Berikutnya
 
