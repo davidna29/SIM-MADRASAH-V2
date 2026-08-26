@@ -7,7 +7,6 @@ use App\Models\Achievement;
 use App\Models\Attendance;
 use App\Models\ClassGroup;
 use App\Models\Employee;
-use App\Models\ExtracurricularMember;
 use App\Models\LibraryBook;
 use App\Models\LibraryLoan;
 use App\Models\LibraryMember;
@@ -15,10 +14,7 @@ use App\Models\Offense;
 use App\Models\Report;
 use App\Models\ReportItem;
 use App\Models\StudentEnrollment;
-use App\Models\Subject;
 use App\Models\TuitionPayment;
-use App\Models\User;
-use Carbon\Carbon;
 
 class LaporanService
 {

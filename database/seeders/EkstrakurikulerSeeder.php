@@ -37,8 +37,8 @@ class EkstrakurikulerSeeder extends Seeder
         );
 
         // Anggota: 3 siswa pertama di kelas I-A
-        $tahun = \App\Models\AcademicYear::active();
-        $enrollments = \App\Models\StudentEnrollment::with('student')
+        $tahun = AcademicYear::active();
+        $enrollments = StudentEnrollment::with('student')
             ->where('academic_year_id', $tahun->id)
             ->orderBy('id')
             ->take(3)

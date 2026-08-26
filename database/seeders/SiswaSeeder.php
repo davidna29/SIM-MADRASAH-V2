@@ -52,12 +52,12 @@ class SiswaSeeder extends Seeder
             }
 
             $person = Person::firstOrCreate(
-                ['nik' => '35' . str_pad((string) (1000000000 + $i), 10, '0', STR_PAD_LEFT)],
+                ['nik' => '35'.str_pad((string) (1000000000 + $i), 10, '0', STR_PAD_LEFT)],
                 ['name' => $name, 'gender' => $gender, 'religion' => 'Islam']
             );
 
             $student = Student::firstOrCreate(
-                ['nis' => '24' . str_pad((string) (1000 + $i), 4, '0', STR_PAD_LEFT)],
+                ['nis' => '24'.str_pad((string) (1000 + $i), 4, '0', STR_PAD_LEFT)],
                 ['person_id' => $person->id, 'name' => $name, 'gender' => $gender]
             );
 
@@ -77,9 +77,9 @@ class SiswaSeeder extends Seeder
         }
 
         // Tautkan siswa lama (dari walking skeleton) yang belum punya person
-        Student::whereNull('person_id')->get()->each(function ($student) use ($tahun) {
+        Student::whereNull('person_id')->get()->each(function ($student) {
             $person = Person::firstOrCreate(
-                ['nik' => '35' . str_pad((string) (2000000000 + $student->id), 10, '0', STR_PAD_LEFT)],
+                ['nik' => '35'.str_pad((string) (2000000000 + $student->id), 10, '0', STR_PAD_LEFT)],
                 ['name' => $student->name, 'gender' => $student->gender, 'religion' => 'Islam']
             );
 

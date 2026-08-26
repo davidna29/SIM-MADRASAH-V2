@@ -10,6 +10,7 @@ use App\Models\ScheduleCell;
 use App\Models\ScheduleModel;
 use App\Models\Subject;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -143,6 +144,7 @@ class ScheduleCellController extends Controller
                         ->where('day', $cell['day'])
                         ->where('period_no', $cell['period_no'])
                         ->delete();
+
                     continue;
                 }
 
@@ -201,7 +203,7 @@ class ScheduleCellController extends Controller
         }
 
         $resetCount = 0;
-        DB::transaction(function () use ($model, $tahunId, $slots, $rombel, $sourceCells, $validated, &$resetCount) {
+        DB::transaction(function () use ($model, $tahunId, $slots, $rombel, $sourceCells, &$resetCount) {
             // Reset isian lama pada tahun tujuan (baik blank maupun copy dimulai dari bersih)
             $resetCount = ScheduleCell::where('schedule_model_id', $model->id)
                 ->where('academic_year_id', $tahunId)
@@ -254,7 +256,7 @@ class ScheduleCellController extends Controller
             ->where('class_group_id', $classGroup->id)
             ->get();
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.jadwal-kelas', [
+        $pdf = Pdf::loadView('pdf.jadwal-kelas', [
             'classGroup' => $classGroup,
             'tahun' => $tahun,
             'days' => $this->days,
@@ -279,7 +281,7 @@ class ScheduleCellController extends Controller
             ->where('teacher_id', $teacher->id)
             ->get();
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.jadwal-guru', [
+        $pdf = Pdf::loadView('pdf.jadwal-guru', [
             'teacher' => $teacher,
             'tahun' => $tahun,
             'days' => $this->days,
@@ -308,7 +310,7 @@ class ScheduleCellController extends Controller
                 $teacherName = User::find($cell['teacher_id'])?->name ?? "Guru #{$cell['teacher_id']}";
                 $otherClass = ClassGroup::find($slots[$key])?->name ?? '?';
 
-                $conflicts->push("{$teacherName} bentrok: kelas {$otherClass} & kelas ".($cell['class_group_id'] ? ClassGroup::find($cell['class_group_id'])?->name : '?')." pada ".ucfirst($cell['day'])." jam ke-{$cell['period_no']}");
+                $conflicts->push("{$teacherName} bentrok: kelas {$otherClass} & kelas ".($cell['class_group_id'] ? ClassGroup::find($cell['class_group_id'])?->name : '?').' pada '.ucfirst($cell['day'])." jam ke-{$cell['period_no']}");
             }
 
             $slots[$key] = $cell['class_group_id'];

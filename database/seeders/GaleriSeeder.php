@@ -6,6 +6,7 @@ use App\Models\MediaAlbum;
 use App\Models\MediaItem;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class GaleriSeeder extends Seeder
@@ -34,7 +35,7 @@ class GaleriSeeder extends Seeder
 
         foreach (['Sesi perkenalan dewan guru', 'Perkenalan tata tertib madrasah', 'Penutupan MPLS'] as $i => $caption) {
             $path = 'galeri/demo-mpls-'.($i + 1).'.png';
-            \Illuminate\Support\Facades\Storage::disk('public')->put($path, $png);
+            Storage::disk('public')->put($path, $png);
 
             MediaItem::firstOrCreate(
                 ['album_id' => $album->id, 'file_path' => $path],

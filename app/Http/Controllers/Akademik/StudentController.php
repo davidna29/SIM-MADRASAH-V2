@@ -7,7 +7,6 @@ use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Models\AcademicYear;
 use App\Models\ClassGroup;
-use App\Models\Guardian;
 use App\Models\Person;
 use App\Models\Student;
 use App\Models\StudentEnrollment;

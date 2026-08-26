@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Pemeliharaan;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
+use App\Models\Employee;
 use App\Support\LaporanService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
 
@@ -14,7 +14,7 @@ class LaporanController extends Controller
 {
     public function index(): View
     {
-        $this->authorize('viewAny', \App\Models\Employee::class);
+        $this->authorize('viewAny', Employee::class);
 
         return view('pages.pemeliharaan.laporan.index', [
             'roleLabel' => 'Pemeliharaan',
@@ -27,7 +27,7 @@ class LaporanController extends Controller
 
     public function akademik(): View
     {
-        $this->authorize('viewAny', \App\Models\Employee::class);
+        $this->authorize('viewAny', Employee::class);
 
         $tahun = AcademicYear::active();
         $data = LaporanService::rekapAkademik($tahun);
@@ -46,7 +46,7 @@ class LaporanController extends Controller
 
     public function kehadiran(): View
     {
-        $this->authorize('viewAny', \App\Models\Employee::class);
+        $this->authorize('viewAny', Employee::class);
 
         $tahun = AcademicYear::active();
         $data = LaporanService::rekapKehadiran($tahun);
@@ -65,7 +65,7 @@ class LaporanController extends Controller
 
     public function keuangan(): View
     {
-        $this->authorize('viewAny', \App\Models\Employee::class);
+        $this->authorize('viewAny', Employee::class);
 
         $tahun = AcademicYear::active();
         $data = LaporanService::rekapKeuangan($tahun);
@@ -84,7 +84,7 @@ class LaporanController extends Controller
 
     public function kesiswaan(): View
     {
-        $this->authorize('viewAny', \App\Models\Employee::class);
+        $this->authorize('viewAny', Employee::class);
 
         $tahun = AcademicYear::active();
         $data = LaporanService::rekapKesiswaan($tahun);
@@ -103,7 +103,7 @@ class LaporanController extends Controller
 
     public function tenaga(): View
     {
-        $this->authorize('viewAny', \App\Models\Employee::class);
+        $this->authorize('viewAny', Employee::class);
 
         $data = LaporanService::rekapTenaga();
 
@@ -120,7 +120,7 @@ class LaporanController extends Controller
 
     public function perpustakaan(): View
     {
-        $this->authorize('viewAny', \App\Models\Employee::class);
+        $this->authorize('viewAny', Employee::class);
 
         $data = LaporanService::rekapPerpustakaan();
 
@@ -137,7 +137,7 @@ class LaporanController extends Controller
 
     public function exportPdf(string $jenis)
     {
-        $this->authorize('viewAny', \App\Models\Employee::class);
+        $this->authorize('viewAny', Employee::class);
 
         $tahun = AcademicYear::active();
         $title = match ($jenis) {
@@ -166,14 +166,14 @@ class LaporanController extends Controller
             'tahun' => $tahun,
         ])->setPaper('a4', 'landscape');
 
-        $filename = "laporan-{$jenis}-".($tahun?->name ?? 'semua').".pdf";
+        $filename = "laporan-{$jenis}-".($tahun?->name ?? 'semua').'.pdf';
 
         return $pdf->download($filename);
     }
 
     public function exportCsv(string $jenis)
     {
-        $this->authorize('viewAny', \App\Models\Employee::class);
+        $this->authorize('viewAny', Employee::class);
 
         $tahun = AcademicYear::active();
 
@@ -187,13 +187,13 @@ class LaporanController extends Controller
             default => abort(404),
         };
 
-        $filename = "laporan-{$jenis}-".($tahun?->name ?? 'semua').".csv";
+        $filename = "laporan-{$jenis}-".($tahun?->name ?? 'semua').'.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function () use ($data, $jenis) {
+        $callback = function () use ($data) {
             $file = fopen('php://output', 'w');
 
             // BOM untuk Excel UTF-8

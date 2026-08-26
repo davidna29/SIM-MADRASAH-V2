@@ -10,6 +10,7 @@ use App\Models\ClassGroup;
 use App\Models\ScheduleModel;
 use App\Models\ScheduleModelGradeLevel;
 use App\Models\ScheduleSlot;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -94,7 +95,7 @@ class ScheduleModelController extends Controller
             }
 
             // Generate slot KBM otomatis dari start_time + durasi
-            $start = \Carbon\Carbon::parse($validated['start_time']);
+            $start = Carbon::parse($validated['start_time']);
             $duration = (int) $validated['slot_duration'];
             for ($i = 1; $i <= $validated['max_hours_per_day']; $i++) {
                 ScheduleSlot::create([

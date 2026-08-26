@@ -29,7 +29,7 @@ class KehadiranModuleTest extends TestCase
 
     protected function makeStudent(string $nis, string $name): StudentEnrollment
     {
-        $person = Person::create(['nik' => '35' . str_pad($nis, 12, '0'), 'name' => $name, 'gender' => 'L', 'religion' => 'Islam']);
+        $person = Person::create(['nik' => '35'.str_pad($nis, 12, '0'), 'name' => $name, 'gender' => 'L', 'religion' => 'Islam']);
         $student = Student::create(['person_id' => $person->id, 'nis' => $nis, 'name' => $name, 'gender' => 'L']);
 
         return StudentEnrollment::create([

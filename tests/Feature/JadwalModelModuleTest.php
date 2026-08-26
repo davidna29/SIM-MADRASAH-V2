@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\AcademicYear;
 use App\Models\ScheduleModel;
 use App\Models\ScheduleModelGradeLevel;
-use App\Models\ScheduleSlot;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

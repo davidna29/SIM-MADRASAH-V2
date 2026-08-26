@@ -80,6 +80,24 @@ return [
                     ['label' => 'Pelanggaran', 'route' => 'pelanggaran.index', 'icon' => 'shield-exclamation', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru_bk', 'kepala_madrasah']],
                 ],
             ],
+            [
+                'label' => 'PPI (Pembiasaan)',
+                'icon' => 'heart',
+                'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Input Nilai', 'route' => 'ppi.index', 'icon' => 'pencil-square', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'kepala_madrasah']],
+                    ['label' => 'Konfigurasi Materi', 'route' => 'ppi.konfigurasi', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin', 'wakamad_kesiswaan']],
+                ],
+            ],
+            [
+                'label' => 'Tahfidz',
+                'icon' => 'book-open',
+                'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Input Nilai', 'route' => 'tahfidz.index', 'icon' => 'pencil-square', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru', 'kepala_madrasah']],
+                    ['label' => 'Konfigurasi Materi', 'route' => 'tahfidz.konfigurasi', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin', 'wakamad_kesiswaan']],
+                ],
+            ],
             ['label' => 'Konseling (BK)', 'route' => 'konseling.index', 'icon' => 'shield-check', 'roles' => ['super_admin', 'guru_bk', 'kepala_madrasah']],
             ['label' => 'Ekstrakurikuler', 'route' => 'ekskul.index', 'icon' => 'star', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'guru', 'wali_kelas', 'kepala_madrasah']],
             ['label' => 'Portofolio Digital', 'route' => 'portofolio.index', 'icon' => 'document-arrow-up', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'wali_kelas', 'guru_bk', 'kepala_madrasah']],

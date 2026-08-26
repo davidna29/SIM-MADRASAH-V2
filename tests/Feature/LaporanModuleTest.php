@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\AcademicYear;
-use App\Models\Employee;
-use App\Models\Person;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,7 +12,9 @@ class LaporanModuleTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected User $kepala;
+
     protected User $guru;
 
     protected function setUp(): void

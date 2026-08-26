@@ -7,6 +7,7 @@ use App\Models\ClassGroup;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
 use App\Models\Subject;
+use App\Models\TeacherAssignment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -66,7 +67,7 @@ class AkademikModuleTest extends TestCase
         $class = ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
         $guru = User::factory()->create(['role' => 'guru']);
 
-        \App\Models\TeacherAssignment::create([
+        TeacherAssignment::create([
             'academic_year_id' => AcademicYear::active()->id,
             'class_group_id' => $class->id,
             'subject_id' => $subject->id,

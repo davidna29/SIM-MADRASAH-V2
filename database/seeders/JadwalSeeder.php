@@ -10,6 +10,7 @@ use App\Models\ScheduleModelGradeLevel;
 use App\Models\ScheduleSlot;
 use App\Models\Subject;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class JadwalSeeder extends Seeder
@@ -47,7 +48,7 @@ class JadwalSeeder extends Seeder
             }
 
             if ($model->slots()->count() === 0) {
-                $start = \Carbon\Carbon::parse($t['start']);
+                $start = Carbon::parse($t['start']);
                 for ($i = 1; $i <= $t['max']; $i++) {
                     ScheduleSlot::create([
                         'schedule_model_id' => $model->id,

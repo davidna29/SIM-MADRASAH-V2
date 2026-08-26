@@ -23,6 +23,8 @@ use App\Http\Controllers\Kesiswaan\CounselingController;
 use App\Http\Controllers\Kesiswaan\ExtracurricularController;
 use App\Http\Controllers\Kesiswaan\OffenseController;
 use App\Http\Controllers\Kesiswaan\PortofolioController;
+use App\Http\Controllers\Kesiswaan\PpiController;
+use App\Http\Controllers\Kesiswaan\TahfidzController;
 use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
@@ -248,6 +250,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/kesiswaan/pelanggaran/{offense}/edit', [OffenseController::class, 'edit'])->name('pelanggaran.edit');
         Route::put('/kesiswaan/pelanggaran/{offense}', [OffenseController::class, 'update'])->name('pelanggaran.update');
         Route::delete('/kesiswaan/pelanggaran/{offense}', [OffenseController::class, 'destroy'])->name('pelanggaran.destroy');
+
+        // PPI (Praktek Pengamalan Ibadah)
+        Route::get('/kesiswaan/ppi', [PpiController::class, 'index'])->name('ppi.index');
+        Route::get('/kesiswaan/ppi/konfigurasi', [PpiController::class, 'konfigurasi'])->name('ppi.konfigurasi');
+        Route::post('/kesiswaan/ppi/konfigurasi', [PpiController::class, 'konfigurasiUpdate'])->name('ppi.konfigurasi.update');
+        Route::get('/kesiswaan/ppi/{siswa}/input', [PpiController::class, 'input'])->name('ppi.input');
+        Route::post('/kesiswaan/ppi/{siswa}/input', [PpiController::class, 'store'])->name('ppi.store');
+        Route::get('/kesiswaan/ppi/{siswa}/cetak', [PpiController::class, 'cetak'])->name('ppi.cetak');
+
+        // Tahfidz
+        Route::get('/kesiswaan/tahfidz', [TahfidzController::class, 'index'])->name('tahfidz.index');
+        Route::get('/kesiswaan/tahfidz/konfigurasi', [TahfidzController::class, 'konfigurasi'])->name('tahfidz.konfigurasi');
+        Route::post('/kesiswaan/tahfidz/konfigurasi', [TahfidzController::class, 'konfigurasiUpdate'])->name('tahfidz.konfigurasi.update');
+        Route::get('/kesiswaan/tahfidz/{siswa}/input', [TahfidzController::class, 'input'])->name('tahfidz.input');
+        Route::post('/kesiswaan/tahfidz/{siswa}/input', [TahfidzController::class, 'store'])->name('tahfidz.store');
+        Route::get('/kesiswaan/tahfidz/{siswa}/cetak', [TahfidzController::class, 'cetak'])->name('tahfidz.cetak');
 
         // Ekstrakurikuler
         // Ekstrakurikuler
