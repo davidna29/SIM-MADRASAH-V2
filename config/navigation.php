@@ -169,7 +169,7 @@ return [
         'label' => 'Pemeliharaan Sistem',
         'icon' => 'wrench-screwdriver',
         'items' => [
-            ['label' => 'Pusat Laporan', 'route' => 'dashboard', 'icon' => 'chart-bar', 'roles' => ['*'], 'placeholder' => true],
+            ['label' => 'Pusat Laporan', 'route' => 'laporan.index', 'icon' => 'chart-bar', 'roles' => ['super_admin', 'kepala_madrasah', 'wakamad_kurikulum', 'wakamad_kesiswaan', 'bendahara']],
             ['label' => 'Pusat Dokumen', 'route' => 'dashboard', 'icon' => 'folder-open', 'roles' => ['*'], 'placeholder' => true],
             ['label' => 'Activity & Audit Log', 'route' => 'activity-log.index', 'icon' => 'arrow-path', 'roles' => ['super_admin']],
             ['label' => 'Backup & Restore', 'route' => 'dashboard', 'icon' => 'archive-box-arrow-down', 'roles' => ['super_admin'], 'placeholder' => true],

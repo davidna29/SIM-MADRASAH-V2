@@ -109,12 +109,14 @@ Fitur penting:
 
 - **Modul Portofolio Digital:** read-only aggregate dari tabel yang sudah ada — tidak ada migrasi baru. `PortofolioService` menggabungkan: rapor (`Report`+`ReportItem`), kehadiran (`Attendance`), prestasi (`Achievement` — via `student_id`), pelanggaran (`Offense` — via `student_id`), ekstrakurikuler (`ExtracurricularMember`+`ExtracurricularAttendance`), SPP (`TuitionPayment`). Route `/kesiswaan/portofolio*` (group `super_admin|wakamad_kesiswaan|wali_kelas|guru_bk|kepala_madrasah`). QR Code via `simplesoftwareio/simple-qrcode` (signed URL token, expiry 30 hari). Cetak PDF via DomPDF. Policy via Gate abilities (`portfolio.viewAny`, `portfolio.view`) — wali kelas hanya lihat siswa rombelnya. Verifikasi publik `/portofolio/{token}` (harus login). Test: 10 feature test di `PortofolioModuleTest`.
 
+- **Modul Pusat Laporan:** read-only aggregate dari tabel yang sudah ada — tidak ada migrasi baru. `LaporanService` menyediakan 6 jenis laporan: rekap akademik (rapor per kelas), rekap kehadiran (H/S/I/A per kelas), rekap keuangan (SPP per kelas), rekap kesiswaan (prestasi + pelanggaran), rekap tenaga (guru/pegawai per role), rekap perpustakaan (buku, pinjaman, anggota). Route `/pemeliharaan/laporan*` (group `super_admin|kepala_madrasah|wakamad_kurikulum|wakamad_kesiswaan|bendahara`). Export PDF (DomPDF) & CSV (streaming dengan BOM UTF-8). Test: 10 feature test di `LaporanModuleTest`.
+
 ## 5. Langkah Modul Berikutnya
 
 Disiplin (PRD Bagian 16): **frontend → persetujuan pengguna → backend → test**. Mulai dari:
 
 1. **Perluasan tagihan non-SPP** — dihapus dari proyek (keputusan pengguna).
-2. **Modul lain yang bisa dikerjakan:** Pusat Laporan, Backup & Restore.
+2. **Modul lain yang bisa dikerjakan:** Backup & Restore.
 
 ## 6. Keputusan Terbuka (PRD Bagian 24)
 

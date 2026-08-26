@@ -26,6 +26,7 @@ use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
 use App\Http\Controllers\Pemeliharaan\ActivityLogController;
+use App\Http\Controllers\Pemeliharaan\LaporanController;
 use App\Http\Controllers\Perpustakaan\LibraryController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
@@ -125,6 +126,20 @@ Route::middleware('auth')->group(function () {
         Route::put('/fondasi/pengguna/{user}', [UserController::class, 'update'])->name('pengguna.update');
         Route::delete('/fondasi/pengguna/{user}', [UserController::class, 'destroy'])->name('pengguna.destroy');
     });
+
+    // Pusat Laporan — multi-role
+    Route::middleware('role:super_admin|kepala_madrasah|wakamad_kurikulum|wakamad_kesiswaan|bendahara')
+        ->prefix('pemeliharaan/laporan')->name('laporan.')->group(function () {
+            Route::get('/', [LaporanController::class, 'index'])->name('index');
+            Route::get('/akademik', [LaporanController::class, 'akademik'])->name('akademik');
+            Route::get('/kehadiran', [LaporanController::class, 'kehadiran'])->name('kehadiran');
+            Route::get('/keuangan', [LaporanController::class, 'keuangan'])->name('keuangan');
+            Route::get('/kesiswaan', [LaporanController::class, 'kesiswaan'])->name('kesiswaan');
+            Route::get('/tenaga', [LaporanController::class, 'tenaga'])->name('tenaga');
+            Route::get('/perpustakaan', [LaporanController::class, 'perpustakaan'])->name('perpustakaan');
+            Route::get('/{jenis}/pdf', [LaporanController::class, 'exportPdf'])->name('pdf');
+            Route::get('/{jenis}/csv', [LaporanController::class, 'exportCsv'])->name('csv');
+        });
 
     // Jurnal Mengajar — monitor (Wakamad Kurikulum / Kepala Madrasah)
     Route::middleware('role:super_admin|wakamad_kurikulum|kepala_madrasah')->group(function () {
