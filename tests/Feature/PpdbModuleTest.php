@@ -162,6 +162,27 @@ class PpdbModuleTest extends TestCase
         $response->assertSee('AHMAD TEST');
     }
 
+    public function test_detail_shows_label_bukan_kode_mentah(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Buat registrasi dengan nilai kode pendidikan/pekerjaan
+        $reg = PpdbRegistration::create(array_merge($this->validData(), [
+            'registration_no' => 'PPDB-LBL-001',
+            'name' => 'LABEL TEST',
+            'mother_education' => '7',
+            'mother_job' => '15',
+            'mother_income' => 'Rp2jt – 3jt',
+        ]));
+
+        $response = $this->get(route('ppdb.show', $reg));
+        $response->assertOk();
+        // Harus menampilkan label, bukan kode
+        $response->assertSee('D4-S1');
+        $response->assertSee('Buruh (Tani/Pabrik/Bangunan)');
+        $response->assertSee('Rp 2.000.000 – 3.000.000');
+    }
+
     public function test_admin_can_accept(): void
     {
         $this->actingAs($this->admin);
