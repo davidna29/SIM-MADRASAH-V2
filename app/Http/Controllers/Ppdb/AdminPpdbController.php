@@ -142,7 +142,7 @@ class AdminPpdbController extends Controller
         $filename = 'ppdb-export-'.now()->format('Y-m-d').'.xlsx';
 
         return Excel::download(
-            new PpdbExport($request->status, $request->academic_year_id),
+            new PpdbExport($request->status, $request->q, $request->academic_year_id),
             $filename
         );
     }

@@ -19,13 +19,16 @@ class PpdbExport implements FromQuery, WithHeadings, WithMapping, WithStyles
 
     protected ?string $status;
 
+    protected ?string $q;
+
     protected ?int $academicYearId;
 
     protected array $columnMap;
 
-    public function __construct(?string $status = null, ?int $academicYearId = null)
+    public function __construct(?string $status = null, ?string $q = null, ?int $academicYearId = null)
     {
         $this->status = $status;
+        $this->q = $q;
         $this->academicYearId = $academicYearId;
         $this->columnMap = PpdbService::exportMapping();
     }
@@ -37,6 +40,15 @@ class PpdbExport implements FromQuery, WithHeadings, WithMapping, WithStyles
 
         if ($this->status) {
             $query->where('status', $this->status);
+        }
+
+        if ($this->q) {
+            $search = $this->q;
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('registration_no', 'like', "%{$search}%")
+                    ->orWhere('nik', 'like', "%{$search}%");
+            });
         }
 
         if ($this->academicYearId) {

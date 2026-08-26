@@ -162,7 +162,15 @@ return [
                     ['label' => 'Website Publik', 'route' => 'publik.berita.index', 'icon' => 'globe-alt', 'roles' => ['*'], 'external' => true],
                 ],
             ],
-            ['label' => 'PPDB Daring', 'route' => 'ppdb.index', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
+            [
+                'label' => 'PPDB Daring',
+                'icon' => 'user-plus',
+                'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Pendaftar', 'route' => 'ppdb.index', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
+                    ['label' => 'Pengaturan PPDB', 'route' => 'ppdb.settings', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
+                ],
+            ],
         ],
     ],
     [

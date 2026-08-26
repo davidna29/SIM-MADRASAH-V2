@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Exports\PpdbExport;
 use App\Models\AcademicYear;
 use App\Models\Person;
+use App\Models\PpdbInterest;
 use App\Models\PpdbRegistration;
+use App\Models\Setting;
 use App\Models\User;
 use App\Support\PpdbService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,6 +26,9 @@ class PpdbModuleTest extends TestCase
         parent::setUp();
 
         AcademicYear::create(['name' => '2026/2027', 'semester' => 'ganjil', 'is_active' => true]);
+
+        // Sebagian besar test registrasi/admin berasumsi PPDB sedang dibuka.
+        Setting::set('ppdb_status', 'open');
 
         $this->admin = User::factory()->create(['role' => 'super_admin']);
         $this->guru = User::factory()->create(['role' => 'guru']);
@@ -451,5 +456,176 @@ class PpdbModuleTest extends TestCase
 
         $response = $this->put(route('ppdb.update', $reg), $data);
         $response->assertSessionHasErrors('nik');
+    }
+
+    // ── Landing page & saklar buka/tutup ────────────────────────────────
+
+    public function test_public_sees_landing_when_ppdb_closed(): void
+    {
+        Setting::set('ppdb_status', 'closed');
+
+        $response = $this->get(route('ppdb.form'));
+
+        $response->assertOk();
+        $response->assertSee('Penerimaan Peserta Didik Baru');
+        $response->assertSee('Alur Pendaftaran');
+        $response->assertDontSee('Nama Lengkap');
+    }
+
+    public function test_public_sees_wizard_when_ppdb_open(): void
+    {
+        Setting::set('ppdb_status', 'open');
+
+        $response = $this->get(route('ppdb.form'));
+
+        $response->assertOk();
+        $response->assertSee('Pendaftaran PPDB');
+        $response->assertSee('Nama Lengkap');
+    }
+
+    public function test_store_blocked_when_ppdb_closed(): void
+    {
+        Setting::set('ppdb_status', 'closed');
+
+        $response = $this->post(route('ppdb.store'), $this->validData());
+
+        $response->assertSessionHasErrors('ppdb');
+        $this->assertDatabaseCount('ppdb_registrations', 0);
+    }
+
+    public function test_landing_shows_timeline_and_syarat_from_settings(): void
+    {
+        Setting::set('ppdb_status', 'closed');
+        Setting::set('ppdb_tanggal_buka', '2026-03-02');
+        Setting::set('ppdb_dokumen', "Scan Kartu Keluarga\nScan Akta Kelahiran");
+        Setting::set('ppdb_kuota', '28');
+
+        $response = $this->get(route('ppdb.form'));
+
+        $response->assertSee('Jadwal Penting');
+        $response->assertSee('Dokumen Wajib');
+        $response->assertSee('Scan Kartu Keluarga');
+        $response->assertSee('28 siswa');
+    }
+
+    // ── Pre-registrasi minat ────────────────────────────────────────────
+
+    public function test_interest_store_creates_and_dedupes_by_phone(): void
+    {
+        Setting::set('ppdb_status', 'closed');
+
+        $this->post(route('ppdb.interest.store'), ['name' => 'Ibu Aisyah', 'phone' => '081234567890'])
+            ->assertRedirect();
+        $this->post(route('ppdb.interest.store'), ['name' => 'Ibu Aisyah Baru', 'phone' => '081234567890'])
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('ppdb_interests', 1);
+        $this->assertDatabaseHas('ppdb_interests', ['name' => 'Ibu Aisyah Baru', 'phone' => '081234567890']);
+    }
+
+    public function test_interest_store_validates_required(): void
+    {
+        Setting::set('ppdb_status', 'closed');
+
+        $this->post(route('ppdb.interest.store'), ['name' => '', 'phone' => ''])
+            ->assertSessionHasErrors(['name', 'phone']);
+        $this->assertDatabaseCount('ppdb_interests', 0);
+    }
+
+    // ── Pengaturan PPDB (admin) ─────────────────────────────────────────
+
+    public function test_ppdb_roles_can_access_settings(): void
+    {
+        foreach (['super_admin', 'tata_usaha', 'kepala_madrasah'] as $role) {
+            $user = User::factory()->create(['role' => $role]);
+            $this->actingAs($user)->get(route('ppdb.settings'))->assertOk();
+        }
+    }
+
+    public function test_guru_cannot_access_settings(): void
+    {
+        $this->actingAs($this->guru)->get(route('ppdb.settings'))->assertForbidden();
+    }
+
+    public function test_settings_update_persists_keys_and_faq(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->put(route('ppdb.settings.update'), [
+            'ppdb_status' => 'closed',
+            'ppdb_tanggal_buka' => '2026-03-02',
+            'ppdb_usia_min' => '6',
+            'ppdb_kuota' => '28',
+            'faq_q' => ['Berapa usianya?', ''],
+            'faq_a' => ['Minimal 6 tahun.', ''],
+        ]);
+
+        $response->assertRedirect();
+        $this->assertEquals('closed', Setting::get('ppdb_status'));
+        $this->assertEquals('2026-03-02', Setting::get('ppdb_tanggal_buka'));
+        $faq = json_decode(Setting::get('ppdb_faq'), true);
+        $this->assertCount(1, $faq);
+        $this->assertEquals('Berapa usianya?', $faq[0]['q']);
+        $this->assertEquals('Minimal 6 tahun.', $faq[0]['a']);
+    }
+
+    public function test_admin_settings_page_lists_interests(): void
+    {
+        Setting::set('ppdb_status', 'closed');
+        PpdbInterest::create(['name' => 'Bpk Ahmad', 'phone' => '082298765432']);
+
+        $this->actingAs($this->admin)->get(route('ppdb.settings'))
+            ->assertOk()
+            ->assertSee('Minat Pendaftaran')
+            ->assertSee('Bpk Ahmad');
+    }
+
+    public function test_admin_can_delete_interest(): void
+    {
+        Setting::set('ppdb_status', 'closed');
+        $interest = PpdbInterest::create(['name' => 'Bpk Ahmad', 'phone' => '082298765432']);
+
+        $this->actingAs($this->admin)
+            ->delete(route('ppdb.settings.interest.destroy', $interest))
+            ->assertRedirect();
+
+        $this->assertDatabaseCount('ppdb_interests', 0);
+    }
+
+    public function test_export_follows_status_and_search_filter(): void
+    {
+        Setting::set('ppdb_status', 'open');
+
+        PpdbRegistration::create(array_merge($this->validData(), [
+            'name' => 'ALIA SUBMITTED',
+            'nik' => '6172010101010002',
+            'registration_no' => 'PPDB-F-001',
+            'status' => 'submitted',
+        ]));
+        PpdbRegistration::create(array_merge($this->validData(), [
+            'name' => 'BUDI ACCEPTED',
+            'nik' => '6172010101010003',
+            'registration_no' => 'PPDB-F-002',
+            'status' => 'accepted',
+        ]));
+        PpdbRegistration::create(array_merge($this->validData(), [
+            'name' => 'ALIA REJECTED',
+            'nik' => '6172010101010004',
+            'registration_no' => 'PPDB-F-003',
+            'status' => 'rejected',
+        ]));
+
+        // Filter status = submitted hanya memuat ALIA SUBMITTED.
+        $names = (new PpdbExport('submitted', null))->query()->pluck('name');
+        $this->assertEquals(['ALIA SUBMITTED'], $names->all());
+
+        // Filter pencarian 'ALIA' memuat 2 (submitted + rejected) karena q mengecualikan draft saja.
+        $names = (new PpdbExport(null, 'ALIA'))->query()->pluck('name');
+        $this->assertCount(2, $names);
+        $this->assertNotContains('BUDI ACCEPTED', $names->all());
+
+        // Gabungan status + q.
+        $names = (new PpdbExport('submitted', 'ALIA'))->query()->pluck('name');
+        $this->assertEquals(['ALIA SUBMITTED'], $names->all());
     }
 }

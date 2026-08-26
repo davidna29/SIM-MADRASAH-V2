@@ -88,6 +88,12 @@ class WalkingSkeletonSeeder extends Seeder
             ['name' => 'Nurul Aini, S.Pd.', 'email' => 'guru.nurul@madrasah.sch.id', 'password' => 'password', 'role' => 'guru']
         );
 
+        // Petugas Perpustakaan demo
+        User::firstOrCreate(
+            ['username' => 'pustakawan'],
+            ['name' => 'Pustakawan Demo', 'email' => 'pustakawan@madrasah.sch.id', 'password' => 'password', 'role' => 'pustakawan']
+        );
+
         // Akun siswa demo — terhubung ke Aisyah (NIS 240101) untuk Portal Siswa
         $siswaAisy = Student::where('nis', '240101')->first();
         if ($siswaAisy) {

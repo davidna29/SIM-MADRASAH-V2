@@ -11,7 +11,10 @@
                 <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-ink-soft">Kelola pendaftaran calon peserta didik baru.</p>
             </div>
             <div class="flex gap-2">
-                <a href="{{ route('ppdb.export') }}" class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
+                <a href="{{ route('ppdb.settings') }}" class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
+                    <x-svg-cog-6-tooth class="size-3.5" /> Pengaturan
+                </a>
+                <a href="{{ route('ppdb.export', array_filter(request()->only(['q', 'status']))) }}" class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
                     <x-svg-arrow-down-tray class="size-3.5" /> Export Excel
                 </a>
             </div>

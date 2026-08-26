@@ -45,6 +45,23 @@ class SettingSeeder extends Seeder
 
             // Logo
             'madrasah_logo' => '',
+
+            // PPDB Daring
+            'ppdb_status' => 'closed',
+            'ppdb_tanggal_buka' => '',
+            'ppdb_tanggal_tutup' => '',
+            'ppdb_tanggal_pengumuman' => '',
+            'ppdb_tanggal_daftar_ulang' => '',
+            'ppdb_usia_min' => '6',
+            'ppdb_usia_ket' => 'per 1 Juli tahun berjalan',
+            'ppdb_dokumen' => "Scan Kartu Keluarga (KK)\nScan Akta Kelahiran\nKIA / Kartu Identitas Orang Tua\nIjazah / Rapor TK (jika ada)\nPas Foto (jika diminta)",
+            'ppdb_kuota' => '28',
+            'ppdb_jalur' => 'Reguler',
+            'ppdb_biaya' => 'Gratis (tidak dipungut biaya pendaftaran)',
+            'ppdb_kontak_wa' => '',
+            'ppdb_kontak_telepon' => '',
+            'ppdb_jam_layanan' => 'Senin–Jumat, 08.00–14.00 WIB',
+            'ppdb_faq' => '[]',
         ];
 
         foreach ($defaults as $key => $value) {

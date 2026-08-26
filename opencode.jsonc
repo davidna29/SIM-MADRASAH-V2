@@ -1,0 +1,78 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // =========================================================
+  // DEFAULT
+  // =========================================================
+
+  "model": "opencode-go/mimo-v2.5",
+  "default_agent": "plan",
+
+  // =========================================================
+  // AGENTS
+  // =========================================================
+
+  "agent": {
+    // -------------------------------------------------------
+    // PLAN
+    // -------------------------------------------------------
+    "plan": {
+      "mode": "primary",
+      "model": "opencode-go/mimo-v2.5",
+
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "webfetch": "allow"
+      }
+    },
+
+    // -------------------------------------------------------
+    // BUILD
+    // -------------------------------------------------------
+    "build": {
+    "mode": "primary",
+    "model": "opencode-go/mimo-v2.5",
+    "permission": {
+        "edit": "allow",
+        "bash": "allow",
+        "webfetch": "allow"
+    },
+
+      "prompt": "Kamu adalah coding agent utama untuk proyek SIM Madrasah. Sebelum mengerjakan task, baca docs/AI-HANDOFF.md terlebih dahulu dan gunakan sebagai konteks utama proyek. Baca hanya file yang relevan dengan task; jangan membaca seluruh project tanpa alasan teknis. Ikuti PRODUCT.md, DESIGN.md, dan PRD sim madrasah.md bila relevan. Gunakan shared UI components di resources/views/components/ui dan hindari styling ad-hoc bila komponen yang sesuai sudah tersedia. Pertahankan arsitektur Laravel, RBAC, Policy, Form Request, migration, relationship, validation, dan test yang sudah ada. Jangan mengubah modul yang tidak berkaitan dengan task. Sebelum perubahan besar, cek git status. Setelah implementasi, jalankan test yang relevan dan periksa hasilnya. Jangan menjalankan git push. Jangan menjalankan migrate:fresh terhadap database development tanpa persetujuan eksplisit. Jangan menghapus data atau migration yang sudah ada tanpa alasan kuat dan persetujuan. Setelah task selesai, update docs/AI-HANDOFF.md hanya bila status proyek, keputusan arsitektur, konvensi, atau daftar pekerjaan berubah."
+    }
+  },
+
+  // =========================================================
+  // CONTEXT MANAGEMENT
+  // =========================================================
+
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  },
+
+  // =========================================================
+  // FILE WATCHER
+  // =========================================================
+
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "vendor/**",
+      ".git/**",
+      "storage/logs/**",
+      "storage/framework/**",
+      "bootstrap/cache/**",
+      "public/build/**",
+      "dist/**"
+    ]
+  },
+
+  // =========================================================
+  // SESSION SHARING
+  // =========================================================
+
+  "share": "manual"
+}

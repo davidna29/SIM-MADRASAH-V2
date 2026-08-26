@@ -31,6 +31,7 @@ use App\Http\Controllers\Pemeliharaan\BackupController;
 use App\Http\Controllers\Pemeliharaan\LaporanController;
 use App\Http\Controllers\Perpustakaan\LibraryController;
 use App\Http\Controllers\Ppdb\AdminPpdbController;
+use App\Http\Controllers\Ppdb\PpdbSettingController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Publik\GaleriController as PublikGaleriController;
@@ -53,6 +54,7 @@ Route::get('/galeri/{album:slug}', [PublikGaleriController::class, 'show'])->nam
 Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb.form');
 Route::post('/ppdb', [PpdbController::class, 'store'])->name('ppdb.store');
 Route::get('/ppdb/sukses', [PpdbController::class, 'success'])->name('ppdb.success');
+Route::post('/ppdb/minat', [PpdbController::class, 'interestStore'])->name('ppdb.interest.store');
 
 // ============================================================
 // Autentikasi
@@ -147,10 +149,18 @@ Route::middleware('auth')->group(function () {
         // Pengaturan Sistem
         Route::get('/fondasi/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
         Route::put('/fondasi/pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
+    });
 
-        // PPDB Daring — admin (fixed routes BEFORE wildcard)
+    // PPDB Daring — admin (group multi-role, fixed routes BEFORE wildcard)
+    Route::middleware('role:super_admin|tata_usaha|kepala_madrasah')->group(function () {
         Route::get('/ppdb/admin', [AdminPpdbController::class, 'index'])->name('ppdb.index');
         Route::get('/ppdb/admin/export', [AdminPpdbController::class, 'exportExcel'])->name('ppdb.export');
+
+        // Pengaturan PPDB — saklar buka/tutup + konten landing (fixed routes BEFORE wildcard)
+        Route::get('/ppdb/admin/pengaturan', [PpdbSettingController::class, 'index'])->name('ppdb.settings');
+        Route::put('/ppdb/admin/pengaturan', [PpdbSettingController::class, 'update'])->name('ppdb.settings.update');
+        Route::delete('/ppdb/admin/pengaturan/minat/{interest}', [PpdbSettingController::class, 'interestDestroy'])->name('ppdb.settings.interest.destroy');
+
         Route::get('/ppdb/admin/{registration}/edit', [AdminPpdbController::class, 'edit'])->name('ppdb.edit');
         Route::put('/ppdb/admin/{registration}', [AdminPpdbController::class, 'update'])->name('ppdb.update');
         Route::get('/ppdb/admin/{registration}', [AdminPpdbController::class, 'show'])->name('ppdb.show');

@@ -45,6 +45,16 @@ class ActivityText
             'kategori_barang_dibuat' => 'membuat kategori barang inventaris',
             'kategori_barang_diubah' => 'mengubah kategori barang inventaris',
             'kategori_barang_dihapus' => 'menghapus kategori barang inventaris',
+            'buku_ditambah' => 'menambahkan buku ke katalog perpustakaan',
+            'buku_diubah' => 'mengubah data buku perpustakaan',
+            'buku_dihapus' => 'menghapus buku dari katalog perpustakaan',
+            'buku_dipinjam' => 'mencatat peminjaman buku perpustakaan',
+            'buku_dikembalikan' => 'mencatat pengembalian buku perpustakaan',
+            'anggota_perpustakaan_ditambah' => 'menambahkan anggota perpustakaan',
+            'anggota_perpustakaan_dihapus' => 'menghapus anggota perpustakaan',
+            'kategori_perpustakaan_dibuat' => 'membuat kategori perpustakaan',
+            'kategori_perpustakaan_diubah' => 'mengubah kategori perpustakaan',
+            'kategori_perpustakaan_dihapus' => 'menghapus kategori perpustakaan',
             default => ucfirst(str_replace('_', ' ', $description)),
         };
     }

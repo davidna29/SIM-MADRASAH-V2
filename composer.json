@@ -12,6 +12,8 @@
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
         "maatwebsite/excel": "^4.0",
+        "sentry/sentry-laravel": "^4.27",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-activitylog": "^5.1"
     },
     "require-dev": {
@@ -39,7 +41,7 @@
     "scripts": {
         "serve": [
             "Composer\\Config::disableProcessTimeout",
-            "@php -d post_max_size=64M -d upload_max_filesize=8M artisan serve"
+            "php -d post_max_size=64M -d upload_max_filesize=8M artisan serve --host=0.0.0.0 --port=8000"
         ],
         "setup": [
             "composer install",
