@@ -1,5 +1,27 @@
 <x-layouts.publik :title="'PPDB - Pendaftaran'">
-    <div class="mx-auto max-w-4xl" x-data="{ step: 1, totalSteps: 7 }">
+    @php
+        // Pemetaan field -> langkah wizard, untuk membuka langkah pertama yang berisi error validasi.
+        $stepFields = [
+            1 => ['name','nik','nisn','gender','religion','birth_place','birth_date','previous_school','hobby','ambition','child_order','sibling_count','ever_tk','ever_paud','entry_date','scanned_kk','scanned_kk_wali','scanned_akta','scanned_ijazah','scanned_photo'],
+            2 => ['imm_hepb','imm_polio','imm_bcg','imm_campak','imm_dpt','imm_covid','dis_deaf','dis_blind','dis_disabled','dis_intellectual','dis_behavioral','dis_slow_learner','dis_communication','dis_gifted'],
+            3 => ['residence_type','address','province','city','district','village','rt','rw','postal_code','distance','transport','commute_time','home_phone','student_phone','student_email'],
+            4 => ['kk_number','kk_head_name','father_name','father_status','father_nik','father_birth_date','father_birth_place','father_education','father_job','father_income','father_phone','mother_name','mother_status','mother_nik','mother_birth_date','mother_birth_place','mother_education','mother_job','mother_income','mother_phone','guardian_name','guardian_nik','guardian_birth_date','guardian_birth_place','guardian_education','guardian_job','guardian_income','guardian_phone'],
+            5 => ['parent_ownership','parent_address','parent_province','parent_city','parent_district','parent_village','parent_rt','parent_rw','parent_postal_code'],
+            6 => ['origin_school','origin_nsm','origin_npsn','origin_address'],
+        ];
+        $firstErrorStep = 1;
+        if ($errors->any()) {
+            foreach ($stepFields as $s => $fields) {
+                foreach ($fields as $f) {
+                    if ($errors->has($f)) {
+                        $firstErrorStep = $s;
+                        break 2;
+                    }
+                }
+            }
+        }
+    @endphp
+    <div class="mx-auto max-w-4xl" x-data="{ step: {{ $firstErrorStep }}, totalSteps: 7 }">
 
         {{-- Header --}}
         <div class="mb-8 text-center">
@@ -55,7 +77,7 @@
             </x-ui.alert>
         @endif
 
-        <form method="POST" action="{{ route('ppdb.store') }}" enctype="application/x-www-form-urlencoded">
+        <form method="POST" action="{{ route('ppdb.store') }}" enctype="application/x-www-form-urlencoded" novalidate>
             @csrf
 
             {{-- ═══════════════════════════════════════════ STEP 1: Data Siswa ═══════════════════════════════════════════ --}}

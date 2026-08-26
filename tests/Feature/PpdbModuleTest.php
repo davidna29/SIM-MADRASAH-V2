@@ -4,11 +4,11 @@ namespace Tests\Feature;
 
 use App\Exports\PpdbExport;
 use App\Models\AcademicYear;
-use App\Support\PpdbService;
 use App\Models\ClassGroup;
 use App\Models\NisCounter;
 use App\Models\PpdbRegistration;
 use App\Models\User;
+use App\Support\PpdbService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -121,6 +121,35 @@ class PpdbModuleTest extends TestCase
     {
         $response = $this->post(route('ppdb.store'), ['name' => '']);
         $response->assertSessionHasErrors('name');
+    }
+
+    public function test_multistep_submit_not_blocked_by_hidden_required(): void
+    {
+        // Field wajib di langkah tersembunyi (step 4: father_name) kosong.
+        // Sebelum diperbaiki, validasi native browser memblokir submit secara diam-diam.
+        // Server tetap menerima POST dan mengembalikan error validasi (tidak 500/block).
+        $data = $this->validData();
+        unset($data['father_name']);
+
+        $response = $this->post(route('ppdb.store'), $data);
+        $response->assertRedirect(); // submission mencapai server
+        $response->assertSessionHasErrors('father_name');
+    }
+
+    public function test_wizard_opens_first_step_with_error(): void
+    {
+        // Saat ada error validasi, wizard harus langsung membuka di langkah
+        // pertama yang memuat field bermasalah (father_name -> step 4),
+        // bukan selalu di step 1. Gunakan referer agar redirect-back render
+        // ulang form PPDB (bukan jatuh ke /).
+        $data = $this->validData();
+        unset($data['father_name']);
+
+        $response = $this->followingRedirects()
+            ->post(route('ppdb.store'), $data, ['HTTP_REFERER' => url('/ppdb')]);
+
+        $response->assertOk();
+        $response->assertSee('step: 4', false);
     }
 
     public function test_validation_rejects_invalid_nik(): void
