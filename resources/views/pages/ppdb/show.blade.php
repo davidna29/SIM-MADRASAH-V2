@@ -309,13 +309,13 @@
             <x-ui.sheet title="Tentukan Kelas / Rombel" class="mt-4" pinned ruled>
                 <form method="POST" action="{{ route('ppdb.assign-class', $registration) }}" class="flex flex-wrap items-end gap-3">
                     @csrf
-                    <x-ui.field label="Kelas" :error="$errors->first('kelas')">
-                        <x-ui.select name="kelas" :options="['I'=>'I','II'=>'II','III'=>'III','IV'=>'IV','V'=>'V','VI'=>'VI']" :selected="$registration->kelas" />
+                    <x-ui.field label="Kelas / Rombel" :error="$errors->first('class_name')">
+                        <x-ui.select name="class_name" :options="$classOptions" :selected="$registration->rombel" placeholder="-- Pilih kelas --" />
                     </x-ui.field>
-                    <x-ui.field label="Rombel" :error="$errors->first('rombel')">
-                        <x-ui.input name="rombel" :value="$registration->rombel" placeholder="A" maxlength="3" />
-                    </x-ui.field>
-                    <x-ui.button type="submit" variant="primary" size="md">Simpan</x-ui.button>
+                    @if ($classOptions->isEmpty())
+                        <p class="w-full text-xs text-warning">Belum ada kelas. Buat dulu di menu Kelas &amp; Penempatan.</p>
+                    @endif
+                    <x-ui.button type="submit" variant="primary" size="md" :disabled="$classOptions->isEmpty()">Simpan</x-ui.button>
                 </form>
             </x-ui.sheet>
         @endif

@@ -56,6 +56,9 @@ class AdminPpdbController extends Controller
     {
         $registration->load('academicYear', 'student');
 
+        $classes = ClassGroup::orderByRaw("FIELD(grade_level,'I','II','III','IV','V','VI')")->orderBy('name')->get();
+        $classOptions = $classes->pluck('name', 'name');
+
         return view('pages.ppdb.show', [
             'roleLabel' => 'PPDB',
             'breadcrumb' => [
@@ -63,6 +66,7 @@ class AdminPpdbController extends Controller
                 ['label' => $registration->registration_no],
             ],
             'registration' => $registration,
+            'classOptions' => $classOptions,
         ]);
     }
 
@@ -99,35 +103,40 @@ class AdminPpdbController extends Controller
     public function assignClass(Request $request, PpdbRegistration $registration): RedirectResponse
     {
         $validated = $request->validate([
-            'kelas' => 'required|string|max:10',
-            'rombel' => 'required|string|max:10',
+            'class_name' => 'required|string|max:20',
         ]);
 
-        $registration->update($validated);
+        // Pastikan kelas/rombel benar-benar ada di tabel class_groups
+        $classGroup = ClassGroup::where('name', $validated['class_name'])->first();
+        if (! $classGroup) {
+            return back()->withErrors(['class_name' => 'Kelas "'.$validated['class_name'].'" belum ada. Buat kelas dulu di menu Kelas & Penempatan.']);
+        }
 
-        // Create or update enrollment if student exists
+        $registration->update([
+            'kelas' => $classGroup->grade_level,
+            'rombel' => $classGroup->name,
+        ]);
+
+        // Create or update enrollment
         if ($registration->student_id && $registration->academic_year_id) {
-            $classGroup = ClassGroup::where('name', $validated['kelas'].'-'.$validated['rombel'])->first();
-            if ($classGroup) {
-                StudentEnrollment::updateOrCreate(
-                    [
-                        'student_id' => $registration->student_id,
-                        'academic_year_id' => $registration->academic_year_id,
-                    ],
-                    [
-                        'class_group_id' => $classGroup->id,
-                        'status' => 'aktif',
-                    ]
-                );
-            }
+            StudentEnrollment::updateOrCreate(
+                [
+                    'student_id' => $registration->student_id,
+                    'academic_year_id' => $registration->academic_year_id,
+                ],
+                [
+                    'class_group_id' => $classGroup->id,
+                    'status' => 'aktif',
+                ]
+            );
         }
 
         activity('ppdb')
             ->performedOn($registration)
             ->event('class_assigned')
-            ->log('Kelas ditetapkan: '.$validated['kelas'].'-'.$validated['rombel']);
+            ->log('Kelas ditetapkan: '.$classGroup->name);
 
-        return back()->with('status', 'Kelas/Rombel berhasil ditetapkan.');
+        return back()->with('status', 'Kelas/Rombel berhasil ditetapkan ke '.$classGroup->name.'.');
     }
 
     public function generateNis(Request $request): View
@@ -214,6 +223,7 @@ class AdminPpdbController extends Controller
 
         $classes = ClassGroup::orderByRaw("FIELD(grade_level,'I','II','III','IV','V','VI')")->orderBy('name')->get();
 
+        // Jumlah siswa terdaftar per kelas (dari enrollment + yang sudah diassign di PPDB)
         $classCounts = PpdbRegistration::where('academic_year_id', $academicYear?->id)
             ->where('status', 'accepted')
             ->whereNotNull('kelas')
@@ -224,6 +234,13 @@ class AdminPpdbController extends Controller
                 return $r->kelas.'-'.$r->rombel;
             });
 
+        // Dropdown kelas yang sudah ada: "I-A (2 siswa)"
+        $classOptions = [];
+        foreach ($classes as $class) {
+            $count = $classCounts->get($class->name, 0);
+            $classOptions[$class->name] = $class->name.' ('.$count.' siswa)';
+        }
+
         return view('pages.ppdb.assign-class', [
             'roleLabel' => 'PPDB',
             'breadcrumb' => [
@@ -232,6 +249,7 @@ class AdminPpdbController extends Controller
             ],
             'accepted' => $accepted,
             'classes' => $classes,
+            'classOptions' => $classOptions,
             'classCounts' => $classCounts,
         ]);
     }

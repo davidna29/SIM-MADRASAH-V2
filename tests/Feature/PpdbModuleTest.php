@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AcademicYear;
+use App\Models\ClassGroup;
 use App\Models\NisCounter;
 use App\Models\PpdbRegistration;
 use App\Models\User;
@@ -256,15 +257,32 @@ class PpdbModuleTest extends TestCase
         $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
         $this->post(route('ppdb.accept', $reg));
 
+        // Kelas harus dibuat dulu di Kelas & Penempatan
+        ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
+
         $response = $this->post(route('ppdb.assign-class', $reg), [
-            'kelas' => 'I',
-            'rombel' => 'A',
+            'class_name' => 'I-A',
         ]);
         $response->assertRedirect();
 
         $reg->refresh();
         $this->assertEquals('I', $reg->kelas);
-        $this->assertEquals('A', $reg->rombel);
+        $this->assertEquals('I-A', $reg->rombel);
+    }
+
+    public function test_assign_class_rejects_nonexistent_class(): void
+    {
+        $this->actingAs($this->admin);
+
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+        $this->post(route('ppdb.accept', $reg));
+
+        // Kelas "X-99" tidak ada
+        $response = $this->post(route('ppdb.assign-class', $reg), [
+            'class_name' => 'X-99',
+        ]);
+        $response->assertSessionHasErrors('class_name');
     }
 
     public function test_admin_can_see_generate_nis_page(): void
