@@ -6,6 +6,7 @@ use App\Exports\PpdbExport;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\ClassGroup;
+use App\Models\NisCounter;
 use App\Models\PpdbRegistration;
 use App\Models\StudentEnrollment;
 use App\Support\PpdbService;
@@ -155,7 +156,33 @@ class AdminPpdbController extends Controller
             ],
             'preview' => $preview,
             'academicYear' => $academicYear,
+            'lastNumber' => $academicYear
+                ? NisCounter::firstOrCreate(['academic_year_id' => $academicYear->id], ['last_number' => 0])->last_number
+                : 0,
         ]);
+    }
+
+    public function updateNisCounter(Request $request): RedirectResponse
+    {
+        $academicYear = AcademicYear::active();
+        if (! $academicYear) {
+            return back()->withErrors(['error' => 'Tidak ada tahun ajaran aktif.']);
+        }
+
+        $validated = $request->validate([
+            'last_number' => 'required|integer|min:0|max:9999',
+        ]);
+
+        NisCounter::updateOrCreate(
+            ['academic_year_id' => $academicYear->id],
+            ['last_number' => $validated['last_number']]
+        );
+
+        activity('ppdb')
+            ->event('nis_counter_updated')
+            ->log('Nomor urut terakhir NIS diatur: '.$validated['last_number']);
+
+        return back()->with('status', 'Nomor urut terakhir NIS berhasil diatur ke '.$validated['last_number'].'.');
     }
 
     public function commitNis(): RedirectResponse

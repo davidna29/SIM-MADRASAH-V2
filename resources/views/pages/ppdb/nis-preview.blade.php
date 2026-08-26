@@ -12,6 +12,27 @@
             <div class="mt-6"><x-ui.alert variant="success" dismissible>{{ session('status') }}</x-ui.alert></div>
         @endif
 
+        @if ($errors->any())
+            <div class="mt-6"><x-ui.alert variant="danger" dismissible>{{ $errors->first() }}</x-ui.alert></div>
+        @endif
+
+        {{-- Acuan Nomor Urut Terakhir --}}
+        <div class="mt-6">
+            <x-ui.sheet title="Acuan Nomor Urut Terakhir" subtitle="Nomor urut siswa terakhir sebagai titik awal generate NIS. Diisi operator bila ada siswa pindahan dengan NIS di luar proses PPDB." pinned ruled>
+                <form method="POST" action="{{ route('ppdb.update-nis-counter') }}" class="flex flex-wrap items-end gap-3">
+                    @csrf
+                    <x-ui.field label="Nomor Urut Terakhir Siswa" :error="$errors->first('last_number')" hint="4 digit, contoh: 25">
+                        <x-ui.input name="last_number" type="number" :value="old('last_number', $lastNumber)" min="0" max="9999" required />
+                    </x-ui.field>
+                    <x-ui.button type="submit" variant="secondary" size="md" icon="check-circle">Simpan Acuan</x-ui.button>
+                    <p class="text-xs text-ink-faint">
+                        NIS berikutnya akan dimulai dari nomor urut <strong class="tabular">{{ str_pad((string) $lastNumber + 1, 4, '0', STR_PAD_LEFT) }}</strong>.
+                        Format: NSM(12) + Tahun(2) + Nomor Urut(4).
+                    </p>
+                </form>
+            </x-ui.sheet>
+        </div>
+
         @if ($preview->isEmpty())
             <div class="mt-6 rounded-sheet bg-sheet p-8 text-center shadow-sheet ring-1 ring-inset ring-rule/60">
                 <x-svg-check-circle class="mx-auto size-12 text-success/40" />

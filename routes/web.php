@@ -151,6 +151,7 @@ Route::middleware('auth')->group(function () {
         // PPDB Daring — admin (fixed routes BEFORE wildcard)
         Route::get('/ppdb/admin', [AdminPpdbController::class, 'index'])->name('ppdb.index');
         Route::get('/ppdb/admin/generate-nis', [AdminPpdbController::class, 'generateNis'])->name('ppdb.generate-nis');
+        Route::post('/ppdb/admin/update-nis-counter', [AdminPpdbController::class, 'updateNisCounter'])->name('ppdb.update-nis-counter');
         Route::post('/ppdb/admin/commit-nis', [AdminPpdbController::class, 'commitNis'])->name('ppdb.commit-nis');
         Route::get('/ppdb/admin/assign-class', [AdminPpdbController::class, 'assignClassPage'])->name('ppdb.assign-class-page');
         Route::get('/ppdb/admin/export', [AdminPpdbController::class, 'exportExcel'])->name('ppdb.export');

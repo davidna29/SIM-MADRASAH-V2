@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AcademicYear;
+use App\Models\NisCounter;
 use App\Models\PpdbRegistration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -272,5 +273,40 @@ class PpdbModuleTest extends TestCase
 
         $response = $this->get(route('ppdb.generate-nis'));
         $response->assertOk();
+        $response->assertSee('Acuan Nomor Urut Terakhir');
+    }
+
+    public function test_admin_can_set_nis_counter(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->post(route('ppdb.update-nis-counter'), [
+            'last_number' => 25,
+        ]);
+        $response->assertRedirect();
+        $response->assertSessionHas('status');
+
+        $tahun = AcademicYear::active();
+        $this->assertEquals(25, NisCounter::where('academic_year_id', $tahun->id)->first()->last_number);
+    }
+
+    public function test_nis_counter_requires_positive_number(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->post(route('ppdb.update-nis-counter'), [
+            'last_number' => -5,
+        ]);
+        $response->assertSessionHasErrors('last_number');
+    }
+
+    public function test_guru_cannot_set_nis_counter(): void
+    {
+        $this->actingAs($this->guru);
+
+        $response = $this->post(route('ppdb.update-nis-counter'), [
+            'last_number' => 25,
+        ]);
+        $response->assertForbidden();
     }
 }
