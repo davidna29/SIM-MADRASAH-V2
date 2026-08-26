@@ -393,28 +393,28 @@
                                 <x-ui.input name="father_nik" placeholder="16 digit NIK" :value="old('father_nik')" maxlength="16" pattern="[0-9]{16}" inputmode="numeric" />
                             </x-ui.field>
 
-                            {{-- father_birth_place --}}
-                            <x-ui.field label="Tempat Lahir Ayah" :error="$errors->first('father_birth_place')">
-                                <x-ui.input name="father_birth_place" placeholder="Kota/Kabupaten" :value="old('father_birth_place')" maxlength="60" />
-                            </x-ui.field>
-                        </div>
-
-                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                             {{-- father_birth_date --}}
                             <x-ui.field label="Tanggal Lahir Ayah" :error="$errors->first('father_birth_date')">
                                 <x-ui.input type="date" name="father_birth_date" :value="old('father_birth_date')" />
                             </x-ui.field>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                            {{-- father_birth_place --}}
+                            <x-ui.field label="Tempat Lahir Ayah" :error="$errors->first('father_birth_place')">
+                                <x-ui.input name="father_birth_place" placeholder="Kota/Kabupaten" :value="old('father_birth_place')" maxlength="60" />
+                            </x-ui.field>
 
                             {{-- father_education --}}
                             <x-ui.field label="Pendidikan Ayah" :error="$errors->first('father_education')">
-                                <x-ui.select name="father_education" :options="['0' => 'Tidak Sekolah', '1' => 'SD/Sederajat', '2' => 'SMP/Sederajat', '3' => 'SMA/Sederajat', '4' => 'D1', '5' => 'D2', '6' => 'D3', '7' => 'D4/S1', '8' => 'S2', '9' => 'S3']" :selected="old('father_education')" placeholder="-- Pilih --" />
+                                <x-ui.select name="father_education" :options="['0' => 'Tidak Sekolah', '1' => 'SD/Sederajat', '2' => 'SMP/Sederajat', '3' => 'SMA/Sederajat', '4' => 'D1', '5' => 'D2', '6' => 'D3', '7' => 'D4-S1', '8' => 'S2', '9' => 'S3']" :selected="old('father_education')" placeholder="-- Pilih --" />
                             </x-ui.field>
                         </div>
 
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                             {{-- father_job --}}
                             <x-ui.field label="Pekerjaan Ayah" :error="$errors->first('father_job')">
-                                <x-ui.select name="father_job" :options="['01' => 'Tidak Bekerja', '02' => 'Pensiunan', '03' => 'PNS', '04' => 'TNI/Polisi', '05' => 'Guru/Dosen', '06' => 'Pegawai Swasta', '07' => 'Wiraswasta', '08' => 'Pengacara/Hakim/Jaksa/Notaris', '09' => 'Seniman/Pelukis/Artis', '10' => 'Dokter/Bidan/Perawat', '11' => 'Pilot/Pramugara', '12' => 'Pedagang', '13' => 'Petani/Peternak', '14' => 'Nelayan', '15' => 'Buruh', '16' => 'Sopir/Masinis/Kondektur', '17' => 'Politikus', '18' => 'Lainnya']" :selected="old('father_job')" placeholder="-- Pilih --" />
+                                <x-ui.select name="father_job" :options="['01' => 'Tidak Bekerja', '02' => 'Pensiunan', '03' => 'PNS (Selain poin 05 dan 10)', '04' => 'TNI/Polisi', '05' => 'Guru/Dosen', '06' => 'Pegawai Swasta', '07' => 'Wiraswasta', '08' => 'Pengacara/Hakim/Jaksa/Notaris', '09' => 'Seniman/Pelukis/Artis/Sejenis', '10' => 'Dokter/Bidan/Perawat', '11' => 'Pilot/Pramugara', '12' => 'Pedagang', '13' => 'Petani/Peternak', '14' => 'Nelayan', '15' => 'Buruh (Tani/Pabrik/Bangunan)', '16' => 'Sopir/Masinis/Kondektur', '17' => 'Politikus', '18' => 'Lainnya']" :selected="old('father_job')" placeholder="-- Pilih --" />
                             </x-ui.field>
 
                             {{-- father_income --}}
@@ -465,14 +465,14 @@
 
                             {{-- mother_education --}}
                             <x-ui.field label="Pendidikan Ibu" required :error="$errors->first('mother_education')">
-                                <x-ui.select name="mother_education" :options="['0' => 'Tidak Sekolah', '1' => 'SD/Sederajat', '2' => 'SMP/Sederajat', '3' => 'SMA/Sederajat', '4' => 'D1', '5' => 'D2', '6' => 'D3', '7' => 'D4/S1', '8' => 'S2', '9' => 'S3']" :selected="old('mother_education')" placeholder="-- Pilih --" />
+                                <x-ui.select name="mother_education" :options="['0' => 'Tidak Sekolah', '1' => 'SD/Sederajat', '2' => 'SMP/Sederajat', '3' => 'SMA/Sederajat', '4' => 'D1', '5' => 'D2', '6' => 'D3', '7' => 'D4-S1', '8' => 'S2', '9' => 'S3']" :selected="old('mother_education')" placeholder="-- Pilih --" />
                             </x-ui.field>
                         </div>
 
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                             {{-- mother_job --}}
                             <x-ui.field label="Pekerjaan Ibu" required :error="$errors->first('mother_job')">
-                                <x-ui.select name="mother_job" :options="['01' => 'Tidak Bekerja', '02' => 'Pensiunan', '03' => 'PNS', '04' => 'TNI/Polisi', '05' => 'Guru/Dosen', '06' => 'Pegawai Swasta', '07' => 'Wiraswasta', '08' => 'Pengacara/Hakim/Jaksa/Notaris', '09' => 'Seniman/Pelukis/Artis', '10' => 'Dokter/Bidan/Perawat', '11' => 'Pilot/Pramugara', '12' => 'Pedagang', '13' => 'Petani/Peternak', '14' => 'Nelayan', '15' => 'Buruh', '16' => 'Sopir/Masinis/Kondektur', '17' => 'Politikus', '18' => 'Lainnya']" :selected="old('mother_job')" placeholder="-- Pilih --" />
+                                <x-ui.select name="mother_job" :options="['01' => 'Tidak Bekerja', '02' => 'Pensiunan', '03' => 'PNS (Selain poin 05 dan 10)', '04' => 'TNI/Polisi', '05' => 'Guru/Dosen', '06' => 'Pegawai Swasta', '07' => 'Wiraswasta', '08' => 'Pengacara/Hakim/Jaksa/Notaris', '09' => 'Seniman/Pelukis/Artis/Sejenis', '10' => 'Dokter/Bidan/Perawat', '11' => 'Pilot/Pramugara', '12' => 'Pedagang', '13' => 'Petani/Peternak', '14' => 'Nelayan', '15' => 'Buruh (Tani/Pabrik/Bangunan)', '16' => 'Sopir/Masinis/Kondektur', '17' => 'Politikus', '18' => 'Lainnya']" :selected="old('mother_job')" placeholder="-- Pilih --" />
                             </x-ui.field>
 
                             {{-- mother_income --}}
@@ -504,26 +504,26 @@
                         </div>
 
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                            {{-- guardian_birth_place --}}
-                            <x-ui.field label="Tempat Lahir Wali" :error="$errors->first('guardian_birth_place')">
-                                <x-ui.input name="guardian_birth_place" placeholder="Kota/Kabupaten" :value="old('guardian_birth_place')" maxlength="60" />
-                            </x-ui.field>
-
                             {{-- guardian_birth_date --}}
                             <x-ui.field label="Tanggal Lahir Wali" :error="$errors->first('guardian_birth_date')">
                                 <x-ui.input type="date" name="guardian_birth_date" :value="old('guardian_birth_date')" />
+                            </x-ui.field>
+
+                            {{-- guardian_birth_place --}}
+                            <x-ui.field label="Tempat Lahir Wali" :error="$errors->first('guardian_birth_place')">
+                                <x-ui.input name="guardian_birth_place" placeholder="Kota/Kabupaten" :value="old('guardian_birth_place')" maxlength="60" />
                             </x-ui.field>
                         </div>
 
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                             {{-- guardian_education --}}
                             <x-ui.field label="Pendidikan Wali" :error="$errors->first('guardian_education')">
-                                <x-ui.select name="guardian_education" :options="['0' => 'Tidak Sekolah', '1' => 'SD/Sederajat', '2' => 'SMP/Sederajat', '3' => 'SMA/Sederajat', '4' => 'D1', '5' => 'D2', '6' => 'D3', '7' => 'D4/S1', '8' => 'S2', '9' => 'S3']" :selected="old('guardian_education')" placeholder="-- Pilih --" />
+                                <x-ui.select name="guardian_education" :options="['0' => 'Tidak Sekolah', '1' => 'SD/Sederajat', '2' => 'SMP/Sederajat', '3' => 'SMA/Sederajat', '4' => 'D1', '5' => 'D2', '6' => 'D3', '7' => 'D4-S1', '8' => 'S2', '9' => 'S3']" :selected="old('guardian_education')" placeholder="-- Pilih --" />
                             </x-ui.field>
 
                             {{-- guardian_job --}}
                             <x-ui.field label="Pekerjaan Wali" :error="$errors->first('guardian_job')">
-                                <x-ui.select name="guardian_job" :options="['01' => 'Tidak Bekerja', '02' => 'Pensiunan', '03' => 'PNS', '04' => 'TNI/Polisi', '05' => 'Guru/Dosen', '06' => 'Pegawai Swasta', '07' => 'Wiraswasta', '08' => 'Pengacara/Hakim/Jaksa/Notaris', '09' => 'Seniman/Pelukis/Artis', '10' => 'Dokter/Bidan/Perawat', '11' => 'Pilot/Pramugara', '12' => 'Pedagang', '13' => 'Petani/Peternak', '14' => 'Nelayan', '15' => 'Buruh', '16' => 'Sopir/Masinis/Kondektur', '17' => 'Politikus', '18' => 'Lainnya']" :selected="old('guardian_job')" placeholder="-- Pilih --" />
+                                <x-ui.select name="guardian_job" :options="['01' => 'Tidak Bekerja', '02' => 'Pensiunan', '03' => 'PNS (Selain poin 05 dan 10)', '04' => 'TNI/Polisi', '05' => 'Guru/Dosen', '06' => 'Pegawai Swasta', '07' => 'Wiraswasta', '08' => 'Pengacara/Hakim/Jaksa/Notaris', '09' => 'Seniman/Pelukis/Artis/Sejenis', '10' => 'Dokter/Bidan/Perawat', '11' => 'Pilot/Pramugara', '12' => 'Pedagang', '13' => 'Petani/Peternak', '14' => 'Nelayan', '15' => 'Buruh (Tani/Pabrik/Bangunan)', '16' => 'Sopir/Masinis/Kondektur', '17' => 'Politikus', '18' => 'Lainnya']" :selected="old('guardian_job')" placeholder="-- Pilih --" />
                             </x-ui.field>
 
                             {{-- guardian_income --}}
