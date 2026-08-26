@@ -16,29 +16,24 @@ di laman admin PPDB (kartu "Alur Pengerjaan Admin").
 
 ---
 
-## 2. Alur Utama (berurutan)
+## 2. Alur Utama (berurutan) — SIMPLIFIKASI 2026
 
 1. **Pendaftaran (publik)** — calon siswa mengisi wizard 7 langkah di `/ppdb`.
    Status awal `submitted`, sistem memberi **No. Pendaftaran** (`PPDB-YYYY-NNN`).
    Dokumen berupa *link* Google Drive (bukan unggahan file).
 
 2. **Review & Keputusan (admin)** — di `/ppdb/admin`, klik **Detail** lalu:
-   - **Terima** → status `submitted` → `accepted`. Sistem langsung membuat
-     `Person`, `Student` (tanpa NIS dulu), dan `Guardian`.
+   - **Terima** → status `submitted` → `accepted`. Sistem membuat
+     `Person`, `Student` (**tanpa NIS**), dan `Guardian`.
    - **Tolak** → status `rejected` (wajib isi alasan).
+   - **Edit** → perbaiki/perbarui seluruh field data calon, tersedia untuk
+     semua status (via `/ppdb/admin/{id}/edit`).
 
-3. **Generate NIS (admin)** — di `/ppdb/admin/generate-nis`, operator melihat
-   daftar calon `accepted` yang **belum punya NIS**, terurut **abjad**
-   (`UPPER(name)`). Field "Acuan Nomor Urut Terakhir" menentukan titik awal
-   penomoran (untuk siswa pindahan di luar alur PPDB). Klik **Finalisasi NIS**
-   untuk menyimpan NIS massal: format `NSM(12) + Tahun(2) + Nomor Urut(4) = 18 digit`,
-   counter `nis_counters` berlanjut. NIS juga disalin ke kolom `students.nis`.
+3. **Lengkapi NIS & Kelas (di modul Data Siswa)** — PPDB **tidak lagi** mengatur
+   NIS maupun kelas. Setelah diterima, operator membuka modul **Data Siswa** untuk
+   melengkapi NIS dan menetapkan kelas/enrollment siswa baru.
 
-4. **Penentuan Kelas (admin)** — di `/ppdb/admin/assign-class`, sebar calon siswa
-   `accepted` ke rombel yang **sudah ada** di menu Kelas & Penempatan. Enrollment
-   (`student_enrollments`) baru terbuat di tahap ini (karena `class_group_id` NOT NULL).
-
-5. **Export Excel (admin)** — di `/ppdb/admin/export`, unduh rekap kolom
+4. **Export Excel (admin)** — di `/ppdb/admin/export`, unduh rekap kolom
    EMIS-compatible **berurutan mengikuti form** plus 5 kolom *link* Google Drive
    (KK, KK Wali, Akta, Ijazah, Foto).
 
@@ -49,13 +44,10 @@ di laman admin PPDB (kartu "Alur Pengerjaan Admin").
 - **Terima hanya dari `submitted`** — pendaftar dengan status lain ditolak
   (`PpdbService::accept` memeriksa `status !== 'submitted'`). Tidak ada
   double-accept yang membuat `Person`/`Student` ganda.
-- **Student / Guardian / Enrollment baru terbuat saat Terima** — NIS dan kelas
-  menyusul di langkah 3 & 4.
-- **Kelas wajib sudah ada** — dropdown diisi dari `ClassGroup`; kelas yang diketik
-  bebas akan ditolak ("kelas belum ada, buat dulu di Kelas & Penempatan").
-- **`class_group_id` NOT NULL** — enrollment siswa PPDB hanya lahir saat assign
-  kelas, bukan saat accept.
-- **NIS unik 18 digit** — di-generate dari counter berlanjut agar tidak bentrok.
+- **Student / Guardian baru terbuat saat Terima** — NIS & kelas dilengkapi
+  belakangan di modul Data Siswa.
+- **NIK unik** — `PpdbService::accept` menolak (pesan ramah) bila NIK sudah
+  ada sebagai `Person` atau dipakai registrasi lain yang `accepted`.
 
 ---
 
@@ -63,37 +55,28 @@ di laman admin PPDB (kartu "Alur Pengerjaan Admin").
 
 Temuan dari peninjauan kode — jadikan perhatian agar tidak terjadi data aneh:
 
-1. **Menolak siswa yang sudah `accepted` + dapat kelas.**
+1. **Menolak siswa yang sudah `accepted` + dapat kelas (di Data Siswa).**
    Belum ada guard yang melarang `reject` pada pendaftar yang sudah punya
-   `Student`/`Guardian`/`StudentEnrollment`. Akibatnya data menggantung.
-   *Antisipasi:* pastikan baru Tolak calon yang memang belum diproses; jika sudah
-   lanjut ke kelas, batalkan via hapus enrollment dulu, bukan sekadar reject.
+   `Student`/`Guardian`. Akibatnya data bisa menggantung.
+   *Antisipasi:* pastikan baru Tolak calon yang memang belum diproses.
 
-2. **Ganti Tahun Ajaran aktif di tengah proses.**
-   Halaman Generate NIS & Assign Class memfilter `AcademicYear::active()`.
-   Jika TA aktif diganti, calon `accepted` dari TA lama akan **hilang** dari
-   kedua halaman tersebut. *Antisipasi:* selesaikan finalisasi NIS & penentuan
-   kelas dalam satu TA, jangan ganti TA di tengah penerimaan.
+2. **NIS/kelas siswa `accepted` kosong sampai diisi di Data Siswa.**
+   PPDB kini tidak mengatur NIS/kelas. Setelah Terima, `students.nis` NULL dan
+   belum ada enrollment sampai operator melengkapinya di modul Data Siswa.
+   *Antisipasi:* pastikan operator menyelesaikan data siswa di Data Siswa sebelum
+   siswa dianggap resmi (cetak/portal).
 
-3. **"Acuan Nomor Urut" tumpang tindih dengan NIS existing.**
-   `students.nis` unik. Jika Acuan diatur sedemikian hingga NIS yang dihasilkan
-   sama dengan NIS siswa lama, `commitNis` gagal. *Antisipasi:* pastikan Acuan
-   lebih besar dari NIS terakhir yang sudah ada.
+3. **NIK duplikat.** Sudah dijaga: `PpdbService::accept` menolak bila NIK sudah
+   ada sebagai `Person` atau dipakai registrasi lain yang `accepted`. Data NIK
+   ganda tidak bisa diterima — perbaiki NIK-nya.
 
-4. **Assign kelas tanpa batas kapasitas.**
+4. **Assign kelas tanpa batas kapasitas (di Data Siswa).**
    Tidak ada validasi kuota rombel; satu kelas bisa diisi melebihi kapasitas.
-   *Antisipasi:* gunakan panel "Distribusi per Kelas" / fitur "Sebar Rata" dan
-   periksa badge jumlah siswa sebelum menyimpan.
 
 5. **Export ikut menyertakan status `rejected`.**
    Saat ini `PpdbExport` mengecualikan hanya `draft`, sehingga `rejected` ikut
    ter-export. *Antisipasi:* filter kolom `status` di export bila hanya ingin
    yang diterima; atau setujui pembatasan di masa depan.
-
-6. **NIS belum difinalisasi tapi sudah dianggap siswa.**
-   Setelah Terima, `students.nis` NULL sampai Finalisasi NIS. Fitur lain yang
-   mengandalkan NIS (cetak, portal) sebaiknya menunggu tahap 3 selesai.
-   *Antisipasi:* pastikan Finalisasi NIS dilakukan sebelum siswa dianggap resmi.
 
 ---
 
@@ -107,7 +90,7 @@ Gunakan akun `admin` (password `password`).
 | 2 | Submit form → `/ppdb/sukses` | Nomor pendaftaran `PPDB-…` tampil. |
 | 3 | `/ppdb/admin` | Kartu "Alur Pengerjaan Admin" muncul; statistik & filter jalan. |
 | 4 | Klik **Detail** calon → Terima | Status jadi `Diterima`; kartu stepper menyorot step aktif. |
-| 5 | `/ppdb/admin/generate-nis` | Calon muncul urut abjad; "Acuan" tersimpan; **Finalisasi NIS** → NIS 18 digit muncul & tersalin ke Data Siswa. |
-| 6 | `/ppdb/admin/assign-class` | Checklist + dropdown kelas; "Tetapkan Kelas Terpilih" & "Sebar Rata" jalan; badge jumlah siswa per kelas update. |
+| 5 | Klik **Edit** di detail → ubah data → **Simpan** | Form edit tampil (semua field), data tersimpan; status tetap. |
+| 6 | Klik **Tolak** di detail | Modal "Tolak Pendaftaran" terbuka; isi alasan → status jadi `Ditolak`. |
 | 7 | `/ppdb/admin/export` | File `.xlsx` terunduh; kolom berurutan mengikuti form; 5 kolom link GDrive ada. |
 | 8 | `/ppdb/admin/4` (contoh id Farhan) | Semua label pendidikan/pekerjaan/penghasilan tampil (bukan kode mentah). |

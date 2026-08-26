@@ -1,5 +1,5 @@
 @props([
-    // Nama rute halaman aktif: ppdb.index | ppdb.show | ppdb.generate-nis | ppdb.assign-class-page
+    // Nama rute halaman aktif: ppdb.index | ppdb.show | ppdb.edit
     'active' => 'ppdb.index',
     // Catatan guardrail singkat (opsional)
     'note' => null,
@@ -14,20 +14,8 @@
             'icon' => 'user-plus',
         ],
         [
-            'route' => 'ppdb.generate-nis',
-            'label' => '2. Generate NIS',
-            'hint' => 'Beri NIS massal, urut abjad, counter berlanjut.',
-            'icon' => 'hashtag',
-        ],
-        [
-            'route' => 'ppdb.assign-class-page',
-            'label' => '3. Tentukan Kelas',
-            'hint' => 'Sebar calon siswa ke rombel yang sudah ada.',
-            'icon' => 'building-library',
-        ],
-        [
             'route' => 'ppdb.export',
-            'label' => '4. Export Excel',
+            'label' => '2. Export Excel',
             'hint' => 'Unduh rekap EMIS + link Google Drive.',
             'icon' => 'arrow-down-tray',
         ],
@@ -35,7 +23,7 @@
 @endphp
 
 <x-ui.sheet title="Alur Pengerjaan Admin" subtitle="Urutan penanganan calon siswa hingga jadi siswa baru" pinned ruled>
-    <ol class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+    <ol class="grid grid-cols-1 gap-2 sm:grid-cols-2">
         @foreach ($steps as $step)
             @php
                 $isActive = $step['route'] === $active;

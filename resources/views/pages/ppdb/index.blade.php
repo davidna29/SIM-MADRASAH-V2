@@ -11,12 +11,6 @@
                 <p class="mt-1.5 max-w-prose text-sm leading-relaxed text-ink-soft">Kelola pendaftaran calon peserta didik baru.</p>
             </div>
             <div class="flex gap-2">
-                <a href="{{ route('ppdb.generate-nis') }}" class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
-                    <x-svg-hashtag class="size-3.5" /> Generate NIS
-                </a>
-                <a href="{{ route('ppdb.assign-class-page') }}" class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
-                    <x-svg-building-library class="size-3.5" /> Tentukan Kelas
-                </a>
                 <a href="{{ route('ppdb.export') }}" class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
                     <x-svg-arrow-down-tray class="size-3.5" /> Export Excel
                 </a>
@@ -25,7 +19,7 @@
 
         @include('pages.ppdb.partials.steps', [
             'active' => 'ppdb.index',
-            'note' => 'Urutan kerja: Terima dulu → Generate NIS → baru Tentukan Kelas → Export. Jangan ganti Tahun Ajaran aktif sebelum semua NIS difinalisasi.',
+            'note' => 'Terima/Tolak pendaftar → lengkapi NIS & kelas di menu Data Siswa → Export Excel.',
         ])
 
         @if (session('status'))

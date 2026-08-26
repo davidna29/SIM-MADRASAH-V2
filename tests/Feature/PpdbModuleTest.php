@@ -4,11 +4,8 @@ namespace Tests\Feature;
 
 use App\Exports\PpdbExport;
 use App\Models\AcademicYear;
-use App\Models\ClassGroup;
-use App\Models\NisCounter;
 use App\Models\Person;
 use App\Models\PpdbRegistration;
-use App\Models\Student;
 use App\Models\User;
 use App\Support\PpdbService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -263,41 +260,8 @@ class PpdbModuleTest extends TestCase
         $reg->refresh();
         $this->assertEquals('accepted', $reg->status);
         $this->assertNotNull($reg->student_id);
-        // NIS ditunda: baru diberikan di menu Generate NIS
+        // NIS & kelas diisi belakangan di Data Siswa (kosong saat accept)
         $this->assertNull($reg->nis_nism);
-    }
-
-    public function test_accepted_without_nis_appears_in_generate_page(): void
-    {
-        $this->actingAs($this->admin);
-
-        $this->post(route('ppdb.store'), $this->validData());
-        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
-        $this->post(route('ppdb.accept', $reg));
-
-        $response = $this->get(route('ppdb.generate-nis'));
-        $response->assertOk();
-        $response->assertSee('AHMAD TEST');
-        $response->assertSee('Finalisasi NIS');
-    }
-
-    public function test_commit_nis_fills_registration_and_student(): void
-    {
-        $this->actingAs($this->admin);
-
-        $this->post(route('ppdb.store'), $this->validData());
-        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
-        $this->post(route('ppdb.accept', $reg));
-
-        $response = $this->post(route('ppdb.commit-nis'));
-        $response->assertRedirect();
-        $response->assertSessionHas('status');
-
-        $reg->refresh();
-        $this->assertEquals(18, strlen($reg->nis_nism));
-        // student.nis harus ikut tersinkronkan
-        $this->assertNotNull($reg->student->nis);
-        $this->assertEquals($reg->nis_nism, $reg->student->nis);
     }
 
     public function test_admin_pages_show_step_guide(): void
@@ -307,13 +271,8 @@ class PpdbModuleTest extends TestCase
         $response = $this->get(route('ppdb.index'));
         $response->assertOk();
         $response->assertSee('Alur Pengerjaan Admin');
-        $response->assertSee('Generate NIS');
-
-        $response = $this->get(route('ppdb.generate-nis'));
-        $response->assertSee('Alur Pengerjaan Admin');
-
-        $response = $this->get(route('ppdb.assign-class-page'));
-        $response->assertSee('Alur Pengerjaan Admin');
+        $response->assertSee('Terima / Tolak');
+        $response->assertSee('Export Excel');
     }
 
     public function test_admin_can_reject(): void
@@ -400,179 +359,6 @@ class PpdbModuleTest extends TestCase
         $this->assertEquals('submitted', $reg->status);
     }
 
-    public function test_batch_generate_nis_skips_collision(): void
-    {
-        $this->actingAs($this->admin);
-
-        // Student existing dengan NIS yang akan "dibentrokkan"
-        Student::create([
-            'nis' => '000000000000270001',
-            'name' => 'SISWA EXISTING',
-            'gender' => 'L',
-        ]);
-
-        $this->post(route('ppdb.store'), $this->validData());
-        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
-        $this->post(route('ppdb.accept', $reg));
-
-        // Pastikan counter mulai dari 0 sehingga NIS pertama = ...270001 (bentrok)
-        $tahun = AcademicYear::active();
-        NisCounter::updateOrCreate(['academic_year_id' => $tahun->id], ['last_number' => 0]);
-
-        $response = $this->post(route('ppdb.commit-nis'));
-        $response->assertRedirect();
-        $response->assertSessionHas('status');
-
-        // Siswa bentrok dilewati, tidak di-crash
-        $reg->refresh();
-        $this->assertNull($reg->nis_nism);
-    }
-
-    public function test_nis_generation(): void
-    {
-        $this->actingAs($this->admin);
-
-        $this->post(route('ppdb.store'), $this->validData());
-        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
-        $this->post(route('ppdb.accept', $reg));
-
-        // NIS ditunda: belum ada setelah accept
-        $reg->refresh();
-        $this->assertNull($reg->nis_nism);
-
-        // NIS di-generate via Finalisasi (Generate NIS) — 18 digit: NSM(12)+Year(2)+Number(4)
-        $this->post(route('ppdb.commit-nis'));
-        $reg->refresh();
-        $this->assertEquals(18, strlen($reg->nis_nism));
-        $this->assertEquals(6, strlen($reg->nis_last6));
-    }
-
-    public function test_assign_class(): void
-    {
-        $this->actingAs($this->admin);
-
-        $this->post(route('ppdb.store'), $this->validData());
-        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
-        $this->post(route('ppdb.accept', $reg));
-
-        // Kelas harus dibuat dulu di Kelas & Penempatan
-        ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
-
-        $response = $this->post(route('ppdb.assign-class', $reg), [
-            'class_name' => 'I-A',
-        ]);
-        $response->assertRedirect();
-
-        $reg->refresh();
-        $this->assertEquals('I', $reg->kelas);
-        $this->assertEquals('I-A', $reg->rombel);
-    }
-
-    public function test_assign_class_rejects_nonexistent_class(): void
-    {
-        $this->actingAs($this->admin);
-
-        $this->post(route('ppdb.store'), $this->validData());
-        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
-        $this->post(route('ppdb.accept', $reg));
-
-        // Kelas "X-99" tidak ada
-        $response = $this->post(route('ppdb.assign-class', $reg), [
-            'class_name' => 'X-99',
-        ]);
-        $response->assertSessionHasErrors('class_name');
-    }
-
-    public function test_assign_class_bulk(): void
-    {
-        $this->actingAs($this->admin);
-
-        $this->post(route('ppdb.store'), $this->validData());
-        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
-        $this->post(route('ppdb.accept', $reg));
-
-        ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
-
-        $response = $this->post(route('ppdb.assign-class-bulk'), [
-            'class_name' => 'I-A',
-            'registration_ids' => [$reg->id],
-        ]);
-        $response->assertRedirect();
-        $response->assertSessionHas('status');
-
-        $reg->refresh();
-        $this->assertEquals('I', $reg->kelas);
-        $this->assertEquals('I-A', $reg->rombel);
-        $this->assertDatabaseHas('student_enrollments', [
-            'student_id' => $reg->student_id,
-            'class_group_id' => ClassGroup::where('name', 'I-A')->first()->id,
-        ]);
-    }
-
-    public function test_assign_class_bulk_rejects_missing_class(): void
-    {
-        $this->actingAs($this->admin);
-
-        $this->post(route('ppdb.store'), $this->validData());
-        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
-        $this->post(route('ppdb.accept', $reg));
-
-        // Kelas belum dibuat
-        $response = $this->post(route('ppdb.assign-class-bulk'), [
-            'class_name' => 'I-Z',
-            'registration_ids' => [$reg->id],
-        ]);
-        $response->assertSessionHasErrors('class_name');
-    }
-
-    public function test_assign_class_distribute_even(): void
-    {
-        $this->actingAs($this->admin);
-
-        // Dua calon diterima
-        $this->post(route('ppdb.store'), $this->validData());
-        $this->post(route('ppdb.store'), array_merge($this->validData(), [
-            'name' => 'BUDI LAIN',
-            'nik' => '6172010101010099',
-        ]));
-        $regs = PpdbRegistration::whereIn('name', ['AHMAD TEST', 'BUDI LAIN'])->get();
-        foreach ($regs as $r) {
-            $this->post(route('ppdb.accept', $r));
-        }
-
-        ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
-        ClassGroup::create(['name' => 'I-B', 'grade_level' => 'I']);
-
-        $response = $this->post(route('ppdb.assign-class-distribute'), [
-            'grade_level' => 'I',
-            'registration_ids' => $regs->pluck('id')->toArray(),
-        ]);
-        $response->assertRedirect();
-        $response->assertSessionHas('status');
-
-        // Keduanya kebagian kelas (sebar rata)
-        foreach ($regs as $r) {
-            $r->refresh();
-            $this->assertNotNull($r->kelas);
-            $this->assertNotNull($r->rombel);
-        }
-    }
-
-    public function test_assign_class_distribute_rejects_missing_grade(): void
-    {
-        $this->actingAs($this->admin);
-
-        $this->post(route('ppdb.store'), $this->validData());
-        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
-        $this->post(route('ppdb.accept', $reg));
-
-        $response = $this->post(route('ppdb.assign-class-distribute'), [
-            'grade_level' => 'IX',
-            'registration_ids' => [$reg->id],
-        ]);
-        $response->assertSessionHasErrors('grade_level');
-    }
-
     public function test_export_includes_drive_links_and_follows_form_order(): void
     {
         $this->actingAs($this->admin);
@@ -607,46 +393,63 @@ class PpdbModuleTest extends TestCase
         $this->assertContains('https://drive.google.com/file/d/akta-123', $row);
     }
 
-    public function test_admin_can_see_generate_nis_page(): void
+    public function test_admin_can_see_edit_page(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->get(route('ppdb.generate-nis'));
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+
+        $response = $this->get(route('ppdb.edit', $reg));
         $response->assertOk();
-        $response->assertSee('Acuan Nomor Urut Terakhir');
+        $response->assertSee('Edit Calon Siswa');
+        $response->assertSee('AHMAD TEST');
     }
 
-    public function test_admin_can_set_nis_counter(): void
+    public function test_admin_can_update_registration(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->post(route('ppdb.update-nis-counter'), [
-            'last_number' => 25,
-        ]);
-        $response->assertRedirect();
-        $response->assertSessionHas('status');
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
 
-        $tahun = AcademicYear::active();
-        $this->assertEquals(25, NisCounter::where('academic_year_id', $tahun->id)->first()->last_number);
+        $data = $this->validData();
+        $data['name'] = 'AHMAD DIEDIT';
+        $data['hobby'] = 'Membaca';
+
+        $response = $this->put(route('ppdb.update', $reg), $data);
+        $response->assertRedirect(route('ppdb.show', $reg));
+
+        $reg->refresh();
+        $this->assertEquals('AHMAD DIEDIT', $reg->name);
+        $this->assertEquals('Membaca', $reg->hobby);
+        $this->assertEquals('submitted', $reg->status);
     }
 
-    public function test_nis_counter_requires_positive_number(): void
+    public function test_edit_available_for_accepted_status(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->post(route('ppdb.update-nis-counter'), [
-            'last_number' => -5,
-        ]);
-        $response->assertSessionHasErrors('last_number');
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+        $this->post(route('ppdb.accept', $reg));
+
+        $response = $this->get(route('ppdb.edit', $reg));
+        $response->assertOk();
+        $response->assertSee('Edit Calon Siswa');
     }
 
-    public function test_guru_cannot_set_nis_counter(): void
+    public function test_update_rejects_invalid_data(): void
     {
-        $this->actingAs($this->guru);
+        $this->actingAs($this->admin);
 
-        $response = $this->post(route('ppdb.update-nis-counter'), [
-            'last_number' => 25,
-        ]);
-        $response->assertForbidden();
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+
+        $data = $this->validData();
+        $data['nik'] = '123';
+
+        $response = $this->put(route('ppdb.update', $reg), $data);
+        $response->assertSessionHasErrors('nik');
     }
 }

@@ -3,10 +3,8 @@
 namespace App\Support;
 
 use App\Models\Guardian;
-use App\Models\NisCounter;
 use App\Models\Person;
 use App\Models\PpdbRegistration;
-use App\Models\Setting;
 use App\Models\Student;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -14,47 +12,10 @@ use Illuminate\Validation\ValidationException;
 class PpdbService
 {
     /**
-     * Generate NIS/NISM: NSM (12) + Tahun Masuk (2) + Nomor Urut (4) = 18 digit.
-     */
-    public static function generateNis(PpdbRegistration $registration): string
-    {
-        $nsm = Setting::get('madrasah_nsm', '000000000000');
-        $nsm = str_pad($nsm, 12, '0', STR_PAD_LEFT);
-
-        $year = $registration->academicYear
-            ? substr($registration->academicYear->name, -2)
-            : substr((string) now()->year, -2);
-
-        $nextNumber = NisCounter::nextNumber($registration->academic_year_id);
-        $nomorUrut = str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
-
-        return $nsm.$year.$nomorUrut;
-    }
-
-    /**
-     * Preview NIS without incrementing counter.
-     */
-    public static function previewNis(PpdbRegistration $registration): string
-    {
-        $nsm = Setting::get('madrasah_nsm', '000000000000');
-        $nsm = str_pad($nsm, 12, '0', STR_PAD_LEFT);
-
-        $year = $registration->academicYear
-            ? substr($registration->academicYear->name, -2)
-            : substr((string) now()->year, -2);
-
-        $nextNumber = NisCounter::peekNext($registration->academic_year_id);
-        $nomorUrut = str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
-
-        return $nsm.$year.$nomorUrut;
-    }
-
-    /**
      * Accept a PPDB registration — create Student, Person, Guardian.
      *
-     * NIS SENGGANG ditunda: Student dibuat tanpa NIS, lalu diberi NIS massal
-     * di menu Generate NIS (batchGenerateNis). Hal ini agar operator bisa
-     * menentukan acuan nomor urut dan mengurutkan secara abjad terlebih dahulu.
+     * NIS & kelas TIDAK ditentukan di PPDB: Student dibuat tanpa NIS dan tanpa
+     * enrollment. Operator melengkapi NIS & kelas melalui modul Data Siswa.
      */
     public static function accept(PpdbRegistration $registration): Student
     {
@@ -91,7 +52,7 @@ class PpdbService
                 'email' => $registration->student_email,
             ]);
 
-            // 2. Create Student (NIS menyusul di Generate NIS)
+            // 2. Create Student (NIS diisi belakangan via Data Siswa)
             $student = Student::create([
                 'person_id' => $person->id,
                 'nis' => null,
@@ -124,69 +85,10 @@ class PpdbService
                 ->performedOn($registration)
                 ->event('accepted')
                 ->withProperties(['student_id' => $student->id])
-                ->log('PPDB diterima: '.$registration->name.' (NIS menyusul di Generate NIS)');
+                ->log('PPDB diterima: '.$registration->name.' (NIS & kelas diisi di Data Siswa)');
 
             return $student;
         });
-    }
-
-    /**
-     * Batch generate NIS for all accepted registrations (sorted by name).
-     * Juga menyinkronkan NIS ke kolom students.nis.
-     */
-    public static function batchGenerateNis(int $academicYearId): array
-    {
-        $registrations = PpdbRegistration::where('academic_year_id', $academicYearId)
-            ->where('status', 'accepted')
-            ->whereNull('nis_nism')
-            ->orderByRaw('UPPER(name)')
-            ->get();
-
-        $results = [];
-        $skipped = [];
-
-        DB::transaction(function () use ($registrations, &$results, &$skipped) {
-            foreach ($registrations as $reg) {
-                $nis = self::generateNis($reg);
-                $nisLast6 = substr($nis, -6);
-
-                // Hindari bentrok NIS unik (mis. acuan tumpang tindih dengan NIS siswa existing
-                // atau counter menghasilkan NIS yang sudah dipakai). Siswa bentrok dilewati,
-                // bukan di-crash; dilaporkan lewat $skipped.
-                $collides = Student::where('nis', $nis)
-                    ->where('id', '!=', $reg->student_id)
-                    ->exists();
-
-                if ($collides) {
-                    $skipped[] = [
-                        'registration_no' => $reg->registration_no,
-                        'name' => $reg->name,
-                        'nis' => $nis,
-                    ];
-
-                    continue;
-                }
-
-                $reg->update([
-                    'nis_nism' => $nis,
-                    'nis_last6' => $nisLast6,
-                ]);
-
-                // Sinkronkan ke Student agar Data Siswa & modul lain konsisten
-                if ($reg->student_id) {
-                    $reg->student()->update(['nis' => $nis]);
-                }
-
-                $results[] = [
-                    'registration_no' => $reg->registration_no,
-                    'name' => $reg->name,
-                    'nis' => $nis,
-                    'nis_last6' => $nisLast6,
-                ];
-            }
-        });
-
-        return ['generated' => $results, 'skipped' => $skipped];
     }
 
     /**

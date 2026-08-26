@@ -150,17 +150,12 @@ Route::middleware('auth')->group(function () {
 
         // PPDB Daring — admin (fixed routes BEFORE wildcard)
         Route::get('/ppdb/admin', [AdminPpdbController::class, 'index'])->name('ppdb.index');
-        Route::get('/ppdb/admin/generate-nis', [AdminPpdbController::class, 'generateNis'])->name('ppdb.generate-nis');
-        Route::post('/ppdb/admin/update-nis-counter', [AdminPpdbController::class, 'updateNisCounter'])->name('ppdb.update-nis-counter');
-        Route::post('/ppdb/admin/commit-nis', [AdminPpdbController::class, 'commitNis'])->name('ppdb.commit-nis');
-        Route::get('/ppdb/admin/assign-class', [AdminPpdbController::class, 'assignClassPage'])->name('ppdb.assign-class-page');
-        Route::post('/ppdb/admin/assign-class-bulk', [AdminPpdbController::class, 'assignClassBulk'])->name('ppdb.assign-class-bulk');
-        Route::post('/ppdb/admin/assign-class-distribute', [AdminPpdbController::class, 'assignClassDistribute'])->name('ppdb.assign-class-distribute');
         Route::get('/ppdb/admin/export', [AdminPpdbController::class, 'exportExcel'])->name('ppdb.export');
+        Route::get('/ppdb/admin/{registration}/edit', [AdminPpdbController::class, 'edit'])->name('ppdb.edit');
+        Route::put('/ppdb/admin/{registration}', [AdminPpdbController::class, 'update'])->name('ppdb.update');
         Route::get('/ppdb/admin/{registration}', [AdminPpdbController::class, 'show'])->name('ppdb.show');
         Route::post('/ppdb/admin/{registration}/accept', [AdminPpdbController::class, 'accept'])->name('ppdb.accept');
         Route::post('/ppdb/admin/{registration}/reject', [AdminPpdbController::class, 'reject'])->name('ppdb.reject');
-        Route::post('/ppdb/admin/{registration}/assign-class', [AdminPpdbController::class, 'assignClass'])->name('ppdb.assign-class');
     });
 
     // Pusat Laporan — multi-role

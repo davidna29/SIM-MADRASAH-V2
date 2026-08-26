@@ -25,7 +25,11 @@
                 <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{{ strtoupper($registration->name) }}</h1>
                 <p class="mt-1 text-sm text-ink-soft">{{ $registration->registration_no }} · {{ $registration->created_at->format('d/m/Y H:i') }}</p>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2" x-data="{ open: false }">
+                <a href="{{ route('ppdb.edit', $registration) }}"
+                    class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
+                    <x-svg-pencil-square class="size-3.5" /> Edit
+                </a>
                 @if ($registration->status === 'submitted')
                     <form method="POST" action="{{ route('ppdb.accept', $registration) }}" x-data="{ confirming: false }"
                         @submit="if(!confirming) { event.preventDefault(); confirming = true; }">
@@ -35,13 +39,13 @@
                             <x-svg-check-circle class="size-3.5" /> Terima
                         </button>
                     </form>
-                    <button type="button" x-data="{ open: false }" @click="open = true"
+                    <button type="button" @click="open = true"
                         class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-danger px-3 py-2 text-xs font-semibold text-white transition hover:brightness-95">
                         <x-svg-x-circle class="size-3.5" /> Tolak
                     </button>
 
-                    {{-- Reject Modal --}}
-                    <div x-data="{ open: false }" x-show="open" x-cloak
+                    {{-- Reject Modal (berbagi scope x-data dengan tombol Tolak) --}}
+                    <div x-show="open" x-cloak
                         class="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center"
                         x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                         x-transition:leave="transition ease-in duration-100" x-transition:leave-end="opacity-0"
@@ -73,7 +77,7 @@
 
         @include('pages.ppdb.partials.steps', [
             'active' => 'ppdb.show',
-            'note' => 'Setelah diterima, lanjutkan ke menu Generate NIS lalu Tentukan Kelas. Jangan menolak siswa yang sudah diterima & dapat kelas (data akan menggantung).',
+            'note' => 'Terima/Tolak pendaftar; NIS & kelas dilengkapi di menu Data Siswa. Jangan menolak siswa yang sudah diterima (data akan menggantung).',
         ])
 
         @if (session('status'))
@@ -321,21 +325,5 @@
                 @endforeach
             </dl>
         </x-ui.sheet>
-
-        {{-- Admin: Assign Class --}}
-        @if ($registration->status === 'accepted')
-            <x-ui.sheet title="Tentukan Kelas / Rombel" class="mt-4" pinned ruled>
-                <form method="POST" action="{{ route('ppdb.assign-class', $registration) }}" class="flex flex-wrap items-end gap-3">
-                    @csrf
-                    <x-ui.field label="Kelas / Rombel" :error="$errors->first('class_name')">
-                        <x-ui.select name="class_name" :options="$classOptions" :selected="$registration->rombel" placeholder="-- Pilih kelas --" />
-                    </x-ui.field>
-                    @if ($classOptions->isEmpty())
-                        <p class="w-full text-xs text-warning">Belum ada kelas. Buat dulu di menu Kelas &amp; Penempatan.</p>
-                    @endif
-                    <x-ui.button type="submit" variant="primary" size="md" :disabled="$classOptions->isEmpty()">Simpan</x-ui.button>
-                </form>
-            </x-ui.sheet>
-        @endif
     </div>
 </x-layouts.page>
