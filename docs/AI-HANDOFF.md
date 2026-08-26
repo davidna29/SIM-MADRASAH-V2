@@ -39,7 +39,7 @@
 # di folder proyek
 composer serve               # buka http://localhost:8000 — menaikkan limit upload PHP
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 205 test
+php artisan test             # 261 test
 npm run build                # asset produksi
 ```
 
@@ -111,12 +111,14 @@ Fitur penting:
 
 - **Modul Pusat Laporan:** read-only aggregate dari tabel yang sudah ada — tidak ada migrasi baru. `LaporanService` menyediakan 6 jenis laporan: rekap akademik (rapor per kelas), rekap kehadiran (H/S/I/A per kelas), rekap keuangan (SPP per kelas), rekap kesiswaan (prestasi + pelanggaran), rekap tenaga (guru/pegawai per role), rekap perpustakaan (buku, pinjaman, anggota). Route `/pemeliharaan/laporan*` (group `super_admin|kepala_madrasah|wakamad_kurikulum|wakamad_kesiswaan|bendahara`). Export PDF (DomPDF) & CSV (streaming dengan BOM UTF-8). Test: 10 feature test di `LaporanModuleTest`.
 
+- **Modul Backup & Restore:** file-based — tidak ada migrasi baru. `BackupService` (`app/Support/BackupService.php`) menangani: backup database via `mysqldump` → `storage/app/backups/db/YYYY-MM-DD_HHMMSS.sql`, backup file storage via `ZipArchive` → `storage/app/backups/files/`, upload `.sql`/`.zip` → `storage/app/backups/uploads/`. Route `/pemeliharaan/backup*` (group `super_admin` only). Controller `Pemeliharaan\BackupController`: index (daftar backup + KPI), storeDb, storeFiles, download (URL-encoded filename), upload, restore (konfirmasi ketik "RESTORE"), destroy. Sidebar "Backup & Restore" di group "Pemeliharaan Sistem" (placeholder dihapus). View menampilkan: 3 KPI card (total backup, total ukuran, backup terakhir), tombol backup database & file, form upload, tabel daftar backup dengan aksi download/restore/delete. Restore: `SET FOREIGN_KEY_CHECKS=0` → drop semua tabel (kecuali `migrations`) → `DB::unprepared(sql)` → `migrate:force`. Activity log tercatat via `activity('pemeliharaan')`. Test: 16 feature test di `BackupModuleTest`. Filename di-route di-`urlencode()` untuk mengakomodasi `/` dalam path.
+
 ## 5. Langkah Modul Berikutnya
 
 Disiplin (PRD Bagian 16): **frontend → persetujuan pengguna → backend → test**. Mulai dari:
 
 1. **Perluasan tagihan non-SPP** — dihapus dari proyek (keputusan pengguna).
-2. **Modul lain yang bisa dikerjakan:** Backup & Restore.
+2. **Backup & Restore** — selesai.
 
 ## 6. Keputusan Terbuka (PRD Bagian 24)
 

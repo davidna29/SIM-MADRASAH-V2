@@ -26,6 +26,7 @@ use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
 use App\Http\Controllers\Pemeliharaan\ActivityLogController;
+use App\Http\Controllers\Pemeliharaan\BackupController;
 use App\Http\Controllers\Pemeliharaan\LaporanController;
 use App\Http\Controllers\Perpustakaan\LibraryController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
@@ -116,6 +117,15 @@ Route::middleware('auth')->group(function () {
 
         // Activity & Audit Log — pemeliharaan
         Route::get('/pemeliharaan/activity-log', [ActivityLogController::class, 'index'])->name('activity-log.index');
+
+        // Backup & Restore — pemeliharaan
+        Route::get('/pemeliharaan/backup', [BackupController::class, 'index'])->name('backup.index');
+        Route::post('/pemeliharaan/backup/database', [BackupController::class, 'storeDb'])->name('backup.store-db');
+        Route::post('/pemeliharaan/backup/files', [BackupController::class, 'storeFiles'])->name('backup.store-files');
+        Route::get('/pemeliharaan/backup/{filename}/download', [BackupController::class, 'download'])->name('backup.download')->where('filename', '.+');
+        Route::post('/pemeliharaan/backup/upload', [BackupController::class, 'upload'])->name('backup.upload');
+        Route::post('/pemeliharaan/backup/restore', [BackupController::class, 'restore'])->name('backup.restore');
+        Route::delete('/pemeliharaan/backup/{filename}', [BackupController::class, 'destroy'])->name('backup.destroy')->where('filename', '.+');
 
         // Pengguna & Role Management
         Route::get('/fondasi/pengguna', [UserController::class, 'index'])->name('pengguna.index');
