@@ -80,6 +80,19 @@
             <div class="mt-6"><x-ui.alert variant="success" dismissible>{{ session('status') }}</x-ui.alert></div>
         @endif
 
+        @if ($errors->any())
+            <div class="mt-6">
+                <x-ui.alert variant="danger" dismissible>
+                    <p class="font-semibold">Terjadi kesalahan.</p>
+                    <ul class="mt-1 list-disc list-inside text-xs">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </x-ui.alert>
+            </div>
+        @endif
+
         {{-- Status Badge --}}
         <div class="mt-4">
             <x-ui.badge :variant="match($registration->status) {

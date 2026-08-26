@@ -149,6 +149,7 @@ Yang SUDAH dikerjakan (akumulasi sesi):
 - Jangan pakai `{{ }}` di dalam tag komponen Blade — pakai `:prop` (PHP) / `x-bind:` (Alpine).
 - Route PPDB fixed HARUS didefinisikan SEBELUM `{registration}` wildcard.
 - **Watchlist (risiko, lihat `docs/PPDB-ALUR-KERJA.md` §4):** jangan tolak siswa yg sudah diterima+koba kelas (data menggantung); jangan ganti TA aktif sebelum finalisasi NIS; "Acuan" bisa bentrok unique `students.nis`; assign kelas belum ada batas kapasitas; export ikut menyertakan `rejected`.
+- **(BARU) Guard NIK duplikat saat accept:** `PpdbService::accept()` kini menolak (ValidationException → pesan ramah, bukan 500) bila NIK sudah ada sebagai `Person` (`people_nik_unique`) atau sudah dipakai registrasi lain yang `accepted`. `batchGenerateNis()` dibungkus transaksi & **melewati** siswa yang NIS-nya bentrok dengan `students.nis` existing (dilaporkan di pesan, tidak crash). Commit `commitNis` menyebut jumlah berhasil + dilewati. Catatan: data PPDB yang NIK-nya duplikat (mis. registrasi id 5 = NIK `6172010101010001` yang sama dengan id 1) memang tak bisa diterima — operator harus perbaiki NIK-nya.
 
 ## 5. Langkah Modul Berikutnya
 

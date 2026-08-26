@@ -6,7 +6,9 @@ use App\Exports\PpdbExport;
 use App\Models\AcademicYear;
 use App\Models\ClassGroup;
 use App\Models\NisCounter;
+use App\Models\Person;
 use App\Models\PpdbRegistration;
+use App\Models\Student;
 use App\Models\User;
 use App\Support\PpdbService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -346,6 +348,84 @@ class PpdbModuleTest extends TestCase
         $this->assertDatabaseHas('people', [
             'nik' => '6172010101010001',
         ]);
+    }
+
+    public function test_accept_rejects_duplicate_nik(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Dua pendaftaran dengan NIK sama
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg1 = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+
+        $data2 = $this->validData();
+        $data2['name'] = 'DUPLIKAT TEST';
+        $this->post(route('ppdb.store'), $data2);
+        $reg2 = PpdbRegistration::where('name', 'DUPLIKAT TEST')->first();
+
+        // Terima yang pertama sukses
+        $this->post(route('ppdb.accept', $reg1));
+
+        // Terima yang kedua ditolak karena NIK sudah dipakai — bukan 500;
+        // redirect balik ke halaman detail dan menampilkan pesan error yang ramah.
+        $response = $this->followingRedirects()
+            ->post(route('ppdb.accept', $reg2), [], ['HTTP_REFERER' => url('/ppdb/admin/'.$reg2->id)]);
+        $response->assertOk();
+        $response->assertSee('Terjadi kesalahan');
+        $response->assertSee('NIK ini sudah terdaftar');
+
+        $reg2->refresh();
+        $this->assertEquals('submitted', $reg2->status);
+    }
+
+    public function test_accept_rejects_nik_already_in_people(): void
+    {
+        $this->actingAs($this->admin);
+
+        // NIK sudah ada sebagai Person (siswa/pegawai/calon lain)
+        Person::create([
+            'nik' => '6172010101010001',
+            'name' => 'ORANG LAMA',
+            'gender' => 'L',
+        ]);
+
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+
+        $response = $this->post(route('ppdb.accept', $reg));
+        $response->assertSessionHasErrors('nik');
+        $response->assertStatus(302);
+
+        $reg->refresh();
+        $this->assertEquals('submitted', $reg->status);
+    }
+
+    public function test_batch_generate_nis_skips_collision(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Student existing dengan NIS yang akan "dibentrokkan"
+        Student::create([
+            'nis' => '000000000000270001',
+            'name' => 'SISWA EXISTING',
+            'gender' => 'L',
+        ]);
+
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+        $this->post(route('ppdb.accept', $reg));
+
+        // Pastikan counter mulai dari 0 sehingga NIS pertama = ...270001 (bentrok)
+        $tahun = AcademicYear::active();
+        NisCounter::updateOrCreate(['academic_year_id' => $tahun->id], ['last_number' => 0]);
+
+        $response = $this->post(route('ppdb.commit-nis'));
+        $response->assertRedirect();
+        $response->assertSessionHas('status');
+
+        // Siswa bentrok dilewati, tidak di-crash
+        $reg->refresh();
+        $this->assertNull($reg->nis_nism);
     }
 
     public function test_nis_generation(): void

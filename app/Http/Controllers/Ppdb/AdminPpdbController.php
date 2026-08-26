@@ -315,14 +315,22 @@ class AdminPpdbController extends Controller
             return back()->withErrors(['error' => 'Tidak ada tahun ajaran aktif.']);
         }
 
-        $results = PpdbService::batchGenerateNis($academicYear->id);
+        $outcome = PpdbService::batchGenerateNis($academicYear->id);
+        $generated = $outcome['generated'];
+        $skipped = $outcome['skipped'];
 
         activity('ppdb')
             ->event('nis_generated')
-            ->withProperties(['count' => count($results)])
-            ->log('NIS digenerate: '.count($results).' siswa');
+            ->withProperties(['count' => count($generated), 'skipped' => count($skipped)])
+            ->log('NIS digenerate: '.count($generated).' siswa');
 
-        return back()->with('status', count($results).' NIS berhasil digenerate.');
+        $message = count($generated).' NIS berhasil digenerate.';
+        if (count($skipped) > 0) {
+            $names = collect($skipped)->pluck('name')->implode(', ');
+            $message .= ' '.count($skipped).' dilewati karena NIS bentrok: '.$names;
+        }
+
+        return back()->with('status', $message);
     }
 
     public function assignClassPage(): View

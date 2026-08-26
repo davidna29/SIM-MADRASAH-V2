@@ -9,6 +9,7 @@ use App\Models\PpdbRegistration;
 use App\Models\Setting;
 use App\Models\Student;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class PpdbService
 {
@@ -57,6 +58,26 @@ class PpdbService
      */
     public static function accept(PpdbRegistration $registration): Student
     {
+        // Guard NIK duplikat: NIK unik per individu. Jika sudah ada Person
+        // (siswa/pegawai/calon lain) atau registrasi lain yang diterima dengan
+        // NIK yang sama, tolak dengan pesan ramah, bukan 500.
+        $existingPerson = Person::where('nik', $registration->nik)->first();
+        if ($existingPerson) {
+            throw ValidationException::withMessages([
+                'nik' => 'NIK ini sudah terdaftar sebagai "'.$existingPerson->name.'". Periksa kemungkinan data ganda.',
+            ]);
+        }
+
+        $otherAccepted = PpdbRegistration::where('nik', $registration->nik)
+            ->where('id', '!=', $registration->id)
+            ->where('status', 'accepted')
+            ->first();
+        if ($otherAccepted) {
+            throw ValidationException::withMessages([
+                'nik' => 'NIK ini sudah diterima pada pendaftaran "'.$otherAccepted->name.'" ('.$otherAccepted->registration_no.').',
+            ]);
+        }
+
         return DB::transaction(function () use ($registration) {
             // 1. Create Person
             $person = Person::create([
@@ -122,30 +143,50 @@ class PpdbService
             ->get();
 
         $results = [];
+        $skipped = [];
 
-        foreach ($registrations as $reg) {
-            $nis = self::generateNis($reg);
-            $nisLast6 = substr($nis, -6);
+        DB::transaction(function () use ($registrations, &$results, &$skipped) {
+            foreach ($registrations as $reg) {
+                $nis = self::generateNis($reg);
+                $nisLast6 = substr($nis, -6);
 
-            $reg->update([
-                'nis_nism' => $nis,
-                'nis_last6' => $nisLast6,
-            ]);
+                // Hindari bentrok NIS unik (mis. acuan tumpang tindih dengan NIS siswa existing
+                // atau counter menghasilkan NIS yang sudah dipakai). Siswa bentrok dilewati,
+                // bukan di-crash; dilaporkan lewat $skipped.
+                $collides = Student::where('nis', $nis)
+                    ->where('id', '!=', $reg->student_id)
+                    ->exists();
 
-            // Sinkronkan ke Student agar Data Siswa & modul lain konsisten
-            if ($reg->student_id) {
-                $reg->student()->update(['nis' => $nis]);
+                if ($collides) {
+                    $skipped[] = [
+                        'registration_no' => $reg->registration_no,
+                        'name' => $reg->name,
+                        'nis' => $nis,
+                    ];
+
+                    continue;
+                }
+
+                $reg->update([
+                    'nis_nism' => $nis,
+                    'nis_last6' => $nisLast6,
+                ]);
+
+                // Sinkronkan ke Student agar Data Siswa & modul lain konsisten
+                if ($reg->student_id) {
+                    $reg->student()->update(['nis' => $nis]);
+                }
+
+                $results[] = [
+                    'registration_no' => $reg->registration_no,
+                    'name' => $reg->name,
+                    'nis' => $nis,
+                    'nis_last6' => $nisLast6,
+                ];
             }
+        });
 
-            $results[] = [
-                'registration_no' => $reg->registration_no,
-                'name' => $reg->name,
-                'nis' => $nis,
-                'nis_last6' => $nisLast6,
-            ];
-        }
-
-        return $results;
+        return ['generated' => $results, 'skipped' => $skipped];
     }
 
     /**
