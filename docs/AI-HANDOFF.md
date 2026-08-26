@@ -39,7 +39,7 @@
 # di folder proyek
 composer serve               # buka http://localhost:8000 — menaikkan limit upload PHP
 php artisan migrate:fresh --seed   # reset DB + data demo
-php artisan test             # 261 test
+php artisan test             # 269 test
 npm run build                # asset produksi
 ```
 
@@ -112,6 +112,8 @@ Fitur penting:
 - **Modul Pusat Laporan:** read-only aggregate dari tabel yang sudah ada — tidak ada migrasi baru. `LaporanService` menyediakan 6 jenis laporan: rekap akademik (rapor per kelas), rekap kehadiran (H/S/I/A per kelas), rekap keuangan (SPP per kelas), rekap kesiswaan (prestasi + pelanggaran), rekap tenaga (guru/pegawai per role), rekap perpustakaan (buku, pinjaman, anggota). Route `/pemeliharaan/laporan*` (group `super_admin|kepala_madrasah|wakamad_kurikulum|wakamad_kesiswaan|bendahara`). Export PDF (DomPDF) & CSV (streaming dengan BOM UTF-8). Test: 10 feature test di `LaporanModuleTest`.
 
 - **Modul Backup & Restore:** file-based — tidak ada migrasi baru. `BackupService` (`app/Support/BackupService.php`) menangani: backup database via `mysqldump` → `storage/app/backups/db/YYYY-MM-DD_HHMMSS.sql`, backup file storage via `ZipArchive` → `storage/app/backups/files/`, upload `.sql`/`.zip` → `storage/app/backups/uploads/`. Route `/pemeliharaan/backup*` (group `super_admin` only). Controller `Pemeliharaan\BackupController`: index (daftar backup + KPI), storeDb, storeFiles, download (URL-encoded filename), upload, restore (konfirmasi ketik "RESTORE"), destroy. Sidebar "Backup & Restore" di group "Pemeliharaan Sistem" (placeholder dihapus). View menampilkan: 3 KPI card (total backup, total ukuran, backup terakhir), tombol backup database & file, form upload, tabel daftar backup dengan aksi download/restore/delete. Restore: `SET FOREIGN_KEY_CHECKS=0` → drop semua tabel (kecuali `migrations`) → `DB::unprepared(sql)` → `migrate:force`. Activity log tercatat via `activity('pemeliharaan')`. Test: 16 feature test di `BackupModuleTest`. Filename di-route di-`urlencode()` untuk mengakomodasi `/` dalam path.
+
+- **Modul Pengaturan Sistem:** tabel `settings` (key-value, unique key). Model `Setting` dengan static helpers `get()`, `set()`, `getAll()`, `setMany()`. Route `/fondasi/pengaturan` (group `super_admin`). Controller `Fondasi\PengaturanController`: index (form identitas lembaga), update (validasi + upload logo). Sidebar "Pengaturan Sistem" di group "Sistem" (placeholder dihapus). View menampilkan 6 sections: Data Utama (nama, NSM, NPSN, jenjang RA/MI/MTs/MA, status negeri/swasta, tahun berdiri), Alamat & Lokasi (jalan, desa, kecamatan, kabupaten, provinsi, kode pos, lat/lng), Kontak (telepon, email, website), Legalitas (SK pendirian + tanggal, SK izin operasional), Akreditasi & Naungan, Logo (upload JPG/PNG max 2MB). Default settings di-seed via `SettingSeeder`. Hardcoded "MTs Al-Ikhlas Mulia" di layout app, publik, login diganti `Setting::get('madrasah_name')`. Test: 8 feature test di `PengaturanModuleTest`.
 
 ## 5. Langkah Modul Berikutnya
 

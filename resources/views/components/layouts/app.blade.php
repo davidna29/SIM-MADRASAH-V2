@@ -1,7 +1,7 @@
 @props([
     'role' => null,
     'roleLabel' => null,
-    'madrasah' => 'MTs Al-Ikhlas Mulia',
+    'madrasah' => \App\Models\Setting::get('madrasah_name', 'SIM Madrasah'),
     'activeRoute' => null,
 ])
 

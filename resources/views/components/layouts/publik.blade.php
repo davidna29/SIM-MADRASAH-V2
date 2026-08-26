@@ -26,7 +26,7 @@
         </main>
 
         <footer class="border-t border-rule-strong/60 bg-sheet py-5 text-center text-xs text-ink-faint">
-            © {{ date('Y') }} MTs Al-Ikhlas Mulia · SIM Madrasah
+            © {{ date('Y') }} {{ \App\Models\Setting::get('madrasah_name', 'SIM Madrasah') }} · SIM Madrasah
         </footer>
     </div>
 </x-layouts.root>

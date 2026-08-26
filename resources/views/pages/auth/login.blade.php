@@ -1,3 +1,7 @@
+@php
+    $madrasahName = \App\Models\Setting::get('madrasah_name', 'SIM Madrasah');
+@endphp
+
 <x-layouts.root :title="'Masuk'">
     <div class="paper-grain flex min-h-screen flex-col items-center justify-center px-4 py-10">
         <!-- Kepala papan -->
@@ -7,7 +11,7 @@
             </div>
             <h1 class="mt-4 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">SIM Madrasah</h1>
             <p class="mt-1 max-w-sm text-sm leading-relaxed text-ink-soft">
-                MTs Al-Ikhlas Mulia — Sistem Informasi Manajemen Madrasah Terintegrasi
+                {{ $madrasahName }} — Sistem Informasi Manajemen Madrasah Terintegrasi
             </p>
         </div>
 
@@ -60,7 +64,7 @@
         </div>
 
         <div class="mt-8 flex flex-col items-center gap-2 text-xs text-ink-faint">
-            <p>© 2026 MTs Al-Ikhlas Mulia · SIM Madrasah v2.1</p>
+            <p>© {{ date('Y') }} {{ $madrasahName }} · SIM Madrasah v2.1</p>
             <x-ui.badge variant="neutral" :dot="false">Data demo — bukan data riil</x-ui.badge>
         </div>
     </div>

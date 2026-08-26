@@ -13,6 +13,7 @@ use App\Http\Controllers\Cms\AgendaController;
 use App\Http\Controllers\Cms\ArticleController;
 use App\Http\Controllers\Cms\GalleryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Fondasi\PengaturanController;
 use App\Http\Controllers\Fondasi\UserController;
 use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
@@ -135,6 +136,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/fondasi/pengguna/{user}/edit', [UserController::class, 'edit'])->name('pengguna.edit');
         Route::put('/fondasi/pengguna/{user}', [UserController::class, 'update'])->name('pengguna.update');
         Route::delete('/fondasi/pengguna/{user}', [UserController::class, 'destroy'])->name('pengguna.destroy');
+
+        // Pengaturan Sistem
+        Route::get('/fondasi/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
+        Route::put('/fondasi/pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
     });
 
     // Pusat Laporan — multi-role
