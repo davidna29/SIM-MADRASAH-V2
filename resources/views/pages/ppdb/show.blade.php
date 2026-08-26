@@ -228,6 +228,7 @@
                     'Status' => $registration->mother_status,
                     'NIK' => $registration->mother_nik,
                     'Tgl Lahir' => $registration->mother_birth_date?->format('d/m/Y'),
+                    'Tempat Lahir' => $registration->mother_birth_place,
                     'Pendidikan' => $mapOpt($pendidikanOpts, $registration->mother_education),
                     'Pekerjaan' => $mapOpt($pekerjaanOpts, $registration->mother_job),
                     'Penghasilan' => $mapOpt($penghasilanOpts, $registration->mother_income),
