@@ -5,6 +5,21 @@
     active-route="ppdb.index">
 
     <div class="mx-auto max-w-4xl">
+        @php
+            $pendidikanOpts = \App\Enums\Pendidikan::options();
+            $pekerjaanOpts = \App\Enums\Pekerjaan::options();
+            $penghasilanOpts = [
+                '< Rp500rb' => '< Rp 500.000',
+                'Rp500rb – 1jt' => 'Rp 500.000 – 1.000.000',
+                'Rp1jt – 2jt' => 'Rp 1.000.000 – 2.000.000',
+                'Rp2jt – 3jt' => 'Rp 2.000.000 – 3.000.000',
+                'Rp3jt – 5jt' => 'Rp 3.000.000 – 5.000.000',
+                '> Rp5jt' => '> Rp 5.000.000',
+                'Tidak ada' => 'Tidak ada',
+            ];
+            $mapOpt = fn ($opts, $val) => $val !== null && $val !== '' && isset($opts[$val]) ? $opts[$val] : $val;
+        @endphp
+
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{{ strtoupper($registration->name) }}</h1>
@@ -195,9 +210,11 @@
                     'Nama' => $registration->father_name,
                     'Status' => $registration->father_status,
                     'NIK' => $registration->father_nik,
-                    'Pendidikan' => $registration->father_education,
-                    'Pekerjaan' => $registration->father_job,
-                    'Penghasilan' => $registration->father_income,
+                    'Tgl Lahir' => $registration->father_birth_date?->format('d/m/Y'),
+                    'Tempat Lahir' => $registration->father_birth_place,
+                    'Pendidikan' => $mapOpt($pendidikanOpts, $registration->father_education),
+                    'Pekerjaan' => $mapOpt($pekerjaanOpts, $registration->father_job),
+                    'Penghasilan' => $mapOpt($penghasilanOpts, $registration->father_income),
                     'HP' => $registration->father_phone,
                 ] as $label => $value)
                     <div class="py-1 border-b border-rule/40"><span class="text-ink-soft">{{ $label }}:</span> <span class="font-medium">{{ $value ?? '—' }}</span></div>
@@ -211,9 +228,9 @@
                     'Status' => $registration->mother_status,
                     'NIK' => $registration->mother_nik,
                     'Tgl Lahir' => $registration->mother_birth_date?->format('d/m/Y'),
-                    'Pendidikan' => $registration->mother_education,
-                    'Pekerjaan' => $registration->mother_job,
-                    'Penghasilan' => $registration->mother_income,
+                    'Pendidikan' => $mapOpt($pendidikanOpts, $registration->mother_education),
+                    'Pekerjaan' => $mapOpt($pekerjaanOpts, $registration->mother_job),
+                    'Penghasilan' => $mapOpt($penghasilanOpts, $registration->mother_income),
                     'HP' => $registration->mother_phone,
                 ] as $label => $value)
                     <div class="py-1 border-b border-rule/40"><span class="text-ink-soft">{{ $label }}:</span> <span class="font-medium">{{ $value ?? '—' }}</span></div>
@@ -226,8 +243,10 @@
                     @foreach ([
                         'Nama' => $registration->guardian_name,
                         'NIK' => $registration->guardian_nik,
-                        'Pendidikan' => $registration->guardian_education,
-                        'Pekerjaan' => $registration->guardian_job,
+                        'Tgl Lahir' => $registration->guardian_birth_date?->format('d/m/Y'),
+                        'Tempat Lahir' => $registration->guardian_birth_place,
+                        'Pendidikan' => $mapOpt($pendidikanOpts, $registration->guardian_education),
+                        'Pekerjaan' => $mapOpt($pekerjaanOpts, $registration->guardian_job),
                         'HP' => $registration->guardian_phone,
                     ] as $label => $value)
                         <div class="py-1 border-b border-rule/40"><span class="text-ink-soft">{{ $label }}:</span> <span class="font-medium">{{ $value ?? '—' }}</span></div>
