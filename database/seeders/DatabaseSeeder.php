@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             LibrarySeeder::class,
             LetterCategorySeeder::class,
             LetterSeeder::class,
+            PpdbDemoSeeder::class,
         ]);
     }
 }

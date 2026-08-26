@@ -14,6 +14,7 @@
                     <a href="{{ route('publik.berita.index') }}" class="transition hover:text-board-ink">Berita</a>
                     <a href="{{ route('publik.agenda.index') }}" class="transition hover:text-board-ink">Agenda</a>
                     <a href="{{ route('publik.galeri.index') }}" class="transition hover:text-board-ink">Galeri</a>
+                    <a href="{{ route('ppdb.form') }}" class="transition hover:text-board-ink">PPDB</a>
                     <a href="{{ route('login') }}" class="rounded-[var(--radius-control)] bg-board-ink px-3 py-1.5 text-board transition hover:opacity-90">Masuk</a>
                 </nav>
             </div>

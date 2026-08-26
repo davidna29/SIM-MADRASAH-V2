@@ -30,9 +30,11 @@ use App\Http\Controllers\Pemeliharaan\ActivityLogController;
 use App\Http\Controllers\Pemeliharaan\BackupController;
 use App\Http\Controllers\Pemeliharaan\LaporanController;
 use App\Http\Controllers\Perpustakaan\LibraryController;
+use App\Http\Controllers\Ppdb\AdminPpdbController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Publik\GaleriController as PublikGaleriController;
+use App\Http\Controllers\Publik\PpdbController;
 use App\Http\Controllers\Sarpras\InventoryController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
 use App\Http\Controllers\Tu\LetterController;
@@ -46,6 +48,11 @@ Route::get('/berita/{article:slug}', [PublikBeritaController::class, 'show'])->n
 Route::get('/agenda', [PublikAgendaController::class, 'index'])->name('publik.agenda.index');
 Route::get('/galeri', [PublikGaleriController::class, 'index'])->name('publik.galeri.index');
 Route::get('/galeri/{album:slug}', [PublikGaleriController::class, 'show'])->name('publik.galeri.show');
+
+// PPDB Daring (publik, tanpa auth)
+Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb.form');
+Route::post('/ppdb', [PpdbController::class, 'store'])->name('ppdb.store');
+Route::get('/ppdb/sukses', [PpdbController::class, 'success'])->name('ppdb.success');
 
 // ============================================================
 // Autentikasi
@@ -140,6 +147,17 @@ Route::middleware('auth')->group(function () {
         // Pengaturan Sistem
         Route::get('/fondasi/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
         Route::put('/fondasi/pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
+
+        // PPDB Daring — admin (fixed routes BEFORE wildcard)
+        Route::get('/ppdb/admin', [AdminPpdbController::class, 'index'])->name('ppdb.index');
+        Route::get('/ppdb/admin/generate-nis', [AdminPpdbController::class, 'generateNis'])->name('ppdb.generate-nis');
+        Route::post('/ppdb/admin/commit-nis', [AdminPpdbController::class, 'commitNis'])->name('ppdb.commit-nis');
+        Route::get('/ppdb/admin/assign-class', [AdminPpdbController::class, 'assignClassPage'])->name('ppdb.assign-class-page');
+        Route::get('/ppdb/admin/export', [AdminPpdbController::class, 'exportExcel'])->name('ppdb.export');
+        Route::get('/ppdb/admin/{registration}', [AdminPpdbController::class, 'show'])->name('ppdb.show');
+        Route::post('/ppdb/admin/{registration}/accept', [AdminPpdbController::class, 'accept'])->name('ppdb.accept');
+        Route::post('/ppdb/admin/{registration}/reject', [AdminPpdbController::class, 'reject'])->name('ppdb.reject');
+        Route::post('/ppdb/admin/{registration}/assign-class', [AdminPpdbController::class, 'assignClass'])->name('ppdb.assign-class');
     });
 
     // Pusat Laporan — multi-role

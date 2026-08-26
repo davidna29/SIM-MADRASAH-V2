@@ -1,0 +1,221 @@
+<?php
+
+namespace App\Http\Controllers\Ppdb;
+
+use App\Exports\PpdbExport;
+use App\Http\Controllers\Controller;
+use App\Models\AcademicYear;
+use App\Models\ClassGroup;
+use App\Models\PpdbRegistration;
+use App\Models\StudentEnrollment;
+use App\Support\PpdbService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+
+class AdminPpdbController extends Controller
+{
+    public function index(): View
+    {
+        $query = PpdbRegistration::with('academicYear');
+
+        if (request('status')) {
+            $query->where('status', request('status'));
+        }
+
+        if (request('q')) {
+            $search = request('q');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('registration_no', 'like', "%{$search}%")
+                    ->orWhere('nik', 'like', "%{$search}%");
+            });
+        }
+
+        $registrations = $query->orderByDesc('id')->paginate(15)->withQueryString();
+
+        return view('pages.ppdb.index', [
+            'roleLabel' => 'PPDB',
+            'breadcrumb' => [
+                ['label' => 'PPDB', 'href' => route('dashboard')],
+                ['label' => 'Pendaftar'],
+            ],
+            'registrations' => $registrations,
+            'stats' => [
+                'total' => PpdbRegistration::count(),
+                'submitted' => PpdbRegistration::where('status', 'submitted')->count(),
+                'accepted' => PpdbRegistration::where('status', 'accepted')->count(),
+                'rejected' => PpdbRegistration::where('status', 'rejected')->count(),
+            ],
+        ]);
+    }
+
+    public function show(PpdbRegistration $registration): View
+    {
+        $registration->load('academicYear', 'student');
+
+        return view('pages.ppdb.show', [
+            'roleLabel' => 'PPDB',
+            'breadcrumb' => [
+                ['label' => 'PPDB', 'href' => route('ppdb.index')],
+                ['label' => $registration->registration_no],
+            ],
+            'registration' => $registration,
+        ]);
+    }
+
+    public function accept(PpdbRegistration $registration): RedirectResponse
+    {
+        if ($registration->status !== 'submitted') {
+            return back()->withErrors(['status' => 'Hanya pendaftar dengan status "submitted" yang bisa diterima.']);
+        }
+
+        PpdbService::accept($registration);
+
+        return back()->with('status', $registration->name.' berhasil diterima. NIS: '.$registration->nis_nism);
+    }
+
+    public function reject(Request $request, PpdbRegistration $registration): RedirectResponse
+    {
+        $validated = $request->validate([
+            'rejection_reason' => 'required|string|max:500',
+        ]);
+
+        $registration->update([
+            'status' => 'rejected',
+            'rejection_reason' => $validated['rejection_reason'],
+        ]);
+
+        activity('ppdb')
+            ->performedOn($registration)
+            ->event('rejected')
+            ->log('PPDB ditolak: '.$registration->name);
+
+        return back()->with('status', $registration->name.' ditolak.');
+    }
+
+    public function assignClass(Request $request, PpdbRegistration $registration): RedirectResponse
+    {
+        $validated = $request->validate([
+            'kelas' => 'required|string|max:10',
+            'rombel' => 'required|string|max:10',
+        ]);
+
+        $registration->update($validated);
+
+        // Create or update enrollment if student exists
+        if ($registration->student_id && $registration->academic_year_id) {
+            $classGroup = ClassGroup::where('name', $validated['kelas'].'-'.$validated['rombel'])->first();
+            if ($classGroup) {
+                StudentEnrollment::updateOrCreate(
+                    [
+                        'student_id' => $registration->student_id,
+                        'academic_year_id' => $registration->academic_year_id,
+                    ],
+                    [
+                        'class_group_id' => $classGroup->id,
+                        'status' => 'aktif',
+                    ]
+                );
+            }
+        }
+
+        activity('ppdb')
+            ->performedOn($registration)
+            ->event('class_assigned')
+            ->log('Kelas ditetapkan: '.$validated['kelas'].'-'.$validated['rombel']);
+
+        return back()->with('status', 'Kelas/Rombel berhasil ditetapkan.');
+    }
+
+    public function generateNis(Request $request): View
+    {
+        $academicYear = AcademicYear::active();
+
+        $pendingNis = PpdbRegistration::where('academic_year_id', $academicYear?->id)
+            ->where('status', 'accepted')
+            ->whereNull('nis_nism')
+            ->orderByRaw('UPPER(name)')
+            ->get();
+
+        $preview = $pendingNis->map(function ($reg) {
+            return [
+                'registration_no' => $reg->registration_no,
+                'name' => $reg->name,
+                'preview_nis' => PpdbService::previewNis($reg),
+            ];
+        });
+
+        return view('pages.ppdb.nis-preview', [
+            'roleLabel' => 'PPDB',
+            'breadcrumb' => [
+                ['label' => 'PPDB', 'href' => route('ppdb.index')],
+                ['label' => 'Generate NIS'],
+            ],
+            'preview' => $preview,
+            'academicYear' => $academicYear,
+        ]);
+    }
+
+    public function commitNis(): RedirectResponse
+    {
+        $academicYear = AcademicYear::active();
+        if (! $academicYear) {
+            return back()->withErrors(['error' => 'Tidak ada tahun ajaran aktif.']);
+        }
+
+        $results = PpdbService::batchGenerateNis($academicYear->id);
+
+        activity('ppdb')
+            ->event('nis_generated')
+            ->withProperties(['count' => count($results)])
+            ->log('NIS digenerate: '.count($results).' siswa');
+
+        return back()->with('status', count($results).' NIS berhasil digenerate.');
+    }
+
+    public function assignClassPage(): View
+    {
+        $academicYear = AcademicYear::active();
+
+        $accepted = PpdbRegistration::where('academic_year_id', $academicYear?->id)
+            ->where('status', 'accepted')
+            ->whereNull('kelas')
+            ->orderByRaw('UPPER(name)')
+            ->get();
+
+        $classes = ClassGroup::orderByRaw("FIELD(grade_level,'I','II','III','IV','V','VI')")->orderBy('name')->get();
+
+        $classCounts = PpdbRegistration::where('academic_year_id', $academicYear?->id)
+            ->where('status', 'accepted')
+            ->whereNotNull('kelas')
+            ->selectRaw('kelas, rombel, COUNT(*) as total')
+            ->groupBy('kelas', 'rombel')
+            ->get()
+            ->pluck('total', function ($r) {
+                return $r->kelas.'-'.$r->rombel;
+            });
+
+        return view('pages.ppdb.assign-class', [
+            'roleLabel' => 'PPDB',
+            'breadcrumb' => [
+                ['label' => 'PPDB', 'href' => route('ppdb.index')],
+                ['label' => 'Tentukan Kelas'],
+            ],
+            'accepted' => $accepted,
+            'classes' => $classes,
+            'classCounts' => $classCounts,
+        ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $filename = 'ppdb-export-'.now()->format('Y-m-d').'.xlsx';
+
+        return Excel::download(
+            new PpdbExport($request->status, $request->academic_year_id),
+            $filename
+        );
+    }
+}

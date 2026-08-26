@@ -162,7 +162,7 @@ return [
                     ['label' => 'Website Publik', 'route' => 'publik.berita.index', 'icon' => 'globe-alt', 'roles' => ['*'], 'external' => true],
                 ],
             ],
-            ['label' => 'PPDB Daring', 'route' => 'dashboard', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah'], 'placeholder' => true],
+            ['label' => 'PPDB Daring', 'route' => 'ppdb.index', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
         ],
     ],
     [
