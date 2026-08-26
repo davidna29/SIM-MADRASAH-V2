@@ -49,7 +49,11 @@ class PpdbService
     }
 
     /**
-     * Accept a PPDB registration — create Student, Person, Guardian, Enrollment.
+     * Accept a PPDB registration — create Student, Person, Guardian.
+     *
+     * NIS SENGGANG ditunda: Student dibuat tanpa NIS, lalu diberi NIS massal
+     * di menu Generate NIS (batchGenerateNis). Hal ini agar operator bisa
+     * menentukan acuan nomor urut dan mengurutkan secara abjad terlebih dahulu.
      */
     public static function accept(PpdbRegistration $registration): Student
     {
@@ -66,19 +70,15 @@ class PpdbService
                 'email' => $registration->student_email,
             ]);
 
-            // 2. Generate NIS
-            $nis = self::generateNis($registration);
-            $nisLast6 = substr($nis, -6);
-
-            // 3. Create Student
+            // 2. Create Student (NIS menyusul di Generate NIS)
             $student = Student::create([
                 'person_id' => $person->id,
-                'nis' => $nis,
+                'nis' => null,
                 'name' => strtoupper($registration->name),
                 'gender' => $registration->gender,
             ]);
 
-            // 4. Create Guardian
+            // 3. Create Guardian
             $guardian = Guardian::create([
                 'user_id' => null,
                 'name' => $registration->father_name ?? $registration->mother_name ?? $registration->guardian_name ?? '-',
@@ -89,21 +89,21 @@ class PpdbService
                 'student_id' => $student->id,
             ]);
 
-            // 5. Enrollment created later when class is assigned (class_group_id NOT NULL)
+            // 4. Enrollment created later when class is assigned (class_group_id NOT NULL)
 
-            // 6. Update registration
+            // 5. Update registration (tanpa NIS)
             $registration->update([
                 'status' => 'accepted',
                 'student_id' => $student->id,
-                'nis_nism' => $nis,
-                'nis_last6' => $nisLast6,
+                'nis_nism' => null,
+                'nis_last6' => null,
             ]);
 
             activity('ppdb')
                 ->performedOn($registration)
                 ->event('accepted')
-                ->withProperties(['student_id' => $student->id, 'nis' => $nis])
-                ->log('PPDB diterima: '.$registration->name.' → NIS '.$nis);
+                ->withProperties(['student_id' => $student->id])
+                ->log('PPDB diterima: '.$registration->name.' (NIS menyusul di Generate NIS)');
 
             return $student;
         });
@@ -111,6 +111,7 @@ class PpdbService
 
     /**
      * Batch generate NIS for all accepted registrations (sorted by name).
+     * Juga menyinkronkan NIS ke kolom students.nis.
      */
     public static function batchGenerateNis(int $academicYearId): array
     {
@@ -131,6 +132,11 @@ class PpdbService
                 'nis_last6' => $nisLast6,
             ]);
 
+            // Sinkronkan ke Student agar Data Siswa & modul lain konsisten
+            if ($reg->student_id) {
+                $reg->student()->update(['nis' => $nis]);
+            }
+
             $results[] = [
                 'registration_no' => $reg->registration_no,
                 'name' => $reg->name,
@@ -144,10 +150,13 @@ class PpdbService
 
     /**
      * Export-friendly column mapping for EMIS.
+     * Urutan kolom mengikuti urutan field pada formulir PPDB (Langkah 1–7),
+     * ditambah 5 kolom link Google Drive dan diakhiri kolom admin (kelas/NIS/status).
      */
     public static function exportMapping(): array
     {
         return [
+            // 1. Identitas Siswa
             'registration_no' => 'No. Pendaftaran',
             'name' => 'Nama Siswa',
             'nik' => 'NIK',
@@ -156,13 +165,37 @@ class PpdbService
             'religion' => 'Agama',
             'birth_place' => 'Tempat Lahir',
             'birth_date' => 'Tanggal Lahir',
-            'previous_school' => 'Sekolah Asal',
+            'previous_school' => 'Asal Sekolah',
             'hobby' => 'Hobi',
             'ambition' => 'Cita-cita',
             'child_order' => 'Anak Ke',
             'sibling_count' => 'Jumlah Saudara',
             'ever_tk' => 'Pernah TK',
             'ever_paud' => 'Pernah PAUD',
+            'entry_date' => 'Tanggal Masuk',
+            // 2. Dokumen (link Google Drive)
+            'scanned_kk' => 'Link KK',
+            'scanned_kk_wali' => 'Link KK Wali',
+            'scanned_akta' => 'Link Akta',
+            'scanned_ijazah' => 'Link Ijazah',
+            'scanned_photo' => 'Link Foto',
+            // 3. Imunisasi
+            'imm_hepb' => 'Imunisasi Hepatitis B',
+            'imm_polio' => 'Imunisasi Polio',
+            'imm_bcg' => 'Imunisasi BCG',
+            'imm_campak' => 'Imunisasi Campak',
+            'imm_dpt' => 'Imunisasi DPT-HB-HiB',
+            'imm_covid' => 'Vaksin COVID',
+            // 4. Berkebutuhan Khusus
+            'dis_deaf' => 'Tuna Rungu',
+            'dis_blind' => 'Tuna Netra',
+            'dis_disabled' => 'Tuna Daksa',
+            'dis_intellectual' => 'Tuna Grahita',
+            'dis_behavioral' => 'Tuna Laras',
+            'dis_slow_learner' => 'Lamban Belajar',
+            'dis_communication' => 'Gangguan Komunikasi',
+            'dis_gifted' => 'Bakat Luar Biasa',
+            // 5. Alamat Siswa
             'residence_type' => 'Jenis Tempat Tinggal',
             'address' => 'Alamat Siswa',
             'province' => 'Provinsi',
@@ -175,11 +208,17 @@ class PpdbService
             'distance' => 'Jarak ke Madrasah',
             'transport' => 'Transportasi',
             'commute_time' => 'Waktu Tempuh',
+            'home_phone' => 'Telepon Rumah',
+            'student_phone' => 'Telepon Siswa',
+            'student_email' => 'Email Siswa',
+            // 6. Orang Tua / Wali
             'kk_number' => 'No. KK',
             'kk_head_name' => 'Nama Kepala Keluarga',
             'father_name' => 'Nama Ayah',
             'father_status' => 'Status Ayah',
             'father_nik' => 'NIK Ayah',
+            'father_birth_place' => 'Tempat Lahir Ayah',
+            'father_birth_date' => 'Tgl Lahir Ayah',
             'father_education' => 'Pendidikan Ayah',
             'father_job' => 'Pekerjaan Ayah',
             'father_income' => 'Penghasilan Ayah',
@@ -187,6 +226,7 @@ class PpdbService
             'mother_name' => 'Nama Ibu',
             'mother_status' => 'Status Ibu',
             'mother_nik' => 'NIK Ibu',
+            'mother_birth_place' => 'Tempat Lahir Ibu',
             'mother_birth_date' => 'Tgl Lahir Ibu',
             'mother_education' => 'Pendidikan Ibu',
             'mother_job' => 'Pekerjaan Ibu',
@@ -194,6 +234,8 @@ class PpdbService
             'mother_phone' => 'HP Ibu',
             'guardian_name' => 'Nama Wali',
             'guardian_nik' => 'NIK Wali',
+            'guardian_birth_place' => 'Tempat Lahir Wali',
+            'guardian_birth_date' => 'Tgl Lahir Wali',
             'guardian_education' => 'Pendidikan Wali',
             'guardian_job' => 'Pekerjaan Wali',
             'guardian_income' => 'Penghasilan Wali',
@@ -201,6 +243,7 @@ class PpdbService
             'social_kks' => 'No. KKS',
             'social_pkh' => 'No. PKH',
             'social_kip' => 'No. KIP',
+            // 7. Alamat Orang Tua
             'parent_ownership' => 'Status Rumah',
             'parent_address' => 'Alamat Orang Tua',
             'parent_province' => 'Provinsi OT',
@@ -210,28 +253,16 @@ class PpdbService
             'parent_rt' => 'RT OT',
             'parent_rw' => 'RW OT',
             'parent_postal_code' => 'Kode Pos OT',
+            // 8. Sekolah Asal
             'origin_school' => 'Sekolah Asal',
             'origin_nsm' => 'NSM Sekolah Asal',
             'origin_npsn' => 'NPSN Sekolah Asal',
             'origin_address' => 'Alamat Sekolah Asal',
+            // 9. Admin-only
             'kelas' => 'Kelas',
             'rombel' => 'Rombel',
             'nis_nism' => 'NIS/NISM',
             'nis_last6' => 'NIS 6 Digit',
-            'imm_hepb' => 'Imunisasi Hepatitis B',
-            'imm_polio' => 'Imunisasi Polio',
-            'imm_bcg' => 'Imunisasi BCG',
-            'imm_campak' => 'Imunisasi Campak',
-            'imm_dpt' => 'Imunisasi DPT-HB-HiB',
-            'imm_covid' => 'Vaksin COVID',
-            'dis_deaf' => 'Tuna Rungu',
-            'dis_blind' => 'Tuna Netra',
-            'dis_disabled' => 'Tuna Daksa',
-            'dis_intellectual' => 'Tuna Grahita',
-            'dis_behavioral' => 'Tuna Laras',
-            'dis_slow_learner' => 'Lamban Belajar',
-            'dis_communication' => 'Gangguan Komunikasi',
-            'dis_gifted' => 'Bakat Luar Biasa',
             'status' => 'Status Pendaftaran',
         ];
     }

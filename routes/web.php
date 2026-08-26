@@ -154,6 +154,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/ppdb/admin/update-nis-counter', [AdminPpdbController::class, 'updateNisCounter'])->name('ppdb.update-nis-counter');
         Route::post('/ppdb/admin/commit-nis', [AdminPpdbController::class, 'commitNis'])->name('ppdb.commit-nis');
         Route::get('/ppdb/admin/assign-class', [AdminPpdbController::class, 'assignClassPage'])->name('ppdb.assign-class-page');
+        Route::post('/ppdb/admin/assign-class-bulk', [AdminPpdbController::class, 'assignClassBulk'])->name('ppdb.assign-class-bulk');
+        Route::post('/ppdb/admin/assign-class-distribute', [AdminPpdbController::class, 'assignClassDistribute'])->name('ppdb.assign-class-distribute');
         Route::get('/ppdb/admin/export', [AdminPpdbController::class, 'exportExcel'])->name('ppdb.export');
         Route::get('/ppdb/admin/{registration}', [AdminPpdbController::class, 'show'])->name('ppdb.show');
         Route::post('/ppdb/admin/{registration}/accept', [AdminPpdbController::class, 'accept'])->name('ppdb.accept');

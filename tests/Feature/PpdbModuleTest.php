@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Exports\PpdbExport;
 use App\Models\AcademicYear;
+use App\Support\PpdbService;
 use App\Models\ClassGroup;
 use App\Models\NisCounter;
 use App\Models\PpdbRegistration;
@@ -198,7 +200,57 @@ class PpdbModuleTest extends TestCase
         $reg->refresh();
         $this->assertEquals('accepted', $reg->status);
         $this->assertNotNull($reg->student_id);
-        $this->assertNotNull($reg->nis_nism);
+        // NIS ditunda: baru diberikan di menu Generate NIS
+        $this->assertNull($reg->nis_nism);
+    }
+
+    public function test_accepted_without_nis_appears_in_generate_page(): void
+    {
+        $this->actingAs($this->admin);
+
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+        $this->post(route('ppdb.accept', $reg));
+
+        $response = $this->get(route('ppdb.generate-nis'));
+        $response->assertOk();
+        $response->assertSee('AHMAD TEST');
+        $response->assertSee('Finalisasi NIS');
+    }
+
+    public function test_commit_nis_fills_registration_and_student(): void
+    {
+        $this->actingAs($this->admin);
+
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+        $this->post(route('ppdb.accept', $reg));
+
+        $response = $this->post(route('ppdb.commit-nis'));
+        $response->assertRedirect();
+        $response->assertSessionHas('status');
+
+        $reg->refresh();
+        $this->assertEquals(18, strlen($reg->nis_nism));
+        // student.nis harus ikut tersinkronkan
+        $this->assertNotNull($reg->student->nis);
+        $this->assertEquals($reg->nis_nism, $reg->student->nis);
+    }
+
+    public function test_admin_pages_show_step_guide(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->get(route('ppdb.index'));
+        $response->assertOk();
+        $response->assertSee('Alur Pengerjaan Admin');
+        $response->assertSee('Generate NIS');
+
+        $response = $this->get(route('ppdb.generate-nis'));
+        $response->assertSee('Alur Pengerjaan Admin');
+
+        $response = $this->get(route('ppdb.assign-class-page'));
+        $response->assertSee('Alur Pengerjaan Admin');
     }
 
     public function test_admin_can_reject(): void
@@ -243,8 +295,13 @@ class PpdbModuleTest extends TestCase
         $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
         $this->post(route('ppdb.accept', $reg));
 
+        // NIS ditunda: belum ada setelah accept
         $reg->refresh();
-        // NIS should be 18 digits: NSM(12) + Year(2) + Number(4)
+        $this->assertNull($reg->nis_nism);
+
+        // NIS di-generate via Finalisasi (Generate NIS) — 18 digit: NSM(12)+Year(2)+Number(4)
+        $this->post(route('ppdb.commit-nis'));
+        $reg->refresh();
         $this->assertEquals(18, strlen($reg->nis_nism));
         $this->assertEquals(6, strlen($reg->nis_last6));
     }
@@ -283,6 +340,130 @@ class PpdbModuleTest extends TestCase
             'class_name' => 'X-99',
         ]);
         $response->assertSessionHasErrors('class_name');
+    }
+
+    public function test_assign_class_bulk(): void
+    {
+        $this->actingAs($this->admin);
+
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+        $this->post(route('ppdb.accept', $reg));
+
+        ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
+
+        $response = $this->post(route('ppdb.assign-class-bulk'), [
+            'class_name' => 'I-A',
+            'registration_ids' => [$reg->id],
+        ]);
+        $response->assertRedirect();
+        $response->assertSessionHas('status');
+
+        $reg->refresh();
+        $this->assertEquals('I', $reg->kelas);
+        $this->assertEquals('I-A', $reg->rombel);
+        $this->assertDatabaseHas('student_enrollments', [
+            'student_id' => $reg->student_id,
+            'class_group_id' => ClassGroup::where('name', 'I-A')->first()->id,
+        ]);
+    }
+
+    public function test_assign_class_bulk_rejects_missing_class(): void
+    {
+        $this->actingAs($this->admin);
+
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+        $this->post(route('ppdb.accept', $reg));
+
+        // Kelas belum dibuat
+        $response = $this->post(route('ppdb.assign-class-bulk'), [
+            'class_name' => 'I-Z',
+            'registration_ids' => [$reg->id],
+        ]);
+        $response->assertSessionHasErrors('class_name');
+    }
+
+    public function test_assign_class_distribute_even(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Dua calon diterima
+        $this->post(route('ppdb.store'), $this->validData());
+        $this->post(route('ppdb.store'), array_merge($this->validData(), [
+            'name' => 'BUDI LAIN',
+            'nik' => '6172010101010099',
+        ]));
+        $regs = PpdbRegistration::whereIn('name', ['AHMAD TEST', 'BUDI LAIN'])->get();
+        foreach ($regs as $r) {
+            $this->post(route('ppdb.accept', $r));
+        }
+
+        ClassGroup::create(['name' => 'I-A', 'grade_level' => 'I']);
+        ClassGroup::create(['name' => 'I-B', 'grade_level' => 'I']);
+
+        $response = $this->post(route('ppdb.assign-class-distribute'), [
+            'grade_level' => 'I',
+            'registration_ids' => $regs->pluck('id')->toArray(),
+        ]);
+        $response->assertRedirect();
+        $response->assertSessionHas('status');
+
+        // Keduanya kebagian kelas (sebar rata)
+        foreach ($regs as $r) {
+            $r->refresh();
+            $this->assertNotNull($r->kelas);
+            $this->assertNotNull($r->rombel);
+        }
+    }
+
+    public function test_assign_class_distribute_rejects_missing_grade(): void
+    {
+        $this->actingAs($this->admin);
+
+        $this->post(route('ppdb.store'), $this->validData());
+        $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
+        $this->post(route('ppdb.accept', $reg));
+
+        $response = $this->post(route('ppdb.assign-class-distribute'), [
+            'grade_level' => 'IX',
+            'registration_ids' => [$reg->id],
+        ]);
+        $response->assertSessionHasErrors('grade_level');
+    }
+
+    public function test_export_includes_drive_links_and_follows_form_order(): void
+    {
+        $this->actingAs($this->admin);
+
+        // Seed satu record lengkap via factory-like data
+        $reg = PpdbRegistration::create(array_merge($this->validData(), [
+            'registration_no' => 'PPDB-X-001',
+            'name' => 'EXPORT TEST',
+            'scanned_kk' => 'https://drive.google.com/file/d/kk-123',
+            'scanned_akta' => 'https://drive.google.com/file/d/akta-123',
+            'status' => 'submitted',
+        ]));
+
+        $headings = PpdbService::exportMapping();
+        $keys = array_keys($headings);
+
+        // Urutan: No. Pendaftaran -> Nama -> NIK (sesuai form langkah 1)
+        $this->assertEquals('registration_no', $keys[0]);
+        $this->assertEquals('name', $keys[1]);
+        $this->assertEquals('nik', $keys[2]);
+        // Link GDrive hadir
+        $this->assertArrayHasKey('scanned_kk', $headings);
+        $this->assertArrayHasKey('scanned_kk_wali', $headings);
+        $this->assertArrayHasKey('scanned_akta', $headings);
+        $this->assertArrayHasKey('scanned_ijazah', $headings);
+        $this->assertArrayHasKey('scanned_photo', $headings);
+
+        // Export benar-benar memetakan link GDrive ke salah satu kolom
+        $export = new PpdbExport(null, null);
+        $row = $export->map($reg);
+        $this->assertContains('https://drive.google.com/file/d/kk-123', $row);
+        $this->assertContains('https://drive.google.com/file/d/akta-123', $row);
     }
 
     public function test_admin_can_see_generate_nis_page(): void

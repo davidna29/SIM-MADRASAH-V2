@@ -71,6 +71,11 @@
             </div>
         </div>
 
+        @include('pages.ppdb.partials.steps', [
+            'active' => 'ppdb.show',
+            'note' => 'Setelah diterima, lanjutkan ke menu Generate NIS lalu Tentukan Kelas. Jangan menolak siswa yang sudah diterima & dapat kelas (data akan menggantung).',
+        ])
+
         @if (session('status'))
             <div class="mt-6"><x-ui.alert variant="success" dismissible>{{ session('status') }}</x-ui.alert></div>
         @endif

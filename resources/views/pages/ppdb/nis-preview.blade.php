@@ -5,6 +5,11 @@
     active-route="ppdb.generate-nis">
 
     <div class="mx-auto max-w-4xl">
+        @include('pages.ppdb.partials.steps', [
+            'active' => 'ppdb.generate-nis',
+            'note' => 'Finalisasi NIS hanya untuk siswa berstatus Diterima. Jangan ganti Tahun Ajaran aktif sebelum selesai; "Acuan Nomor Urut" bisa bentrok dengan NIS siswa existing.',
+        ])
+
         <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Generate NIS / NISM</h1>
         <p class="mt-1.5 text-sm text-ink-soft">Preview NIS untuk siswa diterima yang belum memiliki NIS.</p>
 

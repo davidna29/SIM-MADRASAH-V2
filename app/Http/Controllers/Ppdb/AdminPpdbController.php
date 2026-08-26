@@ -78,7 +78,7 @@ class AdminPpdbController extends Controller
 
         PpdbService::accept($registration);
 
-        return back()->with('status', $registration->name.' berhasil diterima. NIS: '.$registration->nis_nism);
+        return back()->with('status', $registration->name.' berhasil diterima. Tetapkan NIS di menu Generate NIS.');
     }
 
     public function reject(Request $request, PpdbRegistration $registration): RedirectResponse
@@ -137,6 +137,120 @@ class AdminPpdbController extends Controller
             ->log('Kelas ditetapkan: '.$classGroup->name);
 
         return back()->with('status', 'Kelas/Rombel berhasil ditetapkan ke '.$classGroup->name.'.');
+    }
+
+    /**
+     * Bulk assign a single class to many selected accepted registrations.
+     */
+    public function assignClassBulk(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'class_name' => 'required|string|max:20',
+            'registration_ids' => 'required|array|min:1',
+            'registration_ids.*' => 'integer|exists:ppdb_registrations,id',
+        ]);
+
+        $classGroup = ClassGroup::where('name', $validated['class_name'])->first();
+        if (! $classGroup) {
+            return back()->withErrors(['class_name' => 'Kelas "'.$validated['class_name'].'" belum ada. Buat kelas dulu di menu Kelas & Penempatan.']);
+        }
+
+        $count = 0;
+        foreach ($validated['registration_ids'] as $id) {
+            $registration = PpdbRegistration::where('id', $id)
+                ->where('status', 'accepted')
+                ->whereNull('kelas')
+                ->first();
+
+            if (! $registration) {
+                continue;
+            }
+
+            $this->applyClassAssignment($registration, $classGroup);
+            $count++;
+        }
+
+        activity('ppdb')
+            ->event('class_assigned_bulk')
+            ->withProperties(['class' => $classGroup->name, 'count' => $count])
+            ->log('Penetapan kelas massal: '.$count.' siswa → '.$classGroup->name);
+
+        return back()->with('status', $count.' siswa berhasil ditetapkan ke '.$classGroup->name.'.');
+    }
+
+    /**
+     * Distribute selected accepted registrations evenly across rombels of a grade level.
+     */
+    public function assignClassDistribute(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'grade_level' => 'required|string|max:10',
+            'registration_ids' => 'required|array|min:1',
+            'registration_ids.*' => 'integer|exists:ppdb_registrations,id',
+        ]);
+
+        $classes = ClassGroup::where('grade_level', $validated['grade_level'])
+            ->orderBy('name')
+            ->get();
+
+        if ($classes->isEmpty()) {
+            return back()->withErrors(['grade_level' => 'Belum ada kelas untuk tingkat '.$validated['grade_level'].'. Buat kelas dulu di menu Kelas & Penempatan.']);
+        }
+
+        $registrations = PpdbRegistration::whereIn('id', $validated['registration_ids'])
+            ->where('status', 'accepted')
+            ->whereNull('kelas')
+            ->orderByRaw('UPPER(name)')
+            ->get();
+
+        if ($registrations->isEmpty()) {
+            return back()->withErrors(['registration_ids' => 'Tidak ada calon terpilih yang masih perlu ditetapkan kelasnya.']);
+        }
+
+        $index = 0;
+        $count = 0;
+        foreach ($registrations as $registration) {
+            $classGroup = $classes[$index % $classes->count()];
+            $this->applyClassAssignment($registration, $classGroup);
+            $index++;
+            $count++;
+        }
+
+        activity('ppdb')
+            ->event('class_distributed')
+            ->withProperties(['grade' => $validated['grade_level'], 'count' => $count])
+            ->log('Sebar rata tingkat '.$validated['grade_level'].': '.$count.' siswa ke '.$classes->count().' rombel');
+
+        return back()->with('status', $count.' siswa disebar rata ke '.$classes->count().' rombel tingkat '.$validated['grade_level'].'.');
+    }
+
+    /**
+     * Shared logic: set kelas/rombel on registration + create/update enrollment.
+     */
+    protected function applyClassAssignment(PpdbRegistration $registration, ClassGroup $classGroup): void
+    {
+        $registration->update([
+            'kelas' => $classGroup->grade_level,
+            'rombel' => $classGroup->name,
+        ]);
+
+        if ($registration->student_id && $registration->academic_year_id) {
+            StudentEnrollment::updateOrCreate(
+                [
+                    'student_id' => $registration->student_id,
+                    'academic_year_id' => $registration->academic_year_id,
+                ],
+                [
+                    'class_group_id' => $classGroup->id,
+                    'status' => 'aktif',
+                ]
+            );
+        }
+
+        activity('ppdb')
+            ->performedOn($registration)
+            ->event('class_assigned')
+            ->log('Kelas ditetapkan: '.$classGroup->name);
     }
 
     public function generateNis(Request $request): View

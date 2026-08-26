@@ -119,27 +119,36 @@ Fitur penting:
 
 ### 4.1 PPDB — Catatan Progress Sementara (sesi berjalan)
 
-Status: **PENSI (belum selesai final)** — user masih mengamati alur nyata & akan memberi umpan balik di sesi berikutnya. Yang SUDAH dikerjakan di sesi ini:
+Status: **SELESAI (final)** — semua umpan balik user dari sesi observasi sudah dikerjakan & ter-test (28 test PPDB, 297 test total hijau). Lihat `docs/PPDB-ALUR-KERJA.md` untuk petunjuk alur + watchlist.
 
-1. **Form publik** — wizard 7 langkah lengkap (~90 field), validasi ketat (NIK 16 digit, RT/RW 3 digit, kode pos 5 digit), dokumen via link Google Drive.
-2. **Opsi Pendidikan/Pekerjaan** dikoreksi ke format EMIS: Pendidikan `D4-S1`; Pekerjaan `03 PNS (Selain poin 05 dan 10)`, `09 Seniman/Pelukis/Artis/Sejenis`, `15 Buruh (Tani/Pabrik/Bangunan)`. Label di form + detail admin + enum `Pekerjaan` disinkronkan.
-3. **Urutan field** — Tanggal Lahir Ayah & Wali dipindah setelah NIK.
-4. **Detail admin** menampilkan **label** (bukan kode mentah) untuk pendidikan/pekerjaan/penghasilan, plus Tempat Lahir Ibu ditambahkan.
-5. **Generate NIS** — ditambah field "Acuan Nomor Urut Terakhir" (`ppdb.update-nis-counter`) sebagai titik awal penomoran; counter per tahun ajaran di `nis_counters`.
-6. **Penentuan kelas** — alur diubah: operator pilih kelas dari **dropdown kelas yang sudah ada** di `ClassGroup` (bukan ketik bebas); validasi tolak jika kelas belum dibuat; tampilkan jumlah siswa per kelas; alert jika belum ada kelas.
-7. **Seeder** — `PpdbDemoSeeder` di-update: default pakai `??=` (nilai eksplisit tidak ditimpa), tambah record lengkap "MUHAMMAD FARHAN RAMADHAN" (semua field terisi kecuali admin-only).
+Yang SUDAH dikerjakan (akumulasi sesi):
 
-**Catatan pengamat untuk sesi berikutnya** (isi sesuai hasil observasi user):
-- [ ] Apakah data calon siswa id=4 (`/ppdb/admin/4`) tampil benar dengan semua label?
-- [ ] Apakah flow NIS (atur acuan → preview → finalisasi) sudah sesuai kebutuhan operator?
-- [ ] Apakah flow penentuan kelas (buat kelas dulu → dropdown) sudah intuitif?
-- [ ] Umpan balik user tentang kesesuaian field/form dengan formulir Google Form asli.
+1. **Form publik** — wizard 7 langkah lengkap (~90 field), validasi ketat, dokumen via link Google Drive.
+2. **Opsi Pendidikan/Pekerjaan** dikoreksi ke format EMIS + label di form/detail/enum disinkronkan.
+3. **Urutan field** — Tanggal Lahir Ayah & Wali setelah NIK.
+4. **Detail admin** menampilkan label (bukan kode mentah) + Tempat Lahir Ibu.
+5. **Generate NIS** — field "Acuan Nomor Urut Terakhir" + counter per tahun ajaran.
+6. **Penentuan kelas** — dropdown kelas existing + validasi + jumlah siswa per kelas.
+7. **Seeder** — `PpdbDemoSeeder` (default `??=`, record lengkap Farhan).
+8. **(BARU) NIS ditunda dari Accept** — user tidak suka NIS otomatis saat Terima. Sekarang `PpdbService::accept()` membuat `Person`+`Student`(tanpa NIS)+`Guardian`, status `accepted`; NIS diberikan massal di `/ppdb/admin/generate-nis` (urut abjad, counter berlanjut). `students.nis` dijadikan **nullable** (migration `000031`). `batchGenerateNis()` juga menyinkronkan `students.nis`. Pesan sukses accept diubah ("Tetapkan NIS di menu Generate NIS").
+9. **(BARU) Penentuan kelas massal** — `assignClassBulk` (checkbox + 1 kelas) & `assignClassDistribute` (sebar rata per tingkat) via route `ppdb.assign-class-bulk` / `ppdb.assign-class-distribute` (didefinisikan SEBELUM `{registration}`). View `assign-class.blade.php` dapat checkbox, panel "Tetapkan Kelas Terpilih" & "Sebar Rata per Tingkat" (Alpine).
+10. **(BARU) Export Excel** — `exportMapping()` diurutkan mengikuti urutan field form (Langkah 1–7) + ditambah 5 kolom link GDrive (`scanned_kk`, `scanned_kk_wali`, `scanned_akta`, `scanned_ijazah`, `scanned_photo`).
+11. **(BARU) Petunjuk alur di UI** — partial `pages/ppdb/partials/steps.blade.php` (kartu "Alur Pengerjaan Admin" + catatan guardrail per halaman) disertakan di `index`, `show`, `nis-preview`, `assign-class`.
+
+**Hasil observasi user (sesi lalu) — semua terpenuhi:**
+- [x] `/ppdb/admin/4` tampil benar dengan semua label.
+- [x] Flow NIS: tidak lagi otomatis saat accept; calon `accepted` masuk ke Generate NIS, diberi NIS urut abjad (rekomendasi diterima).
+- [x] Flow penentuan kelas: ditambah bulk + sebar rata agar ratusan siswa tak dipilih satu-satu.
+- [x] Field form sudah sesuai Google Form asli (tanpa perubahan).
+- [x] Export: kolom diurutkan + link GDrive disertakan.
 
 **Jebakan yang perlu diingat:**
-- `class_group_id` di `student_enrollments` NOT NULL → enrollment siswa PPDB hanya dibuat saat assign kelas (bukan saat accept).
-- `guardians.user_id` dijadikan nullable (migration `alter_guardians_user_id_nullable`) karena orang tua PPDB belum punya akun.
-- Jangan pakai `{{ }}` di dalam tag komponen Blade (mis. `<x-ui.button>`) untuk atribut dinamis — pakai `:prop="ekspresi"` (PHP) atau `x-bind:` (Alpine), bukan `{{ }}` (memicu ParseError "unexpected token endif").
-- Route PPDB fixed (generate-nis, commit-nis, dll) HARUS didefinisikan SEBELUM `{registration}` wildcard.
+- `class_group_id` di `student_enrollments` NOT NULL → enrollment PPDB hanya dibuat saat assign kelas.
+- `guardians.user_id` nullable (orang tua PPDB belum punya akun).
+- `students.nis` **nullable** sejak `000031` — PPDB menunda NIS. Jalur buat siswa manual (StoreStudentRequest) tetap `required`.
+- Jangan pakai `{{ }}` di dalam tag komponen Blade — pakai `:prop` (PHP) / `x-bind:` (Alpine).
+- Route PPDB fixed HARUS didefinisikan SEBELUM `{registration}` wildcard.
+- **Watchlist (risiko, lihat `docs/PPDB-ALUR-KERJA.md` §4):** jangan tolak siswa yg sudah diterima+koba kelas (data menggantung); jangan ganti TA aktif sebelum finalisasi NIS; "Acuan" bisa bentrok unique `students.nis`; assign kelas belum ada batas kapasitas; export ikut menyertakan `rejected`.
 
 ## 5. Langkah Modul Berikutnya
 

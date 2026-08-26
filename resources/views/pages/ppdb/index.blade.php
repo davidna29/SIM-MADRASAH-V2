@@ -23,6 +23,11 @@
             </div>
         </div>
 
+        @include('pages.ppdb.partials.steps', [
+            'active' => 'ppdb.index',
+            'note' => 'Urutan kerja: Terima dulu → Generate NIS → baru Tentukan Kelas → Export. Jangan ganti Tahun Ajaran aktif sebelum semua NIS difinalisasi.',
+        ])
+
         @if (session('status'))
             <div class="mt-6"><x-ui.alert variant="success" dismissible>{{ session('status') }}</x-ui.alert></div>
         @endif
