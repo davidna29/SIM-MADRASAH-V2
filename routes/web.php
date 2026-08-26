@@ -21,6 +21,7 @@ use App\Http\Controllers\Kesiswaan\AchievementController;
 use App\Http\Controllers\Kesiswaan\CounselingController;
 use App\Http\Controllers\Kesiswaan\ExtracurricularController;
 use App\Http\Controllers\Kesiswaan\OffenseController;
+use App\Http\Controllers\Kesiswaan\PortofolioController;
 use App\Http\Controllers\Keuangan\TuitionController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
@@ -214,6 +215,19 @@ Route::middleware('auth')->group(function () {
         Route::put('/kesiswaan/konseling/{session}', [CounselingController::class, 'update'])->name('konseling.update');
         Route::delete('/kesiswaan/konseling/{session}', [CounselingController::class, 'destroy'])->name('konseling.destroy');
     });
+
+    // Portofolio Digital — agregasi read-only data siswa
+    Route::middleware('role:super_admin|wakamad_kesiswaan|wali_kelas|guru_bk|kepala_madrasah')
+        ->prefix('kesiswaan/portofolio')->name('portofolio.')->group(function () {
+            Route::get('/', [PortofolioController::class, 'index'])->name('index');
+            Route::get('/{student}', [PortofolioController::class, 'show'])->name('show');
+            Route::get('/{student}/qr', [PortofolioController::class, 'qr'])->name('qr');
+            Route::get('/{student}/cetak', [PortofolioController::class, 'print'])->name('print');
+        });
+
+    // Verifikasi portofolio publik (harus login)
+    Route::get('/portofolio/{token}', [PortofolioController::class, 'verify'])->name('portofolio.verify')
+        ->middleware('role:super_admin|wakamad_kesiswaan|wali_kelas|guru_bk|kepala_madrasah|guru|bendahara|tata_usaha|orang_tua|siswa');
 
     // Kehadiran Siswa — input harian + rekap bulanan (input tanggal lampau hanya untuk role privileged)
     Route::middleware('role:super_admin|wakamad_kesiswaan|wali_kelas|guru|kepala_madrasah|wakamad_kurikulum')->group(function () {
