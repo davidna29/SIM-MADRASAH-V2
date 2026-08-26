@@ -662,18 +662,18 @@
                                 <button type="button" @click="step = 1" class="text-xs font-semibold text-primary hover:underline">Edit</button>
                             </div>
                             <div class="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-3 text-sm sm:grid-cols-2">
-                                <div><span class="text-xs text-ink-faint">Nama</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=name]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">NIK</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=nik]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">NISN</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=nisn]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Jenis Kelamin</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=gender]')?.selectedOptions?.[0]?.text || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Agama</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=religion]')?.selectedOptions?.[0]?.text || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Tempat/Tanggal Lahir</span><p class="font-medium text-ink" x-text="step, (document.querySelector('[name=birth_place]')?.value || '—') + ', ' + (document.querySelector('[name=birth_date]')?.value || '—')"></p></div>
-                                <div><span class="text-xs text-ink-faint">Asal Sekolah</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=previous_school]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Hobi</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=hobby]')?.selectedOptions?.[0]?.text || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Cita-cita</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=ambition]')?.selectedOptions?.[0]?.text || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Anak ke-</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=child_order]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Jumlah Saudara</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=sibling_count]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">TK / PAUD</span><p class="font-medium text-ink" x-text="step, (document.querySelector('[name=ever_tk]')?.selectedOptions?.[0]?.text || '—') + ' / ' + (document.querySelector('[name=ever_paud]')?.selectedOptions?.[0]?.text || '—')"></p></div>
+                                <div><span class="text-xs text-ink-faint">Nama</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=name]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">NIK</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=nik]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">NISN</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=nisn]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Jenis Kelamin</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=gender]')?.selectedOptions?.[0]?.text || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Agama</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=religion]')?.selectedOptions?.[0]?.text || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Tempat/Tanggal Lahir</span><p class="font-medium text-ink" x-text="(step + ' ') && (document.querySelector('[name=birth_place]')?.value || '—') + ', ' + (document.querySelector('[name=birth_date]')?.value || '—')"></p></div>
+                                <div><span class="text-xs text-ink-faint">Asal Sekolah</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=previous_school]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Hobi</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=hobby]')?.selectedOptions?.[0]?.text || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Cita-cita</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=ambition]')?.selectedOptions?.[0]?.text || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Anak ke-</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=child_order]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Jumlah Saudara</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=sibling_count]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">TK / PAUD</span><p class="font-medium text-ink" x-text="(step + ' ') && (document.querySelector('[name=ever_tk]')?.selectedOptions?.[0]?.text || '—') + ' / ' + (document.querySelector('[name=ever_paud]')?.selectedOptions?.[0]?.text || '—')"></p></div>
                             </div>
                         </div>
 
@@ -686,12 +686,12 @@
                             <div class="px-4 py-3 text-sm">
                                 <p class="text-xs text-ink-faint">Imunisasi:</p>
                                 <div class="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                                    <span class="text-ink">Hep B: <span class="font-medium" x-text="step, document.querySelector('[name=imm_hepb]')?.selectedOptions?.[0]?.text || '—'"></span></span>
-                                    <span class="text-ink">Polio: <span class="font-medium" x-text="step, document.querySelector('[name=imm_polio]')?.selectedOptions?.[0]?.text || '—'"></span></span>
-                                    <span class="text-ink">BCG: <span class="font-medium" x-text="step, document.querySelector('[name=imm_bcg]')?.selectedOptions?.[0]?.text || '—'"></span></span>
-                                    <span class="text-ink">Campak: <span class="font-medium" x-text="step, document.querySelector('[name=imm_campak]')?.selectedOptions?.[0]?.text || '—'"></span></span>
-                                    <span class="text-ink">DPT: <span class="font-medium" x-text="step, document.querySelector('[name=imm_dpt]')?.selectedOptions?.[0]?.text || '—'"></span></span>
-                                    <span class="text-ink">COVID: <span class="font-medium" x-text="step, document.querySelector('[name=imm_covid]')?.selectedOptions?.[0]?.text || '—'"></span></span>
+                                    <span class="text-ink">Hep B: <span class="font-medium" x-text="(step + ' ') && document.querySelector('[name=imm_hepb]')?.selectedOptions?.[0]?.text || '—'"></span></span>
+                                    <span class="text-ink">Polio: <span class="font-medium" x-text="(step + ' ') && document.querySelector('[name=imm_polio]')?.selectedOptions?.[0]?.text || '—'"></span></span>
+                                    <span class="text-ink">BCG: <span class="font-medium" x-text="(step + ' ') && document.querySelector('[name=imm_bcg]')?.selectedOptions?.[0]?.text || '—'"></span></span>
+                                    <span class="text-ink">Campak: <span class="font-medium" x-text="(step + ' ') && document.querySelector('[name=imm_campak]')?.selectedOptions?.[0]?.text || '—'"></span></span>
+                                    <span class="text-ink">DPT: <span class="font-medium" x-text="(step + ' ') && document.querySelector('[name=imm_dpt]')?.selectedOptions?.[0]?.text || '—'"></span></span>
+                                    <span class="text-ink">COVID: <span class="font-medium" x-text="(step + ' ') && document.querySelector('[name=imm_covid]')?.selectedOptions?.[0]?.text || '—'"></span></span>
                                 </div>
                             </div>
                         </div>
@@ -703,16 +703,16 @@
                                 <button type="button" @click="step = 3" class="text-xs font-semibold text-primary hover:underline">Edit</button>
                             </div>
                             <div class="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-3 text-sm sm:grid-cols-2">
-                                <div class="sm:col-span-2"><span class="text-xs text-ink-faint">Alamat</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=address]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Provinsi</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=province]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Kota</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=city]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Kecamatan</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=district]')?.selectedOptions?.[0]?.text || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Kelurahan</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=village]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">RT/RW</span><p class="font-medium text-ink" x-text="step, (document.querySelector('[name=rt]')?.value || '—') + '/' + (document.querySelector('[name=rw]')?.value || '—')"></p></div>
-                                <div><span class="text-xs text-ink-faint">Kode Pos</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=postal_code]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Jarak</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=distance]')?.selectedOptions?.[0]?.text || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Transportasi</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=transport]')?.selectedOptions?.[0]?.text || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Waktu Tempuh</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=commute_time]')?.selectedOptions?.[0]?.text || '—'"></p></div>
+                                <div class="sm:col-span-2"><span class="text-xs text-ink-faint">Alamat</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=address]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Provinsi</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=province]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Kota</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=city]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Kecamatan</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=district]')?.selectedOptions?.[0]?.text || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Kelurahan</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=village]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">RT/RW</span><p class="font-medium text-ink" x-text="(step + ' ') && (document.querySelector('[name=rt]')?.value || '—') + '/' + (document.querySelector('[name=rw]')?.value || '—')"></p></div>
+                                <div><span class="text-xs text-ink-faint">Kode Pos</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=postal_code]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Jarak</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=distance]')?.selectedOptions?.[0]?.text || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Transportasi</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=transport]')?.selectedOptions?.[0]?.text || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Waktu Tempuh</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=commute_time]')?.selectedOptions?.[0]?.text || '—'"></p></div>
                             </div>
                         </div>
 
@@ -723,10 +723,10 @@
                                 <button type="button" @click="step = 4" class="text-xs font-semibold text-primary hover:underline">Edit</button>
                             </div>
                             <div class="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-3 text-sm sm:grid-cols-2">
-                                <div><span class="text-xs text-ink-faint">No. KK</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=kk_number]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Kepala KK</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=kk_head_name]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Ayah</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=father_name]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Ibu</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=mother_name]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">No. KK</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=kk_number]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Kepala KK</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=kk_head_name]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Ayah</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=father_name]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Ibu</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=mother_name]')?.value || '—'"></p></div>
                             </div>
                         </div>
 
@@ -737,9 +737,9 @@
                                 <button type="button" @click="step = 5" class="text-xs font-semibold text-primary hover:underline">Edit</button>
                             </div>
                             <div class="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-3 text-sm sm:grid-cols-2">
-                                <div class="sm:col-span-2"><span class="text-xs text-ink-faint">Alamat</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=parent_address]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Kecamatan</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=parent_district]')?.selectedOptions?.[0]?.text || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">Kelurahan</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=parent_village]')?.value || '—'"></p></div>
+                                <div class="sm:col-span-2"><span class="text-xs text-ink-faint">Alamat</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=parent_address]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Kecamatan</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=parent_district]')?.selectedOptions?.[0]?.text || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">Kelurahan</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=parent_village]')?.value || '—'"></p></div>
                             </div>
                         </div>
 
@@ -750,9 +750,9 @@
                                 <button type="button" @click="step = 6" class="text-xs font-semibold text-primary hover:underline">Edit</button>
                             </div>
                             <div class="grid grid-cols-1 gap-x-6 gap-y-3 px-4 py-3 text-sm sm:grid-cols-2">
-                                <div class="sm:col-span-2"><span class="text-xs text-ink-faint">Sekolah Asal</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=origin_school]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">NSM</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=origin_nsm]')?.value || '—'"></p></div>
-                                <div><span class="text-xs text-ink-faint">NPSN</span><p class="font-medium text-ink" x-text="step, document.querySelector('[name=origin_npsn]')?.value || '—'"></p></div>
+                                <div class="sm:col-span-2"><span class="text-xs text-ink-faint">Sekolah Asal</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=origin_school]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">NSM</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=origin_nsm]')?.value || '—'"></p></div>
+                                <div><span class="text-xs text-ink-faint">NPSN</span><p class="font-medium text-ink" x-text="(step + ' ') && document.querySelector('[name=origin_npsn]')?.value || '—'"></p></div>
                             </div>
                         </div>
 

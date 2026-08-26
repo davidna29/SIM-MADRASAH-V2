@@ -102,10 +102,11 @@ class PpdbModuleTest extends TestCase
     {
         // Ringkasan langkah 7 harus membaca nilai DOM saat wizard mencapai step 7,
         // bukan hanya saat init. Binding x-text wajib bergantung pada `step`
-        // (via `step, document.querySelector(...)`) agar berisi data yang diisi.
+        // (via `(step + ' ') && document.querySelector(...)`) agar berisi data yang diisi,
+        // dan TIDAK menggunakan koma (yang membuat Alpine menampilkan angka step).
         $response = $this->get(route('ppdb.form'));
         $response->assertOk();
-        $response->assertSee("step, document.querySelector('[name=name]')", false);
+        $response->assertSee("(step + ' ') && document.querySelector('[name=name]')", false);
     }
 
     public function test_can_submit_registration(): void
