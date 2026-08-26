@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Kesiswaan;
 
+use App\Exports\PembiasaanExport;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\ClassGroup;
@@ -15,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 
 abstract class PembiasaanBaseController extends Controller
 {
@@ -29,7 +31,7 @@ abstract class PembiasaanBaseController extends Controller
 
     protected function title(): string
     {
-        return $this->modul === 'ppi' ? 'PPI (Praktek Pengamalan Ibadah)' : 'Tahfidz';
+        return $this->modul === 'ppi' ? 'PRAKTEK PENGAMALAN IBADAH' : 'Tahfidz';
     }
 
     public function index(Request $request): View
@@ -183,25 +185,49 @@ abstract class PembiasaanBaseController extends Controller
         return redirect()->route($this->modul.'.konfigurasi')->with('status', 'Konfigurasi materi '.$this->label().' disimpan.');
     }
 
-    public function cetak(Student $siswa): Response
+    public function cetak(Student $siswa): View
     {
         $this->authorize('viewAny', PembiasaanMateri::class);
 
         $data = $this->service->buildMatrix($siswa, $this->modul);
-        $kop = $this->service->kop();
+
+        return view('pages.kesiswaan.pembiasaan.preview', array_merge($data, [
+            'siswa' => $siswa,
+            'title' => $this->title(),
+            'label' => $this->label(),
+            'roleLabel' => 'Kesiswaan',
+        ]));
+    }
+
+    public function cetakPdf(Student $siswa): Response
+    {
+        $this->authorize('viewAny', PembiasaanMateri::class);
+
+        $data = $this->service->buildMatrix($siswa, $this->modul);
 
         $filename = $this->modul.'-'.($siswa->nis ?? $siswa->id).'-'
             .str_replace('/', '-', (string) ($data['current']['tahun'] ?? 'TA')).'.pdf';
 
         $pdf = Pdf::loadView('pages.kesiswaan.pembiasaan.cetak', array_merge($data, [
             'siswa' => $siswa,
-            'kop' => $kop,
-            'title' => $this->modul === 'ppi' ? 'PPI (BIMBINGAN KELAS)' : 'TAHFIDZ',
+            'title' => $this->title(),
             'label' => $this->label(),
         ]));
 
         $pdf->setPaper('A4', 'landscape');
 
         return $pdf->download($filename);
+    }
+
+    public function cetakExcel(Student $siswa)
+    {
+        $this->authorize('viewAny', PembiasaanMateri::class);
+
+        $data = $this->service->buildMatrix($siswa, $this->modul);
+
+        $filename = $this->modul.'-'.($siswa->nis ?? $siswa->id).'-'
+            .str_replace('/', '-', (string) ($data['current']['tahun'] ?? 'TA')).'.xlsx';
+
+        return Excel::download(new PembiasaanExport($data, $siswa), $filename);
     }
 }

@@ -182,9 +182,19 @@ class PembiasaanModuleTest extends TestCase
         ]);
     }
 
-    public function test_cetak_returns_pdf_response(): void
+    public function test_cetak_preview_renders(): void
     {
         $response = $this->actingAs($this->wali)->get(route('ppi.cetak', $this->student));
+
+        $response->assertOk();
+        $response->assertSee('PRAKTEK PENGAMALAN IBADAH');
+        $response->assertSee('Download PDF');
+        $response->assertSee('Export Excel');
+    }
+
+    public function test_cetak_pdf_downloads(): void
+    {
+        $response = $this->actingAs($this->wali)->get(route('ppi.cetak.pdf', $this->student));
 
         $response->assertOk();
         $this->assertStringContainsString('application/pdf', (string) $response->headers->get('content-type'));

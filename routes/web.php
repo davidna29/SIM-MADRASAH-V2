@@ -258,6 +258,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/kesiswaan/ppi/{siswa}/input', [PpiController::class, 'input'])->name('ppi.input');
         Route::post('/kesiswaan/ppi/{siswa}/input', [PpiController::class, 'store'])->name('ppi.store');
         Route::get('/kesiswaan/ppi/{siswa}/cetak', [PpiController::class, 'cetak'])->name('ppi.cetak');
+        Route::get('/kesiswaan/ppi/{siswa}/cetak/pdf', [PpiController::class, 'cetakPdf'])->name('ppi.cetak.pdf');
+        Route::get('/kesiswaan/ppi/{siswa}/cetak/excel', [PpiController::class, 'cetakExcel'])->name('ppi.cetak.excel');
 
         // Tahfidz
         Route::get('/kesiswaan/tahfidz', [TahfidzController::class, 'index'])->name('tahfidz.index');
@@ -266,6 +268,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/kesiswaan/tahfidz/{siswa}/input', [TahfidzController::class, 'input'])->name('tahfidz.input');
         Route::post('/kesiswaan/tahfidz/{siswa}/input', [TahfidzController::class, 'store'])->name('tahfidz.store');
         Route::get('/kesiswaan/tahfidz/{siswa}/cetak', [TahfidzController::class, 'cetak'])->name('tahfidz.cetak');
+        Route::get('/kesiswaan/tahfidz/{siswa}/cetak/pdf', [TahfidzController::class, 'cetakPdf'])->name('tahfidz.cetak.pdf');
+        Route::get('/kesiswaan/tahfidz/{siswa}/cetak/excel', [TahfidzController::class, 'cetakExcel'])->name('tahfidz.cetak.excel');
 
         // Ekstrakurikuler
         // Ekstrakurikuler
