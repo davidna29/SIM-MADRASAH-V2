@@ -171,6 +171,27 @@ class PpdbModuleTest extends TestCase
         $response->assertSessionHasErrors('nik');
     }
 
+    public function test_rt_rw_accepts_one_to_three_digits(): void
+    {
+        $data = $this->validData();
+        $data['rt'] = '1';
+        $data['rw'] = '12';
+        $data['parent_rt'] = '3';
+        $data['parent_rw'] = '123';
+
+        $response = $this->post(route('ppdb.store'), $data);
+        $response->assertRedirect(route('ppdb.success'));
+    }
+
+    public function test_rt_rw_rejects_four_digits(): void
+    {
+        $data = $this->validData();
+        $data['rt'] = '1234';
+
+        $response = $this->post(route('ppdb.store'), $data);
+        $response->assertSessionHasErrors('rt');
+    }
+
     public function test_success_page_works(): void
     {
         $this->post(route('ppdb.store'), $this->validData());

@@ -319,12 +319,12 @@
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                             {{-- rt --}}
                             <x-ui.field label="RT" required :error="$errors->first('rt')">
-                                <x-ui.input name="rt" placeholder="001" :value="old('rt')" required maxlength="3" pattern="[0-9]{3}" inputmode="numeric" />
+                                <x-ui.input name="rt" placeholder="001" :value="old('rt')" required maxlength="3" pattern="[0-9]{1,3}" inputmode="numeric" />
                             </x-ui.field>
 
                             {{-- rw --}}
                             <x-ui.field label="RW" required :error="$errors->first('rw')">
-                                <x-ui.input name="rw" placeholder="001" :value="old('rw')" required maxlength="3" pattern="[0-9]{3}" inputmode="numeric" />
+                                <x-ui.input name="rw" placeholder="001" :value="old('rw')" required maxlength="3" pattern="[0-9]{1,3}" inputmode="numeric" />
                             </x-ui.field>
 
                             {{-- postal_code --}}
@@ -602,12 +602,12 @@
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                             {{-- parent_rt --}}
                             <x-ui.field label="RT" required :error="$errors->first('parent_rt')">
-                                <x-ui.input name="parent_rt" placeholder="001" :value="old('parent_rt')" required maxlength="3" pattern="[0-9]{3}" inputmode="numeric" />
+                                <x-ui.input name="parent_rt" placeholder="001" :value="old('parent_rt')" required maxlength="3" pattern="[0-9]{1,3}" inputmode="numeric" />
                             </x-ui.field>
 
                             {{-- parent_rw --}}
                             <x-ui.field label="RW" required :error="$errors->first('parent_rw')">
-                                <x-ui.input name="parent_rw" placeholder="001" :value="old('parent_rw')" required maxlength="3" pattern="[0-9]{3}" inputmode="numeric" />
+                                <x-ui.input name="parent_rw" placeholder="001" :value="old('parent_rw')" required maxlength="3" pattern="[0-9]{1,3}" inputmode="numeric" />
                             </x-ui.field>
 
                             {{-- parent_postal_code --}}

@@ -76,8 +76,8 @@ class PpdbController extends Controller
             'city' => 'required|string|max:60',
             'district' => 'required|string|max:60',
             'village' => 'required|string|max:60',
-            'rt' => 'required|string|size:3',
-            'rw' => 'required|string|size:3',
+            'rt' => 'required|digits_between:1,3',
+            'rw' => 'required|digits_between:1,3',
             'postal_code' => 'required|string|digits:5',
             'distance' => 'required|string|max:20',
             'transport' => 'required|string|max:60',
@@ -126,8 +126,8 @@ class PpdbController extends Controller
             'parent_city' => 'required|string|max:60',
             'parent_district' => 'required|string|max:60',
             'parent_village' => 'required|string|max:60',
-            'parent_rt' => 'required|string|size:3',
-            'parent_rw' => 'required|string|size:3',
+            'parent_rt' => 'required|digits_between:1,3',
+            'parent_rw' => 'required|digits_between:1,3',
             'parent_postal_code' => 'required|string|digits:5',
 
             // Sekolah Asal
