@@ -5,6 +5,7 @@ namespace App\Exports;
 use App\Models\PpdbRegistration;
 use App\Support\PpdbService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -29,7 +30,7 @@ class PpdbExport implements FromQuery, WithHeadings, WithMapping, WithStyles
         $this->columnMap = PpdbService::exportMapping();
     }
 
-    public function query()
+    public function query(): Builder
     {
         $query = PpdbRegistration::query()
             ->where('status', '!=', 'draft');
