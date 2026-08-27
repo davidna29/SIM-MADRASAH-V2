@@ -395,7 +395,7 @@ TXT;
 
         $penutup = in_array($penutup, [1, 2, 3], true) ? $penutup : 3;
 
-        $now = now(); // gunakan tanggal hari ini, bukan tanggal_ujian statis
+        $now = now()->setTimezone('Asia/Jakarta'); // WIB untuk teks berita acara
 
         // Tabel rapi untuk nama penguji (3 kolom fixed-width, kompatibel DomPDF)
         $pengujiTable = '<table width="100%" style="margin-top:12px;border-collapse:collapse;text-align:center;font-size:12px;">'
