@@ -21,6 +21,13 @@
                 </p>
             </div>
             <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.show', $periode) }}">Kembali</x-ui.button>
+            @if ($editable)
+                <form method="POST" action="{{ route('ujianppi.periode.salin-skala', $periode) }}" class="inline"
+                    onsubmit="return confirm('Salin skala dari periode sebelumnya? Skala saat ini akan ditimpa.');">
+                    @csrf
+                    <x-ui.button type="submit" variant="secondary" size="sm" icon="document-duplicate">Salin Skala dari Periode Sebelumnya</x-ui.button>
+                </form>
+            @endif
         </div>
 
         @if (session('status'))

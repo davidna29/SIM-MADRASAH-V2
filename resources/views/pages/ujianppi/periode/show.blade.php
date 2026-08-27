@@ -59,13 +59,6 @@
                     </form>
                 @endforeach
 
-                @if (in_array($periode->status, ['setup', 'draft'], true))
-                    <form method="POST" action="{{ route('ujianppi.periode.salin-skala', $periode) }}">
-                        @csrf
-                        <x-ui.button type="submit" variant="secondary" size="sm" icon="document-duplicate">Salin Skala</x-ui.button>
-                    </form>
-                @endif
-
                 @if ($isSuperAdmin && $periode->status === 'berlangsung')
                     @if ($periode->isLocked())
                         <form method="POST" action="{{ route('ujianppi.periode.buka-kunci', $periode) }}"
