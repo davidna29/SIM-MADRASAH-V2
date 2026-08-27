@@ -669,12 +669,28 @@ class UjianPpiModuleTest extends TestCase
         $participant = $period->participants()->first();
 
         $response = $this->actingAs($this->guru1)
-            ->get(route('ujianppi.guru.teks', [$period, $participant]));
+            ->get(route('ujianppi.guru.teks', ['periode' => $period, 'peserta' => $participant->id]));
 
         $response->assertOk();
         $response->assertSee('TEKS PEMBAWA ACARA');
         $response->assertSee($participant->student->name);
         $response->assertSee('Umar Hakim'); // penguji I = emp1
+    }
+
+    public function test_teks_switch_peserta_via_query_param(): void
+    {
+        $period = $this->makePeriod();
+        $room1 = $period->rooms()->first();
+        $other = $period->participants()
+            ->where('exam_room_id', $room1->id)
+            ->get()
+            ->last();
+
+        $response = $this->actingAs($this->guru1)
+            ->get(route('ujianppi.guru.teks', ['periode' => $period, 'peserta' => $other->id]));
+
+        $response->assertOk();
+        $response->assertSee($other->student->name);
     }
 
     public function test_teks_berita_acara_pdf_downloads(): void

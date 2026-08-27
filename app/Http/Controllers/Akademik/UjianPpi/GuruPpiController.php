@@ -290,12 +290,21 @@ class GuruPpiController extends Controller
 
     // ============ Teks Pembawa Acara & Berita Acara ============
 
-    public function teks(Request $request, PpiExamPeriod $periode, PpiExamParticipant $peserta): View
+    public function teks(Request $request, PpiExamPeriod $periode): View
     {
         $this->authorize('input', $periode);
 
         $user = auth()->user();
         $rooms = $this->service->examinerRooms($user, $periode);
+
+        // Peserta dipilih via query (?peserta=), default = peserta pertama periode
+        $peserta = $request->query('peserta')
+            ? PpiExamParticipant::where('exam_period_id', $periode->id)->findOrFail((int) $request->query('peserta'))
+            : $periode->participants()->first();
+
+        if (! $peserta) {
+            abort(404, 'Belum ada peserta pada periode ini.');
+        }
 
         if (! $this->service->isAdmin($user) && ! $rooms->contains('id', $peserta->exam_room_id)) {
             abort(403, 'Berita acara hanya tersedia untuk penguji ruang peserta.');

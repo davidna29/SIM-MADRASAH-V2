@@ -24,10 +24,10 @@
 
         <!-- Pemilih peserta & penguji penutup -->
         <div class="mt-6 rounded-sheet bg-sheet shadow-sheet ring-1 ring-inset ring-rule/60 p-4">
-            <form method="GET" action="{{ route('ujianppi.guru.teks', [$periode, $peserta]) }}" class="flex flex-wrap items-end gap-3">
-                <div>
+            <form method="GET" action="{{ route('ujianppi.guru.teks', $periode) }}" class="flex flex-wrap items-end gap-3">
+                <div class="min-w-0 flex-1">
                     <label class="block pb-1.5 text-xs font-bold text-ink">Peserta</label>
-                    <x-ui.select name="peserta" :full="false" class="w-64"
+                    <x-ui.select name="peserta" class="w-full sm:w-64"
                         :options="$periode->participants()->with('student')->get()->mapWithKeys(fn ($p) => [$p->id => $p->no_urut.'. '.($p->student?->name)])->all()"
                         :selected="$peserta->id" onchange="this.form.submit()" />
                 </div>
@@ -48,12 +48,12 @@
         </div>
 
         <div class="mt-6 grid gap-6 lg:grid-cols-2">
-            <x-ui.sheet :title="'Teks Pembawa Acara'" :subtitle="'{{NAMA_PENGUJI_PENUTUP}} bisa dipilih manual (default Penguji III).'">
-                <pre class="whitespace-pre-wrap rounded-[var(--radius-control)] bg-paper p-4 font-serif text-sm leading-relaxed text-ink ring-1 ring-inset ring-rule/60">{{ $teks_mc }}</pre>
+            <x-ui.sheet :title="'Teks Pembawa Acara'" :subtitle="'{{NAMA_PENGUJI_PENUTUP}} bisa dipilih manual (default Penguji III).'" class="min-w-0">
+                <pre class="whitespace-pre-wrap break-words rounded-[var(--radius-control)] bg-paper p-4 font-serif text-sm leading-relaxed text-ink ring-1 ring-inset ring-rule/60">{{ $teks_mc }}</pre>
             </x-ui.sheet>
 
-            <x-ui.sheet :title="'Berita Acara'" :subtitle="'Siap dibacakan — kolom TTD 3 penguji.'">
-                <pre class="whitespace-pre-wrap rounded-[var(--radius-control)] bg-paper p-4 font-serif text-sm leading-relaxed text-ink ring-1 ring-inset ring-rule/60">{{ $teks_ba }}</pre>
+            <x-ui.sheet :title="'Berita Acara'" :subtitle="'Siap dibacakan — kolom TTD 3 penguji.'" class="min-w-0">
+                <pre class="whitespace-pre-wrap break-words rounded-[var(--radius-control)] bg-paper p-4 font-serif text-sm leading-relaxed text-ink ring-1 ring-inset ring-rule/60">{{ $teks_ba }}</pre>
                 <div class="mt-4">
                     <x-ui.button variant="secondary" size="sm" icon="printer" href="{{ route('ujianppi.guru.teks.pdf', [$periode, $peserta]) }}">Unduh PDF</x-ui.button>
                 </div>

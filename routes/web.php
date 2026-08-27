@@ -274,7 +274,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/{periode}/ujian/{peserta}', [GuruPpiController::class, 'ujianStore'])->name('guru.ujian.store');
         Route::get('/{periode}/setoran', [GuruPpiController::class, 'setoran'])->name('guru.setoran');
         Route::post('/{periode}/setoran/{peserta}', [GuruPpiController::class, 'setoranStore'])->name('guru.setoran.store');
-        Route::get('/{periode}/teks/{peserta}', [GuruPpiController::class, 'teks'])->name('guru.teks');
+        Route::get('/{periode}/teks', [GuruPpiController::class, 'teks'])->name('guru.teks');
         Route::get('/{periode}/teks/{peserta}/pdf', [GuruPpiController::class, 'teksPdf'])->name('guru.teks.pdf');
     });
 

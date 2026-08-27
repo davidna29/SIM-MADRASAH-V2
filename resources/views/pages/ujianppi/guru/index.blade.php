@@ -57,7 +57,7 @@
                                     <x-ui.button variant="secondary" size="sm" icon="book-open" href="{{ route('ujianppi.guru.setoran', $period) }}">Input Setoran</x-ui.button>
                                 @endif
                                 @if (in_array($period->status, ['berlangsung', 'selesai'], true) && $firstParticipant)
-                                    <x-ui.button variant="ghost" size="sm" icon="document-text" href="{{ route('ujianppi.guru.teks', [$period, $firstParticipant]) }}">Teks & BA</x-ui.button>
+                                    <x-ui.button variant="ghost" size="sm" icon="document-text" href="{{ route('ujianppi.guru.teks', ['periode' => $period->id, 'peserta' => $firstParticipant->id]) }}">Teks & BA</x-ui.button>
                                 @endif
                             </div>
                         </div>

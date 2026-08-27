@@ -225,7 +225,7 @@
                                             <p class="text-xs text-ink-soft">{{ $p->room?->nama }} · {{ $p->group?->nama ?? 'Tanpa grup' }}</p>
                                         </div>
                                     </div>
-                                    <x-ui.button variant="ghost" size="sm" href="{{ route('ujianppi.guru.teks', [$periode, $p]) }}">Dokumen</x-ui.button>
+                                    <x-ui.button variant="ghost" size="sm" href="{{ route('ujianppi.guru.teks', ['periode' => $periode->id, 'peserta' => $p->id]) }}">Dokumen</x-ui.button>
                                 </li>
                             @endforeach
                         </ul>
