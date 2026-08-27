@@ -317,6 +317,7 @@ class GuruPpiController extends Controller
             'periode' => $periode,
             'peserta' => $peserta,
             'penutup' => $penutup,
+            'penutupLabel' => $vars['NAMA_PENGUJI_PENUTUP'],
             'teks_mc' => $this->service->renderTemplate($periode->teks_mc ?: PpiExamService::DEFAULT_TEKS_MC, $vars),
             'teks_ba' => $this->service->renderTemplate($periode->teks_ba ?: PpiExamService::DEFAULT_TEKS_BA, $vars),
             'vars' => $vars,

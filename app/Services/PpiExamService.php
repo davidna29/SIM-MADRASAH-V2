@@ -324,11 +324,13 @@ TXT;
 
         $penutup = in_array($penutup, [1, 2, 3], true) ? $penutup : 3;
 
+        $now = now(); // gunakan tanggal hari ini, bukan tanggal_ujian statis
+
         return [
             'NAMA_MADRASAH' => Setting::get('madrasah_name', 'MADRASAH IBTIDAIYAH'),
             'TAHUN_AJARAN' => (string) ($period->academicYear?->name ?? ''),
-            'HARI' => self::DAYS_ID[$period->tanggal_ujian?->dayOfWeek ?? 1] ?? '',
-            'TANGGAL' => $period->tanggal_ujian ? $period->tanggal_ujian->translatedFormat('d-m-Y') : '—',
+            'HARI' => self::DAYS_ID[$now->dayOfWeekIso] ?? '',
+            'TANGGAL' => $now->translatedFormat('d-m-Y'),
             'JAM' => Setting::get('ppi_ujian_jam', '08.00'),
             'KOTA' => Setting::get('madrasah_kabupaten', '—'),
             'NAMA_SISWA' => $participant->student?->name ?? '—',

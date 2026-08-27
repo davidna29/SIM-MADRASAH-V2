@@ -32,7 +32,7 @@
                         :selected="$peserta->id" onchange="this.form.submit()" />
                 </div>
                 <div>
-                    <label class="block pb-1.5 text-xs font-bold text-ink">Penguji Penutup ({{ $vars['NAMA_PENGUJI_PENUTUP'] }})</label>
+                    <label class="block pb-1.5 text-xs font-bold text-ink">Penguji Penutup ({{ $penutupLabel }})</label>
                     <x-ui.select name="penutup" :full="false" class="w-40"
                         :options="[1 => 'Penguji I', 2 => 'Penguji II', 3 => 'Penguji III']" :selected="$penutup" onchange="this.form.submit()" />
                 </div>
@@ -48,7 +48,7 @@
         </div>
 
         <div class="mt-6 grid gap-6 lg:grid-cols-2">
-            <x-ui.sheet :title="'Teks Pembawa Acara'" :subtitle="'{{NAMA_PENGUJI_PENUTUP}} bisa dipilih manual (default Penguji III).'" class="min-w-0">
+            <x-ui.sheet :title="'Teks Pembawa Acara'" :subtitle="$penutupLabel.' bisa dipilih manual (default Penguji III).'" class="min-w-0">
                 <pre class="whitespace-pre-wrap break-words rounded-[var(--radius-control)] bg-paper p-4 font-serif text-sm leading-relaxed text-ink ring-1 ring-inset ring-rule/60">{{ $teks_mc }}</pre>
             </x-ui.sheet>
 
