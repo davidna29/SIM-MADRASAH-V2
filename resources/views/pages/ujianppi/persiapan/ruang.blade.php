@@ -58,7 +58,7 @@
                     $roomOptions = $employees->reject(fn ($e) => $assignedEmployeeIds->contains($e->id) && ! $room->examiners->contains('employee_id', $e->id));
                     $own = $room->examiners->keyBy('urutan');
                 @endphp
-                <x-ui.sheet :title="$room->nama" :subtitle="$room->participants->count().' peserta'">
+                <x-ui.sheet :title="$room->nama" :subtitle="$room->participants->count().' peserta'" class="min-w-0">
                     <div class="space-y-3">
                         @foreach ([1, 2, 3] as $urutan)
                             <div class="rounded-[var(--radius-control)] bg-paper px-4 py-3 ring-1 ring-inset ring-rule/60">

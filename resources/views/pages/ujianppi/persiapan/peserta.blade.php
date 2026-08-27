@@ -40,7 +40,7 @@
         @endif
 
         <div class="mt-6 grid gap-6 lg:grid-cols-3">
-            <div class="lg:col-span-1">
+            <div class="min-w-0 lg:col-span-1">
                 @if ($editable)
                     <x-ui.sheet :title="'Assign Siswa'" :subtitle="count($available).' siswa Kelas VI tersedia (belum ter-assign)'">
                         @if ($available->isEmpty())
@@ -81,7 +81,7 @@
                 @endif
             </div>
 
-            <div class="lg:col-span-2">
+            <div class="min-w-0 lg:col-span-2">
                 <x-ui.sheet :title="'Peserta Ter-assign ('.count($assigned).')'" :padding="false">
                     <div class="overflow-x-auto">
                         <table class="w-full min-w-[640px] border-collapse text-sm">

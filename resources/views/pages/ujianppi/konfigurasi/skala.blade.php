@@ -44,7 +44,7 @@
         @endif
 
         <div class="mt-6 grid gap-6 lg:grid-cols-3">
-            <div class="lg:col-span-2">
+            <div class="min-w-0 lg:col-span-2">
                 <x-ui.sheet :title="'Daftar Skala'" :subtitle="'Rentang tidak boleh tumpang tindih; urutan menentukan prioritas nilai akhir.'" :padding="false">
                     <div class="overflow-x-auto">
                         <table class="w-full min-w-[640px] border-collapse text-sm">
@@ -139,7 +139,7 @@
             </div>
 
             @if ($editable)
-                <div>
+                <div class="min-w-0">
                     <x-ui.sheet :title="'Tambah Skala'">
                         <form method="POST" action="{{ route('ujianppi.konfigurasi.skala.store', $periode) }}" class="space-y-3">
                             @csrf

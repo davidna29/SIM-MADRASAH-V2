@@ -120,7 +120,7 @@
 
         <div class="mt-6 grid gap-6 lg:grid-cols-3">
             <!-- Konfigurasi -->
-            <div class="lg:col-span-2 space-y-4">
+            <div class="min-w-0 space-y-4 lg:col-span-2">
                 <x-ui.sheet :title="'Konfigurasi Periode'" :subtitle="$periode->isLocked() ? 'Terkunci otomatis saat Berlangsung — buka kunci hanya oleh Super Admin bila perlu.' : 'Terbuka — semua pengaturan bisa diubah sebelum periode dikunci.'">
                     <div class="grid gap-3 sm:grid-cols-2">
                         @foreach ($configRoutes as [$routeName, $label, $icon, $desc])
@@ -197,7 +197,7 @@
             </div>
 
             <!-- Sidebar: bobot & peserta -->
-            <div class="space-y-4">
+            <div class="min-w-0 space-y-4">
                 <x-ui.sheet :title="'Bobot Penilaian'">
                     <dl class="space-y-2 text-sm">
                         <div class="flex justify-between"><dt class="text-ink-soft">Penguji I</dt><dd class="font-bold text-ink">{{ $periode->bobot_p1 }}%</dd></div>

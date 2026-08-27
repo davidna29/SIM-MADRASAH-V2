@@ -63,7 +63,7 @@
                 @php
                     $memberCount = $group->participants->count();
                 @endphp
-                <x-ui.sheet :title="$group->nama" :subtitle="'Pembimbing: '.($group->pembimbing?->person?->name ?? '—').' · '.$memberCount.' siswa'">
+                <x-ui.sheet :title="$group->nama" :subtitle="'Pembimbing: '.($group->pembimbing?->person?->name ?? '—').' · '.$memberCount.' siswa'" class="min-w-0">
                     @if ($editable)
                         <form method="POST" action="{{ route('ujianppi.persiapan.grup.update', [$periode, $group]) }}" class="grid gap-3 sm:grid-cols-2">
                             @csrf

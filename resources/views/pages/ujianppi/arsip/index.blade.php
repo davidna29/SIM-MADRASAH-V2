@@ -32,7 +32,7 @@
         @endif
 
         <div class="mt-6 grid gap-6 lg:grid-cols-3">
-            <div class="lg:col-span-2">
+            <div class="min-w-0 lg:col-span-2">
                 <x-ui.sheet :title="'Periode Diarsipkan'" :padding="false">
                     @if ($archived->isEmpty())
                         <div class="px-5 py-10 text-center text-sm text-ink-faint">Belum ada periode yang diarsipkan.</div>
@@ -54,7 +54,7 @@
                 </x-ui.sheet>
             </div>
 
-            <div>
+            <div class="min-w-0">
                 <x-ui.sheet :title="'Import Rekap Lama'" :subtitle="'Kolom template: NISN, Nama, Rata P1, Rata P2, Rata P3, Nilai Hafalan, Nilai Akhir, Predikat, Status Lulus, Rank, Rombel.'">
                     <form method="POST" action="{{ route('ujianppi.arsip.preview') }}" enctype="multipart/form-data" class="space-y-4">
                         @csrf
