@@ -103,6 +103,80 @@ TXT;
     ];
 
     /**
+     * Struktur aspek penilaian default (§6 Data Default — docs/UJIAN-PPI-PLAN.md).
+     * [kode, nama, penguji_urutan, urutan, [items]]
+     */
+    public const DEFAULT_ASPECTS = [
+        ['1', 'Wudhu', 1, 1, ['Niat Wudhu', 'Praktik Wudhu', "Do'a Sesudah Wudhu", 'Niat Tayamum']],
+        ['2', 'Praktik Shalat', 1, 2, [
+            'Lafaz azan', 'Lafaz iqamah', "Do'a sesudah azan", "Do'a sesudah iqamah",
+            'Niat shalat subuh', 'Niat shalat zuhur', 'Niat shalat asar', 'Niat shalat magrib', 'Niat shalat isya',
+            "Do'a iftitah", 'Al-fatihah', "Bacaan ruku'", "Bacaan i'tidal", "Do'a Qunut",
+            'Bacaan sujud', 'Bacaan duduk antara 2 sujud', 'Bacaan tahiyat awal', 'Bacaan tahiyat akhir',
+            'Salam', "Do'a sebelum salam", 'Wirid / Dzikir Pendek bada shalat', "Do'a selamat",
+        ]],
+        ['3', "Tilawatil Qur'an", 2, 3, ['Makhorijul huruf', 'Hukum Bacaan', 'Kelancaran']],
+        ['4', 'Shalat Jenazah', 2, 4, [
+            'Niat salat Jenazah untuk laki-laki Dewasa', 'Niat salat Jenazah untuk Perempuan Dewasa',
+            'Niat Salat Jenazah untuk Anak laki-laki', 'Niat Salat Jenazah Untuk Anak Perempuan',
+            'Bacaan Takbir Pertama', 'Bacaan Takbir Kedua', 'Bacaan Takbir Ketiga', 'Bacaan Takbir Keempat',
+        ]],
+        ['5', 'Hafalan Hadis', 2, 5, ['Hadis tentang amal Shaleh', 'Hadis tentang keutamaan memberi']],
+        ['6', "Do'a-Do'a Harian", 3, 6, [
+            "Do'a Senandung Al-Qur'an", "Do'a mau Belajar", "Do'a Mau makan", "Do'a sesudah makan",
+            "Do'a masuk WC", "Do'a keluar WC", "Do'a Masuk rumah", "Do'a Keluar rumah",
+            "Do'a Mau tidur", "Do'a bangun tidur", "Do'a masuk mesjid", "Do'a Keluar mesjid",
+            "Do'a untuk Kedua Orang Tua", 'Niat Puasa Ramadhan', "Do'a Berbuka Puasa", "Do'a bercermin",
+            "Do'a Naik Kendaraan Darat", "Do'a Naik Kendaraan Air",
+        ]],
+        ['7', 'Pengetahuan Agama', 3, 7, ['Rukun islam', 'Rukun iman', 'Rukun wudhu', 'Rukun shalat', 'Shalat Sunnah']],
+    ];
+
+    /**
+     * Materi setoran hafalan default (§6 Data Default — docs/UJIAN-PPI-PLAN.md).
+     */
+    public const DEFAULT_HAFALAN = [
+        'Yaasin', "Al-Waqi'ah", 'Ad-Dhuha', 'Al-Insyirah', 'At-Tiin', 'Al-`Alaq', 'Al-Qadar', 'Al-Bayyinah',
+        'Al-Zalzalah', 'Al-`Adiyat', "Al-Qari'ah", 'At-Takasur', 'Al-`Ashr', 'Al-Humazah', 'Al-Fiil',
+        'Al-Quraisy', 'Al-Ma`un', 'Al-Kausar', 'Al-Kafirun', 'An-Nasr', 'Al-Lahab', 'Al-Ikhlas', 'Al-Falaq', 'An-Naas',
+    ];
+
+    /**
+     * Isi struktur aspek & materi default ke periode baru.
+     * Idempotent — tidak duplikat jika data sudah ada.
+     */
+    public function seedDefaults(PpiExamPeriod $period): void
+    {
+        if ($period->categories()->exists() || $period->hafalanMateri()->exists()) {
+            return;
+        }
+
+        foreach (self::DEFAULT_ASPECTS as [$kode, $nama, $penguji, $urutan, $items]) {
+            $category = $period->categories()->create([
+                'kode' => $kode,
+                'nama' => $nama,
+                'penguji_urutan' => $penguji,
+                'urutan' => $urutan,
+            ]);
+
+            foreach ($items as $i => $itemName) {
+                $category->aspects()->create([
+                    'kode' => (string) ($i + 1),
+                    'nama' => $itemName,
+                    'urutan' => $i + 1,
+                ]);
+            }
+        }
+
+        foreach (self::DEFAULT_HAFALAN as $i => $nama) {
+            $period->hafalanMateri()->create([
+                'nama' => $nama,
+                'urutan' => $i + 1,
+            ]);
+        }
+    }
+
+    /**
      * Employee milik user yang sedang login (akun guru dari Data Guru/Kepegawaian).
      */
     public function employeeOfUser(User $user): ?Employee

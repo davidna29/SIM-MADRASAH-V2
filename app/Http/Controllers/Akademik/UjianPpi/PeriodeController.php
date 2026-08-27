@@ -63,6 +63,9 @@ class PeriodeController extends Controller
             'teks_ba' => PpiExamService::DEFAULT_TEKS_BA,
         ]);
 
+        // Isi struktur aspek & materi default (§6 Data Default)
+        $this->service->seedDefaults($period);
+
         activity('akademik')
             ->performedOn($period)
             ->withProperties(['judul' => $period->judul])
