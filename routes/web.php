@@ -8,6 +8,12 @@ use App\Http\Controllers\Akademik\ScheduleCellController;
 use App\Http\Controllers\Akademik\ScheduleModelController;
 use App\Http\Controllers\Akademik\StudentController;
 use App\Http\Controllers\Akademik\SubjectController;
+use App\Http\Controllers\Akademik\UjianPpi\ArsipController;
+use App\Http\Controllers\Akademik\UjianPpi\GuruPpiController;
+use App\Http\Controllers\Akademik\UjianPpi\KonfigurasiController;
+use App\Http\Controllers\Akademik\UjianPpi\PeriodeController;
+use App\Http\Controllers\Akademik\UjianPpi\PersiapanController;
+use App\Http\Controllers\Akademik\UjianPpi\RekapController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Cms\AgendaController;
 use App\Http\Controllers\Cms\ArticleController;
@@ -195,6 +201,81 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:super_admin|wakamad_kurikulum')->group(function () {
         Route::post('/akademik/kelas/{classGroup}/wali-kelas', [HomeroomController::class, 'store'])->name('kelas.wali.store');
         Route::delete('/akademik/kelas/{classGroup}/wali-kelas/{homeroom}', [HomeroomController::class, 'destroy'])->name('kelas.wali.destroy');
+    });
+
+    // Ujian PPI Kelas VI (Munaqasah) — setup & konfigurasi (admin / wakamad kurikulum)
+    Route::middleware('role:super_admin|wakamad_kurikulum')->prefix('akademik/ujian-ppi')->name('ujianppi.')->group(function () {
+        Route::get('/periode', [PeriodeController::class, 'index'])->name('periode.index');
+        Route::post('/periode', [PeriodeController::class, 'store'])->name('periode.store');
+        Route::get('/periode/{periode}', [PeriodeController::class, 'show'])->name('periode.show');
+        Route::put('/periode/{periode}', [PeriodeController::class, 'update'])->name('periode.update');
+        Route::delete('/periode/{periode}', [PeriodeController::class, 'destroy'])->name('periode.destroy');
+        Route::post('/periode/{periode}/status', [PeriodeController::class, 'status'])->name('periode.status');
+        Route::post('/periode/{periode}/salin-skala', [PeriodeController::class, 'copyScales'])->name('periode.salin-skala');
+        Route::post('/periode/{periode}/kunci', [PeriodeController::class, 'kunci'])->name('periode.kunci');
+        Route::post('/periode/{periode}/buka-kunci', [PeriodeController::class, 'bukaKunci'])->name('periode.buka-kunci');
+
+        Route::get('/periode/{periode}/skala', [KonfigurasiController::class, 'skala'])->name('konfigurasi.skala');
+        Route::post('/periode/{periode}/skala', [KonfigurasiController::class, 'skalaStore'])->name('konfigurasi.skala.store');
+        Route::put('/periode/{periode}/skala/{scale}', [KonfigurasiController::class, 'skalaUpdate'])->name('konfigurasi.skala.update');
+        Route::delete('/periode/{periode}/skala/{scale}', [KonfigurasiController::class, 'skalaDestroy'])->name('konfigurasi.skala.destroy');
+
+        Route::get('/periode/{periode}/bobot', [KonfigurasiController::class, 'bobot'])->name('konfigurasi.bobot');
+        Route::put('/periode/{periode}/bobot', [KonfigurasiController::class, 'bobotUpdate'])->name('konfigurasi.bobot.update');
+
+        Route::get('/periode/{periode}/aspek', [KonfigurasiController::class, 'aspek'])->name('konfigurasi.aspek');
+        Route::post('/periode/{periode}/aspek', [KonfigurasiController::class, 'aspekStore'])->name('konfigurasi.aspek.store');
+        Route::put('/periode/{periode}/aspek/{category}', [KonfigurasiController::class, 'aspekUpdate'])->name('konfigurasi.aspek.update');
+        Route::delete('/periode/{periode}/aspek/{category}', [KonfigurasiController::class, 'aspekDestroy'])->name('konfigurasi.aspek.destroy');
+        Route::post('/periode/{periode}/aspek/{category}/item', [KonfigurasiController::class, 'aspekItemStore'])->name('konfigurasi.aspek.item.store');
+        Route::put('/periode/{periode}/aspek/{category}/item/{aspect}', [KonfigurasiController::class, 'aspekItemUpdate'])->name('konfigurasi.aspek.item.update');
+        Route::delete('/periode/{periode}/aspek/{category}/item/{aspect}', [KonfigurasiController::class, 'aspekItemDestroy'])->name('konfigurasi.aspek.item.destroy');
+
+        Route::get('/periode/{periode}/hafalan', [KonfigurasiController::class, 'hafalan'])->name('konfigurasi.hafalan');
+        Route::post('/periode/{periode}/hafalan', [KonfigurasiController::class, 'hafalanStore'])->name('konfigurasi.hafalan.store');
+        Route::put('/periode/{periode}/hafalan/{materi}', [KonfigurasiController::class, 'hafalanUpdate'])->name('konfigurasi.hafalan.update');
+        Route::delete('/periode/{periode}/hafalan/{materi}', [KonfigurasiController::class, 'hafalanDestroy'])->name('konfigurasi.hafalan.destroy');
+
+        Route::get('/periode/{periode}/ruang', [PersiapanController::class, 'ruang'])->name('persiapan.ruang');
+        Route::post('/periode/{periode}/ruang', [PersiapanController::class, 'ruangStore'])->name('persiapan.ruang.store');
+        Route::put('/periode/{periode}/ruang/{room}', [PersiapanController::class, 'ruangUpdate'])->name('persiapan.ruang.update');
+        Route::delete('/periode/{periode}/ruang/{room}', [PersiapanController::class, 'ruangDestroy'])->name('persiapan.ruang.destroy');
+
+        Route::get('/periode/{periode}/grup', [PersiapanController::class, 'grup'])->name('persiapan.grup');
+        Route::post('/periode/{periode}/grup', [PersiapanController::class, 'grupStore'])->name('persiapan.grup.store');
+        Route::put('/periode/{periode}/grup/{group}', [PersiapanController::class, 'grupUpdate'])->name('persiapan.grup.update');
+        Route::delete('/periode/{periode}/grup/{group}', [PersiapanController::class, 'grupDestroy'])->name('persiapan.grup.destroy');
+
+        Route::get('/periode/{periode}/peserta', [PersiapanController::class, 'peserta'])->name('persiapan.peserta');
+        Route::post('/periode/{periode}/peserta', [PersiapanController::class, 'pesertaAssign'])->name('persiapan.peserta.assign');
+        Route::put('/periode/{periode}/peserta/{peserta}', [PersiapanController::class, 'pesertaUpdate'])->name('persiapan.peserta.update');
+        Route::delete('/periode/{periode}/peserta/{peserta}', [PersiapanController::class, 'pesertaDestroy'])->name('persiapan.peserta.destroy');
+
+        Route::get('/arsip', [ArsipController::class, 'index'])->name('arsip.index');
+        Route::get('/arsip/template', [ArsipController::class, 'template'])->name('arsip.template');
+        Route::post('/arsip/preview', [ArsipController::class, 'preview'])->name('arsip.preview');
+        Route::get('/arsip/preview', [ArsipController::class, 'previewShow'])->name('arsip.previewShow');
+        Route::post('/arsip/simpan', [ArsipController::class, 'simpan'])->name('arsip.simpan');
+        Route::post('/arsip/batal', [ArsipController::class, 'batal'])->name('arsip.batal');
+    });
+
+    // Ujian PPI — Rekap Kelas VI (admin/wakamad edit; kepala read-only)
+    Route::middleware('role:super_admin|wakamad_kurikulum|kepala_madrasah')->prefix('akademik/ujian-ppi')->name('ujianppi.')->group(function () {
+        Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');
+        Route::get('/rekap/{periode}/pdf', [RekapController::class, 'pdf'])->name('rekap.pdf');
+        Route::get('/rekap/{periode}/excel', [RekapController::class, 'excel'])->name('rekap.excel');
+        Route::post('/rekap/{periode}/peserta/{peserta}/koreksi', [RekapController::class, 'koreksi'])->name('rekap.koreksi');
+    });
+
+    // Ujian PPI — input nilai guru (penguji & pembimbing) + dokumen
+    Route::middleware('role:super_admin|wakamad_kurikulum|guru')->prefix('akademik/ujian-ppi')->name('ujianppi.')->group(function () {
+        Route::get('/mulai', [GuruPpiController::class, 'index'])->name('guru.index');
+        Route::get('/{periode}/ujian', [GuruPpiController::class, 'ujian'])->name('guru.ujian');
+        Route::post('/{periode}/ujian/{peserta}', [GuruPpiController::class, 'ujianStore'])->name('guru.ujian.store');
+        Route::get('/{periode}/setoran', [GuruPpiController::class, 'setoran'])->name('guru.setoran');
+        Route::post('/{periode}/setoran/{peserta}', [GuruPpiController::class, 'setoranStore'])->name('guru.setoran.store');
+        Route::get('/{periode}/teks/{peserta}', [GuruPpiController::class, 'teks'])->name('guru.teks');
+        Route::get('/{periode}/teks/{peserta}/pdf', [GuruPpiController::class, 'teksPdf'])->name('guru.teks.pdf');
     });
 
     // CMS — Berita & Agenda (kontributor guru + editor/humas/kepala/TU/super admin)

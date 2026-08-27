@@ -56,6 +56,17 @@ return [
                 ],
             ],
             ['label' => 'Rapor', 'route' => 'dashboard', 'icon' => 'document-text', 'roles' => ['super_admin', 'wakamad_kurikulum', 'wali_kelas', 'kepala_madrasah'], 'placeholder' => true],
+            [
+                'label' => 'Ujian PPI',
+                'icon' => 'clipboard-document-check',
+                'roles' => ['super_admin', 'wakamad_kurikulum', 'guru', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Periode Ujian', 'route' => 'ujianppi.periode.index', 'icon' => 'calendar-days', 'roles' => ['super_admin', 'wakamad_kurikulum']],
+                    ['label' => 'Beranda Guru Ujian', 'route' => 'ujianppi.guru.index', 'icon' => 'pencil-square', 'roles' => ['super_admin', 'wakamad_kurikulum', 'guru']],
+                    ['label' => 'Rekap Kelas VI', 'route' => 'ujianppi.rekap.index', 'icon' => 'table-cells', 'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah']],
+                    ['label' => 'Arsip', 'route' => 'ujianppi.arsip.index', 'icon' => 'archive-box', 'roles' => ['super_admin', 'wakamad_kurikulum']],
+                ],
+            ],
         ],
     ],
     [
