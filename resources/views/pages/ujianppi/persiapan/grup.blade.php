@@ -29,7 +29,6 @@
                 @endif
             </div>
         </div>
-        </div>
 
         @if (session('status'))
             <div class="mt-6"><x-ui.alert variant="success" dismissible>{{ session('status') }}</x-ui.alert></div>
