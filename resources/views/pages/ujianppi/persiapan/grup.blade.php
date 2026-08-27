@@ -65,7 +65,7 @@
                 @endphp
                 <x-ui.sheet :title="$group->nama" :subtitle="'Pembimbing: '.($group->pembimbing?->person?->name ?? '—').' · '.$memberCount.' siswa'" class="min-w-0">
                     @if ($editable)
-                        <form method="POST" action="{{ route('ujianppi.persiapan.grup.update', [$periode, $group]) }}" class="grid gap-3 sm:grid-cols-2">
+                        <form method="POST" action="{{ route('ujianppi.persiapan.grup.update', [$periode, $group]) }}" class="space-y-3">
                             @csrf
                             @method('PUT')
                             <div>
@@ -76,15 +76,13 @@
                                 <label class="block pb-1.5 text-xs font-bold text-ink">Pembimbing</label>
                                 <x-ui.select name="pembimbing_employee_id" :options="$employees->pluck('person.name', 'id')" :selected="$group->pembimbing_employee_id" />
                             </div>
-                            <div class="sm:col-span-2 flex flex-wrap items-center gap-2">
-                                <x-ui.button type="submit" variant="primary" size="sm" icon="check">Simpan</x-ui.button>
-                                <form method="POST" action="{{ route('ujianppi.persiapan.grup.destroy', [$periode, $group]) }}"
-                                    onsubmit="return confirm('Hapus grup {{ $group->nama }}?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <x-ui.button type="submit" variant="ghost" size="sm" icon="trash">Hapus</x-ui.button>
-                                </form>
-                            </div>
+                            <x-ui.button type="submit" variant="primary" size="sm" icon="check">Simpan</x-ui.button>
+                        </form>
+                        <form method="POST" action="{{ route('ujianppi.persiapan.grup.destroy', [$periode, $group]) }}"
+                            onsubmit="return confirm('Hapus grup {{ $group->nama }}?');" class="mt-3">
+                            @csrf
+                            @method('DELETE')
+                            <x-ui.button type="submit" variant="ghost" size="sm" icon="trash">Hapus</x-ui.button>
                         </form>
                     @else
                         <div class="flex flex-wrap gap-1.5">
