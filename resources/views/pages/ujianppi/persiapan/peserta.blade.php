@@ -18,6 +18,8 @@
                     1 grup setoran (dobel tidak boleh). No urut default abjad nama, bisa diatur ulang sebelum periode dikunci.
                 </p>
             </div>
+            <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.show', $periode) }}">Kembali</x-ui.button>
+        </div>
         </div>
 
         @if (session('status'))

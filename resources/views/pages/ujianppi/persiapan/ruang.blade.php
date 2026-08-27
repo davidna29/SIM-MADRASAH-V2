@@ -18,6 +18,8 @@
                     ter-assign di ruang lain disembunyikan dari pilihan.
                 </p>
             </div>
+            <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.show', $periode) }}">Kembali</x-ui.button>
+        </div>
         </div>
 
         @if (session('status'))

@@ -18,6 +18,8 @@
                     Rumus: <code class="rounded bg-paper-deep px-1.5 py-0.5 text-xs">nilai_akhir = Σ(rata komponen × bobot / 100)</code>.
                 </p>
             </div>
+            <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.show', $periode) }}">Kembali</x-ui.button>
+        </div>
         </div>
 
         @if (session('status'))

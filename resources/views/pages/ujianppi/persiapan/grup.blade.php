@@ -18,6 +18,8 @@
                     Ideal 7–15 siswa per grup dengan <b>1 guru pembimbing</b>.
                 </p>
             </div>
+            <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.show', $periode) }}">Kembali</x-ui.button>
+        </div>
         </div>
 
         @if (session('status'))

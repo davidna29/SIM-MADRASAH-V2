@@ -17,6 +17,8 @@
                     Daftar surah Fase 1 (Juz 30, Yasin, Al-Waqiah). Guru pembimbing menilai per surah per siswa.
                 </p>
             </div>
+            <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.show', $periode) }}">Kembali</x-ui.button>
+        </div>
         </div>
 
         @if (session('status'))

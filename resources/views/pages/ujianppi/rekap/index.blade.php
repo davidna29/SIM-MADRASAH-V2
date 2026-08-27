@@ -17,6 +17,8 @@
                     mengoreksi nilai langsung (alasan wajib, tercatat di audit log).
                 </p>
             </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.index') }}">Kembali</x-ui.button>
             @if ($activePeriod)
                 @php
                     $params = [

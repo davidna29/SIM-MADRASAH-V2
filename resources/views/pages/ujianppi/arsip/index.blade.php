@@ -17,7 +17,10 @@
                     untuk rekap historis. Kolom nilai per-aspek boleh kosong; minimal nilai akhir/predikat/lulus.
                 </p>
             </div>
-            <x-ui.button variant="secondary" size="sm" icon="arrow-down-tray" href="{{ route('ujianppi.arsip.template') }}">Unduh Template Excel</x-ui.button>
+            <div class="flex flex-wrap items-center gap-2">
+                <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.index') }}">Kembali</x-ui.button>
+                <x-ui.button variant="secondary" size="sm" icon="arrow-down-tray" href="{{ route('ujianppi.arsip.template') }}">Unduh Template Excel</x-ui.button>
+            </div>
         </div>
 
         @if (session('status'))
