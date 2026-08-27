@@ -60,9 +60,9 @@
                                     @endif
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-rule/70">
+                            <tbody x-data="{ editing: null }" class="divide-y divide-rule/70">
                                 @forelse ($scales as $scale)
-                                    <tr x-data="{ edit: false }" class="transition hover:bg-paper/60">
+                                    <tr class="transition hover:bg-paper/60">
                                         <td class="px-4 py-3 tabular font-mono text-xs font-semibold text-ink-faint">{{ $scale->urutan }}</td>
                                         <td class="px-4 py-3">
                                             <span class="inline-flex items-center rounded-full bg-paper-deep px-2.5 py-0.5 text-xs font-bold text-ink ring-1 ring-inset ring-rule-strong">{{ $scale->predikat }}</span>
@@ -79,7 +79,7 @@
                                         @if ($editable)
                                             <td class="px-4 py-3 text-right">
                                                 <div class="flex justify-end gap-2">
-                                                    <x-ui.button variant="ghost" size="sm" @click="edit = !edit" x-text="edit ? 'Batal' : 'Ubah'"></x-ui.button>
+                                                    <x-ui.button variant="ghost" size="sm" @click="editing = editing === {{ $scale->id }} ? null : {{ $scale->id }}" x-text="editing === {{ $scale->id }} ? 'Tutup' : 'Ubah'"></x-ui.button>
                                                     <form method="POST" action="{{ route('ujianppi.konfigurasi.skala.destroy', [$periode, $scale]) }}"
                                                         onsubmit="return confirm('Hapus skala {{ $scale->predikat }}?');">
                                                         @csrf
@@ -89,9 +89,10 @@
                                                 </div>
                                             </td>
                                         @endif
-
-                                        @if ($editable)
-                                            <td colspan="6" x-show="edit" x-cloak class="bg-paper/60 px-4 py-4">
+                                    </tr>
+                                    @if ($editable)
+                                        <tr x-show="editing === {{ $scale->id }}" x-cloak class="bg-paper/60">
+                                            <td colspan="6" class="px-4 py-4">
                                                 <form method="POST" action="{{ route('ujianppi.konfigurasi.skala.update', [$periode, $scale]) }}" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
                                                     @csrf
                                                     @method('PUT')
@@ -125,8 +126,8 @@
                                                     </div>
                                                 </form>
                                             </td>
-                                        @endif
-                                    </tr>
+                                        </tr>
+                                    @endif
                                 @empty
                                     <tr>
                                         <td colspan="6" class="px-4 py-10 text-center text-ink-faint">Belum ada skala predikat.</td>
