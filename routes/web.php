@@ -82,13 +82,15 @@ Route::middleware('auth')->group(function () {
         Route::delete('/akademik/data-siswa/{student}', [StudentController::class, 'destroy'])->name('siswa.destroy');
 
         // Modul Data Guru & Pegawai — backend (Tahap 13)
-        Route::get('/kepegawaian/data-guru', [EmployeeController::class, 'index'])->name('pegawai.index');
-        Route::get('/kepegawaian/data-guru/tambah', [EmployeeController::class, 'create'])->name('pegawai.create');
-        Route::post('/kepegawaian/data-guru', [EmployeeController::class, 'store'])->name('pegawai.store');
-        Route::get('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'show'])->name('pegawai.show');
-        Route::get('/kepegawaian/data-guru/{employee}/edit', [EmployeeController::class, 'edit'])->name('pegawai.edit');
-        Route::put('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'update'])->name('pegawai.update');
-        Route::delete('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'destroy'])->name('pegawai.destroy');
+        Route::middleware('role:super_admin|tata_usaha|kepala_madrasah')->group(function () {
+            Route::get('/kepegawaian/data-guru', [EmployeeController::class, 'index'])->name('pegawai.index');
+            Route::get('/kepegawaian/data-guru/tambah', [EmployeeController::class, 'create'])->name('pegawai.create');
+            Route::post('/kepegawaian/data-guru', [EmployeeController::class, 'store'])->name('pegawai.store');
+            Route::get('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'show'])->name('pegawai.show');
+            Route::get('/kepegawaian/data-guru/{employee}/edit', [EmployeeController::class, 'edit'])->name('pegawai.edit');
+            Route::put('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'update'])->name('pegawai.update');
+            Route::delete('/kepegawaian/data-guru/{employee}', [EmployeeController::class, 'destroy'])->name('pegawai.destroy');
+        });
 
         // Modul Mata Pelajaran
         Route::get('/akademik/mata-pelajaran', [SubjectController::class, 'index'])->name('mapel.index');
