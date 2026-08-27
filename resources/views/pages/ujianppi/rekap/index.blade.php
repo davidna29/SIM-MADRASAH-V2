@@ -100,8 +100,7 @@
                     <thead>
                         <tr class="border-b-2 border-rule-strong bg-paper/50">
                             <th scope="col" class="sticky left-0 z-10 bg-paper px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-ink-soft">No</th>
-                            <th scope="col" class="sticky left-10 z-10 bg-paper px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-ink-soft">NISN</th>
-                            <th scope="col" class="sticky left-28 z-10 bg-paper px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-ink-soft">Nama</th>
+                            <th scope="col" class="sticky left-10 z-10 bg-paper px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-ink-soft w-56">NISN & Nama</th>
                             <th scope="col" class="px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-wider text-ink-soft">Ruang</th>
                             @foreach ($data['categories'] as $category)
                                 <th scope="col" colspan="{{ $category->aspects->count() }}" class="border-l border-rule/60 bg-primary-soft/40 px-3 py-2.5 text-center text-[10px] font-bold uppercase tracking-wider text-primary-strong">
@@ -153,10 +152,9 @@
                         @forelse ($data['participants'] as $p)
                             <tr class="transition hover:bg-paper/60">
                                 <td class="sticky left-0 bg-sheet px-3 py-2 tabular font-mono font-semibold text-ink-faint">{{ $p->no_urut }}</td>
-                                <td class="sticky left-10 bg-sheet px-3 py-2 tabular text-ink-soft">{{ $p->student ? $service->nisnOf($p->student) : '—' }}</td>
-                                <td class="sticky left-28 bg-sheet px-3 py-2">
-                                    <span class="font-semibold text-ink">{{ $p->student?->name }}</span>
-                                    <span class="block text-[10px] text-ink-faint">{{ $p->student?->nis }}</span>
+                                <td class="sticky left-10 bg-sheet px-3 py-2 w-56">
+                                    <span class="block truncate font-semibold text-ink">{{ $p->student?->name }}</span>
+                                    <span class="block text-[10px] text-ink-faint">{{ $p->student ? $service->nisnOf($p->student) : '—' }} · {{ $p->student?->nis }}</span>
                                 </td>
                                 <td class="px-3 py-2 text-ink-soft">{{ $p->room?->nama }}</td>
 
