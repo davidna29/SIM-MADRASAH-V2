@@ -410,7 +410,7 @@ TXT;
             'TAHUN_AJARAN' => (string) ($period->academicYear?->name ?? ''),
             'HARI' => self::DAYS_ID[$now->dayOfWeekIso] ?? '',
             'TANGGAL' => $now->translatedFormat('d-m-Y'),
-            'JAM' => Setting::get('ppi_ujian_jam', '08.00'),
+            'JAM' => $now->format('H.i'),
             'KOTA' => Setting::get('madrasah_kabupaten', '—'),
             'NAMA_SISWA' => $participant->student?->name ?? '—',
             'NAMA_AYAH' => $participant->student ? $this->fatherName($participant->student) : '—',
