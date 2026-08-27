@@ -240,11 +240,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/periode/{periode}/ruang', [PersiapanController::class, 'ruangStore'])->name('persiapan.ruang.store');
         Route::put('/periode/{periode}/ruang/{room}', [PersiapanController::class, 'ruangUpdate'])->name('persiapan.ruang.update');
         Route::delete('/periode/{periode}/ruang/{room}', [PersiapanController::class, 'ruangDestroy'])->name('persiapan.ruang.destroy');
+        Route::post('/periode/{periode}/ruang/copy', [PersiapanController::class, 'copyRooms'])->name('persiapan.ruang.copy');
 
         Route::get('/periode/{periode}/grup', [PersiapanController::class, 'grup'])->name('persiapan.grup');
         Route::post('/periode/{periode}/grup', [PersiapanController::class, 'grupStore'])->name('persiapan.grup.store');
         Route::put('/periode/{periode}/grup/{group}', [PersiapanController::class, 'grupUpdate'])->name('persiapan.grup.update');
         Route::delete('/periode/{periode}/grup/{group}', [PersiapanController::class, 'grupDestroy'])->name('persiapan.grup.destroy');
+        Route::post('/periode/{periode}/grup/copy', [PersiapanController::class, 'copyGroups'])->name('persiapan.grup.copy');
 
         Route::get('/periode/{periode}/peserta', [PersiapanController::class, 'peserta'])->name('persiapan.peserta');
         Route::post('/periode/{periode}/peserta', [PersiapanController::class, 'pesertaAssign'])->name('persiapan.peserta.assign');

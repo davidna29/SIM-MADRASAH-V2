@@ -18,7 +18,16 @@
                     ter-assign di ruang lain disembunyikan dari pilihan.
                 </p>
             </div>
-            <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.show', $periode) }}">Kembali</x-ui.button>
+            <div class="flex flex-wrap items-center gap-2">
+                <x-ui.button variant="secondary" size="sm" icon="arrow-left" href="{{ route('ujianppi.periode.show', $periode) }}">Kembali</x-ui.button>
+                @if ($editable)
+                    <form method="POST" action="{{ route('ujianppi.persiapan.ruang.copy', $periode) }}" class="inline"
+                        onsubmit="return confirm('Salin ruang & penguji dari periode sebelumnya? Data saat ini tidak ditimpa.');">
+                        @csrf
+                        <x-ui.button type="submit" variant="secondary" size="sm" icon="document-duplicate">Salin dari Periode Sebelumnya</x-ui.button>
+                    </form>
+                @endif
+            </div>
         </div>
         </div>
 

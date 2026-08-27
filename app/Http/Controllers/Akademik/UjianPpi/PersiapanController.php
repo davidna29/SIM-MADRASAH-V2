@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Akademik\UjianPpi;
 
 use App\Http\Controllers\Controller;
+use App\Models\PpiExamExaminer;
 use App\Models\PpiExamGroup;
 use App\Models\PpiExamParticipant;
 use App\Models\PpiExamPeriod;
@@ -295,6 +296,81 @@ class PersiapanController extends Controller
         activity('akademik')->performedOn($periode)->withProperties(['nama' => $nama])->log('ujian_ppi_peserta_dilepas');
 
         return redirect()->route('ujianppi.persiapan.peserta', $periode)->with('status', "{$nama} dilepas dari periode ini.");
+    }
+
+    // ============ Salin dari Periode Sebelumnya ============
+
+    public function copyRooms(PpiExamPeriod $periode): RedirectResponse
+    {
+        $this->authorize('manage', $periode);
+        $this->service->assertConfigEditable($periode);
+
+        $source = PpiExamPeriod::where('id', '!=', $periode->id)
+            ->whereHas('rooms')
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $source) {
+            return back()->withErrors(['rooms' => 'Tidak ada periode sebelumnya dengan data ruang.']);
+        }
+
+        $copied = 0;
+
+        foreach ($source->rooms as $sourceRoom) {
+            $room = PpiExamRoom::firstOrCreate(
+                ['exam_period_id' => $periode->id, 'nama' => $sourceRoom->nama]
+            );
+
+            foreach ($sourceRoom->examiners()->with('employee')->get() as $sourceExaminer) {
+                PpiExamExaminer::updateOrCreate(
+                    ['exam_room_id' => $room->id, 'urutan' => $sourceExaminer->urutan],
+                    ['exam_period_id' => $periode->id, 'employee_id' => $sourceExaminer->employee_id]
+                );
+            }
+
+            $copied++;
+        }
+
+        activity('akademik')
+            ->performedOn($periode)
+            ->withProperties(['jumlah' => $copied, 'sumber' => $source->judul])
+            ->log('ujian_ppi_ruang_disalin');
+
+        return redirect()->route('ujianppi.persiapan.ruang', $periode)
+            ->with('status', "Ruang & penguji disalin dari \"{$source->judul}\" ({$copied} ruang).");
+    }
+
+    public function copyGroups(PpiExamPeriod $periode): RedirectResponse
+    {
+        $this->authorize('manage', $periode);
+        $this->service->assertConfigEditable($periode);
+
+        $source = PpiExamPeriod::where('id', '!=', $periode->id)
+            ->whereHas('groups')
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $source) {
+            return back()->withErrors(['groups' => 'Tidak ada periode sebelumnya dengan data grup.']);
+        }
+
+        $copied = 0;
+
+        foreach ($source->groups as $sourceGroup) {
+            PpiExamGroup::firstOrCreate(
+                ['exam_period_id' => $periode->id, 'nama' => $sourceGroup->nama],
+                ['pembimbing_employee_id' => $sourceGroup->pembimbing_employee_id]
+            );
+            $copied++;
+        }
+
+        activity('akademik')
+            ->performedOn($periode)
+            ->withProperties(['jumlah' => $copied, 'sumber' => $source->judul])
+            ->log('ujian_ppi_grup_disalin');
+
+        return redirect()->route('ujianppi.persiapan.grup', $periode)
+            ->with('status', "Grup & pembimbing disalin dari \"{$source->judul}\" ({$copied} grup).");
     }
 
     protected function editable(PpiExamPeriod $periode): bool
