@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             WalkingSkeletonSeeder::class,
             KepegawaianSeeder::class,
+            GuruMISeeder::class,
             AkademikSeeder::class,
             PenugasanSeeder::class,
             SiswaSeeder::class,
