@@ -23,6 +23,7 @@ use App\Http\Controllers\Fondasi\PengaturanController;
 use App\Http\Controllers\Fondasi\UserController;
 use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
+use App\Http\Controllers\Kepegawaian\EmployeeAttendanceController;
 use App\Http\Controllers\Kepegawaian\EmployeeController;
 use App\Http\Controllers\Kesiswaan\AchievementController;
 use App\Http\Controllers\Kesiswaan\CounselingController;
@@ -522,5 +523,13 @@ Route::middleware('auth')->group(function () {
         Route::put('/{letter}', [LetterController::class, 'update'])->name('update');
         Route::delete('/{letter}', [LetterController::class, 'destroy'])->name('destroy');
         Route::patch('/{letter}/disposisi', [LetterController::class, 'disposition'])->name('disposition');
+    });
+
+    // Kehadiran Guru & Pegawai — input harian oleh TU / Super Admin; kepala_madrasah read-only
+    Route::middleware('role:super_admin|tata_usaha|kepala_madrasah')->prefix('kepegawaian/kehadiran')->name('pegawai.kehadiran.')->group(function () {
+        Route::get('/', [EmployeeAttendanceController::class, 'index'])->name('index');
+        Route::post('/', [EmployeeAttendanceController::class, 'store'])->name('store');
+        Route::get('/rekap-bulanan', [EmployeeAttendanceController::class, 'rekapBulanan'])->name('rekap-bulanan');
+        Route::get('/rekap-tahunan', [EmployeeAttendanceController::class, 'rekapTahunan'])->name('rekap-tahunan');
     });
 });
