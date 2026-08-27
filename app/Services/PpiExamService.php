@@ -69,7 +69,9 @@ bin/binti {{NAMA_AYAH}}
 
 dengan Tim Penguji yang terdiri dari :
 
-{{PEMUDA_TABEL}}
+Penguji I  : {{NAMA_PENGUJI_1}}
+Penguji II : {{NAMA_PENGUJI_2}}
+Penguji III: {{NAMA_PENGUJI_3}}
 
 Dari hasil beberapa pertanyaan dari tim penguji ananda
 memperoleh sejumlah nilai sebagai berikut :
@@ -338,7 +340,6 @@ TXT;
             'KOTA' => Setting::get('madrasah_kabupaten', '—'),
             'NAMA_SISWA' => $participant->student?->name ?? '—',
             'NAMA_AYAH' => $participant->student ? $this->fatherName($participant->student) : '—',
-            'PEMUDA_TABEL' => $pengujiTable,
             'TANDA_TANGAN' => $pengujiTable,
             'NAMA_PENGUJI_1' => $nama(1),
             'NAMA_PENGUJI_2' => $nama(2),
