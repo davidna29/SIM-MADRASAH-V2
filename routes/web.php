@@ -46,6 +46,7 @@ use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Publik\GaleriController as PublikGaleriController;
 use App\Http\Controllers\Publik\PpdbController;
 use App\Http\Controllers\Sarpras\InventoryController;
+use App\Http\Controllers\Sarpras\RoomController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
 use App\Http\Controllers\Tu\LetterController;
 use Illuminate\Support\Facades\Route;
@@ -497,6 +498,20 @@ Route::middleware('auth')->group(function () {
         Route::post('/sarpras/inventaris/{item}/pemeliharaan', [InventoryController::class, 'maintenanceStore'])->name('inventaris.perawatan.store');
         Route::post('/sarpras/inventaris/{item}/pemeliharaan/{maintenance}/selesai', [InventoryController::class, 'maintenanceDone'])->name('inventaris.perawatan.selesai');
         Route::delete('/sarpras/inventaris/{item}/pemeliharaan/{maintenance}', [InventoryController::class, 'maintenanceDestroy'])->name('inventaris.perawatan.destroy');
+    });
+
+    // Ruangan & Laboratorium (Sarpras) — CRUD, kepala_madrasah read-only
+    Route::middleware('role:super_admin|wakamad_sarpras|tata_usaha|kepala_madrasah')->prefix('sarpras/ruangan')->name('ruangan.')->group(function () {
+        Route::get('/', [RoomController::class, 'index'])->name('index');
+
+        // Fixed routes SEBELUM wildcard {room}
+        Route::get('/tambah', [RoomController::class, 'create'])->name('create');
+        Route::post('/', [RoomController::class, 'store'])->name('store');
+
+        Route::get('/{room}', [RoomController::class, 'show'])->name('show');
+        Route::get('/{room}/edit', [RoomController::class, 'edit'])->name('edit');
+        Route::put('/{room}', [RoomController::class, 'update'])->name('update');
+        Route::delete('/{room}', [RoomController::class, 'destroy'])->name('destroy');
     });
 
     // SPP — rekap & pembayaran. Index boleh dilihat kepala_madrasah (read-only);

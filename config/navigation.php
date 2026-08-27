@@ -155,7 +155,15 @@ return [
                     ['label' => 'Kategori', 'route' => 'inventaris.kategori.index', 'icon' => 'tag', 'roles' => ['super_admin', 'wakamad_sarpras']],
                 ],
             ],
-            ['label' => 'Ruangan & Lab', 'route' => 'dashboard', 'icon' => 'building-library', 'roles' => ['super_admin', 'wakamad_sarpras'], 'placeholder' => true],
+            [
+                'label' => 'Ruangan & Lab',
+                'icon' => 'building-library',
+                'roles' => ['super_admin', 'wakamad_sarpras', 'tata_usaha', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Daftar Ruangan', 'route' => 'ruangan.index', 'icon' => 'building-library', 'roles' => ['super_admin', 'wakamad_sarpras', 'tata_usaha', 'kepala_madrasah']],
+                    ['label' => 'Laboratorium', 'route' => 'ruangan.index', 'routeParams' => ['type' => 'laboratorium'], 'icon' => 'beaker', 'roles' => ['super_admin', 'wakamad_sarpras', 'tata_usaha', 'kepala_madrasah']],
+                ],
+            ],
             [
                 'label' => 'Perpustakaan',
                 'icon' => 'book-open',
