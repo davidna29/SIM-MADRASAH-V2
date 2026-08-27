@@ -24,7 +24,16 @@ return [
         'items' => [
             ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home', 'roles' => ['super_admin', 'kepala_madrasah', 'wakamad_kurikulum', 'wakamad_kesiswaan', 'bendahara', 'tata_usaha']],
             ['label' => 'Pengguna & Role', 'route' => 'pengguna.index', 'icon' => 'user-group', 'roles' => ['super_admin']],
-            ['label' => 'Struktur Organisasi', 'route' => 'dashboard', 'icon' => 'building-library', 'roles' => ['super_admin'], 'placeholder' => true],
+            [
+                'label' => 'Struktur Organisasi',
+                'icon' => 'building-library',
+                'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Unit Kerja', 'route' => 'unit-kerja.index', 'icon' => 'building-library', 'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah']],
+                    ['label' => 'Jabatan', 'route' => 'jabatan.index', 'icon' => 'briefcase', 'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah']],
+                    ['label' => 'Struktur', 'route' => 'struktur.index', 'icon' => 'users', 'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah']],
+                ],
+            ],
             ['label' => 'Pengaturan Sistem', 'route' => 'pengaturan.index', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin']],
         ],
     ],

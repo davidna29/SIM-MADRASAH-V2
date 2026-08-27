@@ -19,7 +19,10 @@ use App\Http\Controllers\Cms\AgendaController;
 use App\Http\Controllers\Cms\ArticleController;
 use App\Http\Controllers\Cms\GalleryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Fondasi\JabatanController;
 use App\Http\Controllers\Fondasi\PengaturanController;
+use App\Http\Controllers\Fondasi\StrukturController;
+use App\Http\Controllers\Fondasi\UnitKerjaController;
 use App\Http\Controllers\Fondasi\UserController;
 use App\Http\Controllers\Guru\JurnalController as GuruJurnalController;
 use App\Http\Controllers\Guru\NilaiController;
@@ -161,6 +164,30 @@ Route::middleware('auth')->group(function () {
         // Pengaturan Sistem
         Route::get('/fondasi/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
         Route::put('/fondasi/pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
+    });
+
+    // Struktur Organisasi — super_admin kelola; wakamad_kurikulum & kepala lihat
+    Route::middleware('role:super_admin|wakamad_kurikulum|kepala_madrasah')->group(function () {
+        // Unit Kerja
+        Route::get('/fondasi/unit-kerja', [UnitKerjaController::class, 'index'])->name('unit-kerja.index');
+        Route::get('/fondasi/unit-kerja/tambah', [UnitKerjaController::class, 'create'])->name('unit-kerja.create');
+        Route::post('/fondasi/unit-kerja', [UnitKerjaController::class, 'store'])->name('unit-kerja.store');
+        Route::get('/fondasi/unit-kerja/{unit}', [UnitKerjaController::class, 'show'])->name('unit-kerja.show');
+        Route::get('/fondasi/unit-kerja/{unit}/edit', [UnitKerjaController::class, 'edit'])->name('unit-kerja.edit');
+        Route::put('/fondasi/unit-kerja/{unit}', [UnitKerjaController::class, 'update'])->name('unit-kerja.update');
+        Route::delete('/fondasi/unit-kerja/{unit}', [UnitKerjaController::class, 'destroy'])->name('unit-kerja.destroy');
+
+        // Jabatan
+        Route::get('/fondasi/jabatan', [JabatanController::class, 'index'])->name('jabatan.index');
+        Route::get('/fondasi/jabatan/tambah', [JabatanController::class, 'create'])->name('jabatan.create');
+        Route::post('/fondasi/jabatan', [JabatanController::class, 'store'])->name('jabatan.store');
+        Route::get('/fondasi/jabatan/{position}', [JabatanController::class, 'show'])->name('jabatan.show');
+        Route::get('/fondasi/jabatan/{position}/edit', [JabatanController::class, 'edit'])->name('jabatan.edit');
+        Route::put('/fondasi/jabatan/{position}', [JabatanController::class, 'update'])->name('jabatan.update');
+        Route::delete('/fondasi/jabatan/{position}', [JabatanController::class, 'destroy'])->name('jabatan.destroy');
+
+        // Struktur Organisasi (read-only)
+        Route::get('/fondasi/struktur', [StrukturController::class, 'index'])->name('struktur.index');
     });
 
     // PPDB Daring — admin (group multi-role, fixed routes BEFORE wildcard)
