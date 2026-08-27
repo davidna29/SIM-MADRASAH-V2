@@ -53,7 +53,9 @@
             </x-ui.sheet>
 
             <x-ui.sheet :title="'Berita Acara'" :subtitle="'Siap dibacakan — kolom TTD 3 penguji.'" class="min-w-0">
-                <pre class="whitespace-pre-wrap break-words rounded-[var(--radius-control)] bg-paper p-4 font-serif text-sm leading-relaxed text-ink ring-1 ring-inset ring-rule/60">{{ $teks_ba }}</pre>
+                <div class="whitespace-pre-wrap break-words rounded-[var(--radius-control)] bg-paper p-4 font-serif text-sm leading-relaxed text-ink ring-1 ring-inset ring-rule/60">{{-- BA uses {!! !!} for HTML table --}}
+                    {!! $teks_ba !!}
+                </div>
                 <div class="mt-4">
                     <x-ui.button variant="secondary" size="sm" icon="printer" href="{{ route('ujianppi.guru.teks.pdf', [$periode, $peserta]) }}">Unduh PDF</x-ui.button>
                 </div>

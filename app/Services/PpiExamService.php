@@ -69,9 +69,7 @@ bin/binti {{NAMA_AYAH}}
 
 dengan Tim Penguji yang terdiri dari :
 
-Penguji I  : {{NAMA_PENGUJI_1}}
-Penguji II : {{NAMA_PENGUJI_2}}
-Penguji III: {{NAMA_PENGUJI_3}}
+{{PEMUDA_TABEL}}
 
 Dari hasil beberapa pertanyaan dari tim penguji ananda
 memperoleh sejumlah nilai sebagai berikut :
@@ -89,10 +87,7 @@ dan dengan deskripsi {{DESKRIPSI}}
 
 Di tetapkan di {{KOTA}} pada tanggal {{TANGGAL}}
 
-   Penguji I                Penguji II                Penguji III
-
-
-{{NAMA_PENGUJI_1}}        {{NAMA_PENGUJI_2}}        {{NAMA_PENGUJI_3}}
+{{TANDA_TANGAN}}
 TXT;
 
     public const DAYS_ID = [
@@ -326,6 +321,14 @@ TXT;
 
         $now = now(); // gunakan tanggal hari ini, bukan tanggal_ujian statis
 
+        // Tabel rapi untuk nama penguji (3 kolom fixed-width, kompatibel DomPDF)
+        $pengujiTable = '<table width="100%" style="margin-top:12px;border-collapse:collapse;text-align:center;font-size:12px;">'
+            .'<tr>'
+            .collect([[1, 'Penguji I'], [2, 'Penguji II'], [3, 'Penguji III']])
+                ->map(fn ($p) => '<td style="width:33%;padding:0 8px;"><strong>'.$p[1].'</strong><br><br><br><br><br><br><span style="border-top:1px solid #111;display:block;padding-top:4px;">'.$nama($p[0]).'</span></td>')
+                ->implode('')
+            .'</tr></table>';
+
         return [
             'NAMA_MADRASAH' => Setting::get('madrasah_name', 'MADRASAH IBTIDAIYAH'),
             'TAHUN_AJARAN' => (string) ($period->academicYear?->name ?? ''),
@@ -335,6 +338,8 @@ TXT;
             'KOTA' => Setting::get('madrasah_kabupaten', '—'),
             'NAMA_SISWA' => $participant->student?->name ?? '—',
             'NAMA_AYAH' => $participant->student ? $this->fatherName($participant->student) : '—',
+            'PEMUDA_TABEL' => $pengujiTable,
+            'TANDA_TANGAN' => $pengujiTable,
             'NAMA_PENGUJI_1' => $nama(1),
             'NAMA_PENGUJI_2' => $nama(2),
             'NAMA_PENGUJI_3' => $nama(3),

@@ -37,6 +37,6 @@
     <h1>Berita Acara</h1>
     <div class="subtitle">Asesmen Praktek Pengamalan Ibadah (PPI) Siswa Kelas VI</div>
 
-    <div class="body">{{ $teks_ba }}</div>
+    <div class="body" style="white-space:pre-wrap;font-size:12px;line-height:1.65;">{!! $teks_ba !!}</div>
 </body>
 </html>
