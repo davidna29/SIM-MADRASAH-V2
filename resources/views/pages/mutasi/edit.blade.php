@@ -1,15 +1,4 @@
-@php
-    $r = $registration;
-    $dokumenRows = [
-        'scanned_rekomendasi' => 'Surat Rekomendasi Madrasah (wajib)',
-        'scanned_rapor' => 'Rapor / Transkrip Nilai',
-        'scanned_kk' => 'Scan Kartu Keluarga',
-        'scanned_kk_wali' => 'Scan KK Wali (opsional)',
-        'scanned_akta' => 'Scan Akta Kelahiran',
-        'scanned_ijazah' => 'Scan Ijazah / SKL (opsional)',
-        'scanned_photo' => 'Pas Foto (opsional)',
-    ];
-@endphp
+@php $r = $registration; @endphp
 
 <x-layouts.page
     :title="'Edit Pendaftar Pindah — '.$r->registration_no"
@@ -376,12 +365,27 @@
             {{-- ══ G. Dokumen ══ --}}
             <x-ui.sheet title="G. Dokumen (Tautan Google Drive)" pinned ruled class="mb-5">
                 <div class="space-y-4">
-                    @foreach ($dokumenRows as $key => $label)
-                        <x-ui.field :label="$label" {{ $key === 'scanned_rekomendasi' ? 'required' : '' }} :error="$errors->first($key)">
-                            <x-ui.input type="url" name="{{ $key }}" :value="old($key, $r->{$key})" maxlength="500"
-                                {{ $key === 'scanned_rekomendasi' ? 'required' : '' }} />
-                        </x-ui.field>
-                    @endforeach
+                    <x-ui.field label="Surat Rekomendasi Madrasah (wajib)" required :error="$errors->first('scanned_rekomendasi')">
+                        <x-ui.input type="url" name="scanned_rekomendasi" :value="old('scanned_rekomendasi', $r->scanned_rekomendasi)" required maxlength="500" />
+                    </x-ui.field>
+                    <x-ui.field label="Rapor / Transkrip Nilai" :error="$errors->first('scanned_rapor')">
+                        <x-ui.input type="url" name="scanned_rapor" :value="old('scanned_rapor', $r->scanned_rapor)" maxlength="500" />
+                    </x-ui.field>
+                    <x-ui.field label="Kartu Keluarga" :error="$errors->first('scanned_kk')">
+                        <x-ui.input type="url" name="scanned_kk" :value="old('scanned_kk', $r->scanned_kk)" maxlength="500" />
+                    </x-ui.field>
+                    <x-ui.field label="Scan KK Wali (opsional)" :error="$errors->first('scanned_kk_wali')">
+                        <x-ui.input type="url" name="scanned_kk_wali" :value="old('scanned_kk_wali', $r->scanned_kk_wali)" maxlength="500" />
+                    </x-ui.field>
+                    <x-ui.field label="Scan Akta Kelahiran" :error="$errors->first('scanned_akta')">
+                        <x-ui.input type="url" name="scanned_akta" :value="old('scanned_akta', $r->scanned_akta)" maxlength="500" />
+                    </x-ui.field>
+                    <x-ui.field label="Scan Ijazah / SKL (opsional)" :error="$errors->first('scanned_ijazah')">
+                        <x-ui.input type="url" name="scanned_ijazah" :value="old('scanned_ijazah', $r->scanned_ijazah)" maxlength="500" />
+                    </x-ui.field>
+                    <x-ui.field label="Pas Foto (opsional)" :error="$errors->first('scanned_photo')">
+                        <x-ui.input type="url" name="scanned_photo" :value="old('scanned_photo', $r->scanned_photo)" maxlength="500" />
+                    </x-ui.field>
                 </div>
             </x-ui.sheet>
 
