@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -42,6 +43,16 @@ class Student extends Model
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
+    }
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
+    public function ppdbRegistration(): HasOne
+    {
+        return $this->hasOne(PpdbRegistration::class);
     }
 
     public function displayName(): string

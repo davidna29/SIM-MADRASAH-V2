@@ -118,7 +118,7 @@ class StudentController extends Controller
                 ['label' => 'Data Siswa', 'href' => route('siswa.index')],
                 ['label' => $student->displayName()],
             ],
-            'student' => $student->load(['person', 'enrollments.classGroup', 'guardians']),
+            'student' => $student->load(['person', 'enrollments.classGroup', 'guardians', 'profile', 'ppdbRegistration']),
             'tahun' => $tahun,
         ]);
     }

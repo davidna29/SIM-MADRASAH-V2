@@ -6,6 +6,7 @@ use App\Models\Guardian;
 use App\Models\Person;
 use App\Models\PpdbRegistration;
 use App\Models\Student;
+use App\Models\StudentProfile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -71,9 +72,12 @@ class PpdbService
                 'student_id' => $student->id,
             ]);
 
-            // 4. Enrollment created later when class is assigned (class_group_id NOT NULL)
+            // 4. Snapshot profil lengkap PPDB -> student (anti data loss)
+            StudentProfile::syncFromRegistration($student, $registration);
 
-            // 5. Update registration (tanpa NIS)
+            // 5. Enrollment created later when class is assigned (class_group_id NOT NULL)
+
+            // 6. Update registration (tanpa NIS)
             $registration->update([
                 'status' => 'accepted',
                 'student_id' => $student->id,
