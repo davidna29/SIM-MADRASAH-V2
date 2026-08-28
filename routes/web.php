@@ -36,6 +36,8 @@ use App\Http\Controllers\Kesiswaan\PortofolioController;
 use App\Http\Controllers\Kesiswaan\PpiController;
 use App\Http\Controllers\Kesiswaan\TahfidzController;
 use App\Http\Controllers\Keuangan\TuitionController;
+use App\Http\Controllers\Mutasi\AdminMutasiController;
+use App\Http\Controllers\Mutasi\MutasiSettingController;
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 use App\Http\Controllers\Ortu\SppController as OrtuSppController;
 use App\Http\Controllers\Pemeliharaan\ActivityLogController;
@@ -47,6 +49,7 @@ use App\Http\Controllers\Ppdb\PpdbSettingController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Publik\GaleriController as PublikGaleriController;
+use App\Http\Controllers\Publik\PindahanController;
 use App\Http\Controllers\Publik\PpdbController;
 use App\Http\Controllers\Sarpras\InventoryController;
 use App\Http\Controllers\Sarpras\RoomController;
@@ -68,6 +71,12 @@ Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb.form');
 Route::post('/ppdb', [PpdbController::class, 'store'])->name('ppdb.store');
 Route::get('/ppdb/sukses', [PpdbController::class, 'success'])->name('ppdb.success');
 Route::post('/ppdb/minat', [PpdbController::class, 'interestStore'])->name('ppdb.interest.store');
+
+// Siswa Pindah Masuk (Mutasi) — publik, tanpa auth
+Route::get('/pindahan', [PindahanController::class, 'index'])->name('pindahan.form');
+Route::post('/pindahan', [PindahanController::class, 'store'])->name('pindahan.store');
+Route::get('/pindahan/sukses', [PindahanController::class, 'success'])->name('pindahan.success');
+Route::post('/pindahan/minat', [PindahanController::class, 'interestStore'])->name('pindahan.interest.store');
 
 // ============================================================
 // Autentikasi
@@ -205,6 +214,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/ppdb/admin/{registration}', [AdminPpdbController::class, 'show'])->name('ppdb.show');
         Route::post('/ppdb/admin/{registration}/accept', [AdminPpdbController::class, 'accept'])->name('ppdb.accept');
         Route::post('/ppdb/admin/{registration}/reject', [AdminPpdbController::class, 'reject'])->name('ppdb.reject');
+    });
+
+    // Mutasi Masuk (Siswa Pindahan) — admin (fixed routes BEFORE wildcard)
+    Route::middleware('role:super_admin|tata_usaha|kepala_madrasah')->prefix('mutasi/admin')->name('mutasi.')->group(function () {
+        Route::get('/', [AdminMutasiController::class, 'index'])->name('index');
+
+        // Pengaturan — fixed routes BEFORE wildcard
+        Route::get('/pengaturan', [MutasiSettingController::class, 'index'])->name('settings');
+        Route::put('/pengaturan', [MutasiSettingController::class, 'update'])->name('settings.update');
+        Route::delete('/pengaturan/minat/{interest}', [MutasiSettingController::class, 'interestDestroy'])->name('settings.interest.destroy');
+
+        Route::get('/{registration}/edit', [AdminMutasiController::class, 'edit'])->name('edit');
+        Route::put('/{registration}', [AdminMutasiController::class, 'update'])->name('update');
+        Route::get('/{registration}', [AdminMutasiController::class, 'show'])->name('show');
+        Route::post('/{registration}/accept', [AdminMutasiController::class, 'accept'])->name('accept');
+        Route::post('/{registration}/reject', [AdminMutasiController::class, 'reject'])->name('reject');
     });
 
     // Pusat Laporan — multi-role

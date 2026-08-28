@@ -62,6 +62,21 @@ class SettingSeeder extends Seeder
             'ppdb_kontak_telepon' => '',
             'ppdb_jam_layanan' => 'Senin–Jumat, 08.00–14.00 WIB',
             'ppdb_faq' => '[]',
+
+            // Mutasi Masuk (Siswa Pindahan)
+            'mutasi_status' => 'closed',
+            'mutasi_tanggal_buka' => '',
+            'mutasi_tanggal_tutup' => '',
+            'mutasi_tanggal_pengumuman' => '',
+            'mutasi_tanggal_daftar_ulang' => '',
+            'mutasi_syarat' => "Surat Rekomendasi Madrasah dari madrasah asal untuk siswa bersangkutan\nSalinan Rapor / Transkrip Nilai\nKartu Keluarga (KK)\nAkta Kelahiran\nPas Foto (jika diminta)",
+            'mutasi_kuota' => '10',
+            'mutasi_kelas_tersedia' => "Kelas I-A\nKelas II-A\nKelas III-A",
+            'mutasi_biaya' => 'Gratis (tidak dipungut biaya pendaftaran)',
+            'mutasi_kontak_wa' => '',
+            'mutasi_kontak_telepon' => '',
+            'mutasi_jam_layanan' => 'Senin–Jumat, 08.00–14.00 WIB',
+            'mutasi_faq' => '[]',
         ];
 
         foreach ($defaults as $key => $value) {

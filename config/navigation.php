@@ -218,6 +218,15 @@ return [
                     ['label' => 'Pengaturan PPDB', 'route' => 'ppdb.settings', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
                 ],
             ],
+            [
+                'label' => 'Mutasi Masuk',
+                'icon' => 'arrow-right',
+                'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Pendaftar Pindah', 'route' => 'mutasi.index', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
+                    ['label' => 'Pengaturan Mutasi', 'route' => 'mutasi.settings', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
+                ],
+            ],
         ],
     ],
     [
