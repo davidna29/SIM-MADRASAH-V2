@@ -1,10 +1,10 @@
 <x-layouts.publik :title="'Mutasi Masuk - Pendaftaran Pindahan'">
     @php
         $stepFields = [
-            1 => ['name','nik','nisn','nis_asal','gender','religion','birth_place','birth_date','origin_school','origin_nsm','origin_npsn','origin_address','kelas_asal'],
-            2 => ['kelas_tujuan','alasan_pindah','tanggal_mutasi','address','province','city','district','village','rt','rw','postal_code','student_phone','student_email'],
-            3 => ['father_name','father_nik','father_job','father_phone','mother_name','mother_nik','mother_job','mother_phone','guardian_name','guardian_nik','guardian_phone'],
-            4 => ['scanned_rekomendasi','scanned_rapor','scanned_kk','scanned_akta','scanned_photo'],
+            1 => ['name','nik','nisn','nis_asal','gender','religion','birth_place','birth_date','previous_school','child_order','sibling_count','ever_tk','ever_paud','origin_school','origin_nsm','origin_npsn','origin_address','kelas_asal'],
+            2 => ['kelas_tujuan','alasan_pindah','tanggal_mutasi','residence_type','address','province','city','district','village','rt','rw','postal_code','distance','transport','commute_time','home_phone','student_phone','student_email'],
+            3 => ['kk_number','kk_head_name','father_name','father_status','father_nik','father_education','father_job','father_phone','mother_name','mother_status','mother_nik','mother_education','mother_job','mother_income','mother_phone','guardian_name','guardian_nik','guardian_phone'],
+            4 => ['scanned_rekomendasi','scanned_rapor','scanned_kk','scanned_kk_wali','scanned_akta','scanned_ijazah','scanned_photo'],
         ];
         $firstErrorStep = 1;
         if ($errors->any()) {
@@ -95,6 +95,22 @@
                                 <x-ui.input type="date" name="birth_date" :value="old('birth_date')" />
                             </x-ui.field>
                         </div>
+                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                            <x-ui.field label="Asal Sekolah (sebelumnya)" :error="$errors->first('previous_school')">
+                                <x-ui.input name="previous_school" :value="old('previous_school')" placeholder="TK/PAUD/sekolah sebelumnya" maxlength="100" />
+                            </x-ui.field>
+                            <x-ui.field label="Pernah Masuk TK/PAUD?" :error="$errors->first('ever_tk')">
+                                <x-ui.select name="ever_tk" :options="['PERNAH' => 'PERNAH', 'TIDAK' => 'TIDAK']" :selected="old('ever_tk')" placeholder="—" />
+                            </x-ui.field>
+                        </div>
+                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                            <x-ui.field label="Anak Ke-" :error="$errors->first('child_order')">
+                                <x-ui.input type="number" name="child_order" :value="old('child_order')" min="0" max="99" />
+                            </x-ui.field>
+                            <x-ui.field label="Jumlah Saudara" :error="$errors->first('sibling_count')">
+                                <x-ui.input type="number" name="sibling_count" :value="old('sibling_count')" min="0" max="99" />
+                            </x-ui.field>
+                        </div>
                         <p class="pt-2 text-xs font-bold uppercase tracking-wide text-ink-soft">Madrasah / Sekolah Asal</p>
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                             <x-ui.field label="Nama Madrasah / Sekolah Asal" required :error="$errors->first('origin_school')">
@@ -167,6 +183,26 @@
                             <x-ui.field label="Nomor HP / WA" required :error="$errors->first('student_phone')">
                                 <x-ui.input name="student_phone" placeholder="08xxxxxxxxxx" :value="old('student_phone')" required maxlength="20" />
                             </x-ui.field>
+                            <x-ui.field label="Telepon Rumah" :error="$errors->first('home_phone')">
+                                <x-ui.input name="home_phone" :value="old('home_phone')" maxlength="20" />
+                            </x-ui.field>
+                            <x-ui.field label="Email Siswa" :error="$errors->first('student_email')">
+                                <x-ui.input type="email" name="student_email" :value="old('student_email')" maxlength="100" />
+                            </x-ui.field>
+                        </div>
+                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                            <x-ui.field label="Tinggal Bersama" :error="$errors->first('residence_type')">
+                                <x-ui.select name="residence_type" :options="['Tinggal dgn Ortu' => 'Tinggal dgn Ortu', 'Ikut Saudara' => 'Ikut Saudara', 'Asrama' => 'Asrama', 'Kontrak' => 'Kontrak/Kost', 'Lainnya' => 'Lainnya']" :selected="old('residence_type')" />
+                            </x-ui.field>
+                            <x-ui.field label="Jarak ke Madrasah" :error="$errors->first('distance')">
+                                <x-ui.select name="distance" :options="['<5km' => '< 5 km', '5-10km' => '5–10 km', '11-20km' => '11–20 km', '21-30km' => '21–30 km', '>30km' => '> 30 km']" :selected="old('distance')" />
+                            </x-ui.field>
+                            <x-ui.field label="Kendaraan" :error="$errors->first('transport')">
+                                <x-ui.select name="transport" :options="['Jalan Kaki' => 'Jalan Kaki', 'Sepeda' => 'Sepeda', 'Sepeda Motor' => 'Sepeda Motor', 'Angkot' => 'Angkot', 'Lainnya' => 'Lainnya']" :selected="old('transport')" />
+                            </x-ui.field>
+                            <x-ui.field label="Waktu Tempuh" :error="$errors->first('commute_time')">
+                                <x-ui.select name="commute_time" :options="['1-10 menit' => '1–10 mnt', '10-19 menit' => '10–19 mnt', '20-29 menit' => '20–29 mnt', '30-39 menit' => '30–39 mnt', '1-2 jam' => '1–2 jam', '>2 jam' => '> 2 jam']" :selected="old('commute_time')" />
+                            </x-ui.field>
                         </div>
                     </div>
                 </x-ui.sheet>
@@ -177,17 +213,31 @@
                 <x-ui.sheet title="C. Data Orang Tua / Wali">
                     <div class="space-y-6">
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                            <x-ui.field label="No. Kartu Keluarga" :error="$errors->first('kk_number')">
+                                <x-ui.input name="kk_number" :value="old('kk_number')" maxlength="16" />
+                            </x-ui.field>
+                            <x-ui.field label="Kepala Keluarga" :error="$errors->first('kk_head_name')">
+                                <x-ui.input name="kk_head_name" :value="old('kk_head_name')" maxlength="100" />
+                            </x-ui.field>
+                        </div>
+                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                             <p class="sm:col-span-2 pt-1 text-xs font-bold uppercase tracking-wide text-ink-soft">Ayah</p>
                             <x-ui.field label="Nama Ayah" required :error="$errors->first('father_name')">
                                 <x-ui.input name="father_name" :value="old('father_name')" required maxlength="100" />
                             </x-ui.field>
-                            <x-ui.field label="NIK Ayah" :error="$errors->first('father_nik')">
+                            <x-ui.field label="Status" :error="$errors->first('father_status')">
+                                <x-ui.select name="father_status" :options="['Masih Hidup' => 'Masih Hidup', 'Sudah Meninggal' => 'Sudah Meninggal']" :selected="old('father_status')" />
+                            </x-ui.field>
+                            <x-ui.field label="NIK" :error="$errors->first('father_nik')">
                                 <x-ui.input name="father_nik" :value="old('father_nik')" maxlength="16" />
                             </x-ui.field>
-                            <x-ui.field label="Pekerjaan" :error="$errors->first('father_job')">
-                                <x-ui.input name="father_job" :value="old('father_job')" maxlength="30" />
+                            <x-ui.field label="Pendidikan" :error="$errors->first('father_education')">
+                                <x-ui.select name="father_education" :options="['0' => 'Tidak Sekolah', '1' => 'SD', '2' => 'SMP', '3' => 'SMA', '6' => 'D3', '7' => 'S1', '8' => 'S2']" :selected="old('father_education')" placeholder="—" />
                             </x-ui.field>
-                            <x-ui.field label="Nomor HP Ayah" :error="$errors->first('father_phone')">
+                            <x-ui.field label="Pekerjaan" :error="$errors->first('father_job')">
+                                <x-ui.select name="father_job" :options="['01' => 'Tidak Bekerja', '03' => 'PNS', '04' => 'TNI/Polri', '05' => 'Guru/Dosen', '06' => 'Swasta', '07' => 'Wiraswasta', '12' => 'Pedagang', '18' => 'Lainnya']" :selected="old('father_job')" placeholder="—" />
+                            </x-ui.field>
+                            <x-ui.field label="HP" :error="$errors->first('father_phone')">
                                 <x-ui.input name="father_phone" :value="old('father_phone')" maxlength="20" />
                             </x-ui.field>
                         </div>
@@ -196,13 +246,22 @@
                             <x-ui.field label="Nama Ibu" required :error="$errors->first('mother_name')">
                                 <x-ui.input name="mother_name" :value="old('mother_name')" required maxlength="100" />
                             </x-ui.field>
-                            <x-ui.field label="NIK Ibu" :error="$errors->first('mother_nik')">
+                            <x-ui.field label="Status" :error="$errors->first('mother_status')">
+                                <x-ui.select name="mother_status" :options="['Masih Hidup' => 'Masih Hidup', 'Sudah Meninggal' => 'Sudah Meninggal']" :selected="old('mother_status')" />
+                            </x-ui.field>
+                            <x-ui.field label="NIK" :error="$errors->first('mother_nik')">
                                 <x-ui.input name="mother_nik" :value="old('mother_nik')" maxlength="16" />
                             </x-ui.field>
-                            <x-ui.field label="Pekerjaan" :error="$errors->first('mother_job')">
-                                <x-ui.input name="mother_job" :value="old('mother_job')" maxlength="30" />
+                            <x-ui.field label="Pendidikan" :error="$errors->first('mother_education')">
+                                <x-ui.select name="mother_education" :options="['0' => 'Tidak Sekolah', '1' => 'SD', '2' => 'SMP', '3' => 'SMA', '6' => 'D3', '7' => 'S1', '8' => 'S2']" :selected="old('mother_education')" placeholder="—" />
                             </x-ui.field>
-                            <x-ui.field label="Nomor HP Ibu" :error="$errors->first('mother_phone')">
+                            <x-ui.field label="Pekerjaan" :error="$errors->first('mother_job')">
+                                <x-ui.select name="mother_job" :options="['01' => 'Tidak Bekerja', '03' => 'PNS', '04' => 'TNI/Polri', '05' => 'Guru/Dosen', '06' => 'Swasta', '07' => 'Wiraswasta', '12' => 'Pedagang', '18' => 'Lainnya']" :selected="old('mother_job')" placeholder="—" />
+                            </x-ui.field>
+                            <x-ui.field label="Penghasilan" :error="$errors->first('mother_income')">
+                                <x-ui.select name="mother_income" :options="['< Rp500rb' => '< Rp500rb', 'Rp500rb-1jt' => 'Rp500rb–1jt', 'Rp1jt-2jt' => 'Rp1jt–2jt', 'Rp2jt-3jt' => 'Rp2jt–3jt', 'Rp3jt-5jt' => 'Rp3jt–5jt', '> Rp5jt' => '> Rp5jt']" :selected="old('mother_income')" placeholder="—" />
+                            </x-ui.field>
+                            <x-ui.field label="HP" :error="$errors->first('mother_phone')">
                                 <x-ui.input name="mother_phone" :value="old('mother_phone')" maxlength="20" />
                             </x-ui.field>
                         </div>
@@ -236,8 +295,14 @@
                             <x-ui.field label="Kartu Keluarga (KK)" :error="$errors->first('scanned_kk')">
                                 <x-ui.input name="scanned_kk" placeholder="https://drive.google.com/…" :value="old('scanned_kk')" maxlength="500" />
                             </x-ui.field>
+                            <x-ui.field label="KK Wali (opsional)" :error="$errors->first('scanned_kk_wali')">
+                                <x-ui.input name="scanned_kk_wali" placeholder="https://drive.google.com/…" :value="old('scanned_kk_wali')" maxlength="500" />
+                            </x-ui.field>
                             <x-ui.field label="Akta Kelahiran" :error="$errors->first('scanned_akta')">
                                 <x-ui.input name="scanned_akta" placeholder="https://drive.google.com/…" :value="old('scanned_akta')" maxlength="500" />
+                            </x-ui.field>
+                            <x-ui.field label="Ijazah / SKL (opsional)" :error="$errors->first('scanned_ijazah')">
+                                <x-ui.input name="scanned_ijazah" placeholder="https://drive.google.com/…" :value="old('scanned_ijazah')" maxlength="500" />
                             </x-ui.field>
                             <x-ui.field label="Pas Foto" :error="$errors->first('scanned_photo')">
                                 <x-ui.input name="scanned_photo" placeholder="https://drive.google.com/…" :value="old('scanned_photo')" maxlength="500" />
