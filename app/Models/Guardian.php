@@ -11,7 +11,12 @@ class Guardian extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'name'];
+    protected $fillable = ['user_id', 'name', 'nik', 'status', 'birth_place', 'birth_date', 'education', 'job', 'income', 'phone'];
+
+    protected function casts(): array
+    {
+        return ['birth_date' => 'date'];
+    }
 
     public function user(): BelongsTo
     {

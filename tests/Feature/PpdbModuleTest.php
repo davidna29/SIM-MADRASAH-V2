@@ -431,7 +431,7 @@ class PpdbModuleTest extends TestCase
         $this->assertEquals('submitted', $reg->status);
     }
 
-    public function test_edit_available_for_accepted_status(): void
+    public function test_edit_locked_for_accepted_status(): void
     {
         $this->actingAs($this->admin);
 
@@ -439,9 +439,9 @@ class PpdbModuleTest extends TestCase
         $reg = PpdbRegistration::where('name', 'AHMAD TEST')->first();
         $this->post(route('ppdb.accept', $reg));
 
-        $response = $this->get(route('ppdb.edit', $reg));
-        $response->assertOk();
-        $response->assertSee('Edit Calon Siswa');
+        // Setelah accept: edit PPDB dikunci (data dikelola di Master Data Siswa)
+        $this->get(route('ppdb.edit', $reg))->assertForbidden();
+        $this->put(route('ppdb.update', $reg), $this->validData())->assertForbidden();
     }
 
     public function test_update_rejects_invalid_data(): void

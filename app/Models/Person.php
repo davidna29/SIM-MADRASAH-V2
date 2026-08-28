@@ -10,7 +10,7 @@ class Person extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nik', 'name', 'gender', 'religion', 'birth_place', 'birth_date', 'phone', 'email'];
+    protected $fillable = ['nik', 'name', 'gender', 'religion', 'birth_place', 'birth_date', 'phone', 'email', 'address', 'province', 'city', 'district', 'village', 'rt', 'rw', 'postal_code', 'home_phone'];
 
     protected function casts(): array
     {

@@ -25,24 +25,57 @@
                 <h1 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{{ strtoupper($registration->name) }}</h1>
                 <p class="mt-1 text-sm text-ink-soft">{{ $registration->registration_no }} · {{ $registration->created_at->format('d/m/Y H:i') }}</p>
             </div>
-            <div class="flex gap-2" x-data="{ open: false }">
-                <a href="{{ route('ppdb.edit', $registration) }}"
-                    class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
-                    <x-svg-pencil-square class="size-3.5" /> Edit
-                </a>
+            <div class="flex gap-2" x-data="{ open: false, acceptOpen: false }">
+                @if ($registration->status === 'accepted')
+                    <span class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-paper-deep px-3 py-2 text-xs font-semibold text-ink-soft">
+                        <x-svg-lock-closed class="size-3.5" /> Terkunci (Master Data Siswa)
+                    </span>
+                @else
+                    <a href="{{ route('ppdb.edit', $registration) }}"
+                        class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-sheet px-3 py-2 text-xs font-semibold text-ink ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
+                        <x-svg-pencil-square class="size-3.5" /> Edit
+                    </a>
+                @endif
                 @if ($registration->status === 'submitted')
-                    <form method="POST" action="{{ route('ppdb.accept', $registration) }}" x-data="{ confirming: false }"
-                        @submit="if(!confirming) { event.preventDefault(); confirming = true; }">
-                        @csrf
-                        <button type="submit" @click="confirming = true"
-                            class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-success px-3 py-2 text-xs font-semibold text-white transition hover:brightness-95">
-                            <x-svg-check-circle class="size-3.5" /> Terima
-                        </button>
-                    </form>
+                    <button type="button" @click="acceptOpen = true"
+                        class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-success px-3 py-2 text-xs font-semibold text-white transition hover:brightness-95">
+                        <x-svg-check-circle class="size-3.5" /> Terima
+                    </button>
                     <button type="button" @click="open = true"
                         class="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] bg-danger px-3 py-2 text-xs font-semibold text-white transition hover:brightness-95">
                         <x-svg-x-circle class="size-3.5" /> Tolak
                     </button>
+
+                    {{-- Accept Modal — notif bahwa accept mengunci edit PPDB --}}
+                    <div x-show="acceptOpen" x-cloak
+                        class="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center"
+                        x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-100" x-transition:leave-end="opacity-0"
+                        @keydown.escape.window="acceptOpen = false" role="dialog" aria-modal="true">
+                        <div class="absolute inset-0 bg-board-deep/60 backdrop-blur-[2px]"></div>
+                        <div class="relative w-full max-w-lg rounded-sheet bg-sheet shadow-sheet-raised ring-1 ring-inset ring-rule">
+                            <header class="flex items-center justify-between border-b border-rule/70 px-5 py-4">
+                                <h3 class="text-sm font-bold text-ink">Terima Pendaftar — Penting!</h3>
+                                <button type="button" @click="acceptOpen = false" class="rounded-md p-1 text-ink-faint hover:bg-paper-deep hover:text-ink"><x-svg-x-mark class="size-5" /></button>
+                            </header>
+                            <div class="px-5 py-5 text-sm leading-relaxed text-ink">
+                                <p class="font-semibold text-ink">Menerima pendaftar ini akan <span class="text-danger font-extrabold">MENGUNCI seluruh pengeditan di PPDB</span>.</p>
+                                <ul class="mt-3 list-disc list-inside space-y-1.5 text-ink-soft">
+                                    <li>Seluruh data pendaftaran disalin <strong>persis</strong> ke Master Data Siswa.</li>
+                                    <li>Tombol Edit &amp; perubahan di halaman PPDB ini akan dinonaktifkan.</li>
+                                    <li>Perubahan selanjutnya hanya dapat dilakukan di menu <strong>Data Siswa</strong>.</li>
+                                    <li>NIS &amp; kelas dilengkapi setelah diterima di menu Data Siswa.</li>
+                                </ul>
+                            </div>
+                            <form method="POST" action="{{ route('ppdb.accept', $registration) }}">
+                                @csrf
+                                <footer class="flex justify-end gap-2 border-t border-rule/70 px-5 py-4">
+                                    <x-ui.button variant="ghost" size="md" @click="acceptOpen = false" type="button">Batal</x-ui.button>
+                                    <x-ui.button type="submit" variant="success" size="md" icon="check-circle">Lanjutkan &amp; Terima</x-ui.button>
+                                </footer>
+                            </form>
+                        </div>
+                    </div>
 
                     {{-- Reject Modal (berbagi scope x-data dengan tombol Tolak) --}}
                     <div x-show="open" x-cloak

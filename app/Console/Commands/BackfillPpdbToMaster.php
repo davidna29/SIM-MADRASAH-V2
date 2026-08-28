@@ -3,14 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Models\PpdbRegistration;
-use App\Models\StudentProfile;
+use App\Support\PpdbService;
 use Illuminate\Console\Command;
 
-class BackfillStudentProfiles extends Command
+class BackfillPpdbToMaster extends Command
 {
-    protected $signature = 'ppdb:backfill-profiles';
+    protected $signature = 'ppdb:backfill-master';
 
-    protected $description = 'Salin data PPDB accepted ke student_profiles (backfill untuk data lama)';
+    protected $description = 'Salin data PPDB accepted ke master (people/students/guardians) untuk data lama';
 
     public function handle(): int
     {
@@ -27,11 +27,11 @@ class BackfillStudentProfiles extends Command
                 continue;
             }
 
-            StudentProfile::syncFromRegistration($student, $registration);
+            PpdbService::syncFromRegistration($registration, $student);
             $count++;
         }
 
-        $this->info("Backfill selesai: {$count} profil siswa dibuat/diperbarui.");
+        $this->info("Backfill selesai: {$count} siswa disinkronkan ke master.");
 
         return self::SUCCESS;
     }

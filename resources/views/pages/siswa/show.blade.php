@@ -139,56 +139,86 @@
             </div>
         @endif
 
-        <!-- Data lengkap (snapshot PPDB) -->
-        @if ($student->profile)
+        <!-- Data lengkap (dari master) -->
+        @php
+            $ayahG = $student->guardianByRelation('ayah');
+            $ibuG = $student->guardianByRelation('ibu');
+            $waliG = $student->guardianByRelation('wali');
+        @endphp
+        @if (collect([
+                $student->nisn, $student->previous_school, $student->origin_school,
+                $student->entry_date, $student->hobby, $student->child_order, $student->kk_number,
+                $ayahG?->name, $ibuG?->name, $waliG?->name,
+                $student->person?->address,
+            ])->filter()->isNotEmpty())
             @php
-                $p = $student->profile;
                 $v = fn ($x) => ($x !== null && $x !== '' ? $x : '—');
+                $person = $student->person;
                 $identityRows = [
-                    'NISN' => $p->nisn,
-                    'Sekolah Asal' => $p->previous_school,
-                    'Asal (NSM/NPSN)' => collect([$p->origin_school, $p->origin_nsm, $p->origin_npsn])->filter()->implode(' · '),
-                    'Alamat Asal' => $p->origin_address,
-                    'Tanggal Masuk' => $p->entry_date?->format('d/m/Y'),
-                    'Anak Ke' => $p->child_order,
-                    'Jumlah Saudara' => $p->sibling_count,
-                    'Pernah TK' => $p->ever_tk,
-                    'Pernah PAUD' => $p->ever_paud,
-                    'Hobi' => $p->hobby,
-                    'Cita-cita' => $p->ambition,
+                    'NISN' => $student->nisn,
+                    'Sekolah Sebelumnya' => $student->previous_school,
+                    'Asal (NSM/NPSN)' => collect([$student->origin_school, $student->origin_nsm, $student->origin_npsn])->filter()->implode(' · '),
+                    'Alamat Asal' => $student->origin_address,
+                    'Tanggal Masuk' => $student->entry_date?->format('d/m/Y'),
+                    'Anak Ke' => $student->child_order,
+                    'Jumlah Saudara' => $student->sibling_count,
+                    'Pernah TK' => $student->ever_tk,
+                    'Pernah PAUD' => $student->ever_paud,
+                    'Hobi' => $student->hobby,
+                    'Cita-cita' => $student->ambition,
                 ];
                 $addressRows = [
-                    'Tempat Tinggal' => $p->residence_type,
-                    'Alamat' => collect([$p->address, $p->village, $p->district, $p->city, $p->province])->filter()->implode(', '),
-                    'RT / RW' => collect([$p->rt, $p->rw])->filter()->implode(' / '),
-                    'Kode Pos' => $p->postal_code,
-                    'Jarak' => $p->distance,
-                    'Transportasi' => $p->transport,
-                    'Waktu Tempuh' => $p->commute_time,
-                    'Telepon Rumah' => $p->home_phone,
+                    'Tempat Tinggal' => $student->residence_type,
+                    'Alamat' => collect([$person?->address, $person?->village, $person?->district, $person?->city, $person?->province])->filter()->implode(', '),
+                    'RT / RW' => collect([$person?->rt, $person?->rw])->filter()->implode(' / '),
+                    'Kode Pos' => $person?->postal_code,
+                    'Jarak' => $student->distance,
+                    'Transportasi' => $student->transport,
+                    'Waktu Tempuh' => $student->commute_time,
+                    'Telepon Rumah' => $person?->home_phone,
                 ];
+                $guardianRow = function (?\App\Models\Guardian $g) {
+                    if (! $g) {
+                        return null;
+                    }
+                    return collect([$g->name, $g->job, $g->phone])->filter()->implode(' · ');
+                };
+                $guardianIdRow = function (?\App\Models\Guardian $g) {
+                    if (! $g) {
+                        return null;
+                    }
+                    return collect([$g->nik ? 'NIK '.$g->nik : null, $g->education, $g->income, $g->status])->filter()->implode(' · ');
+                };
                 $familyRows = [
-                    'No. KK' => $p->kk_number,
-                    'Kepala Keluarga' => $p->kk_head_name,
-                    'Ayah' => collect([$p->father_name, $p->father_job, $p->father_phone])->filter()->implode(' · '),
-                    'Ayah (identitas)' => collect([$p->father_nik ? 'NIK '.$p->father_nik : null, $p->father_education, $p->father_income, $p->father_status])->filter()->implode(' · '),
-                    'Ibu' => collect([$p->mother_name, $p->mother_job, $p->mother_phone])->filter()->implode(' · '),
-                    'Ibu (identitas)' => collect([$p->mother_nik ? 'NIK '.$p->mother_nik : null, $p->mother_education, $p->mother_income, $p->mother_status])->filter()->implode(' · '),
+                    'No. KK' => $student->kk_number,
+                    'Kepala Keluarga' => $student->kk_head_name,
+                    'Ayah' => $guardianRow($ayahG),
+                    'Ayah (identitas)' => $guardianIdRow($ayahG),
+                    'Ibu' => $guardianRow($ibuG),
+                    'Ibu (identitas)' => $guardianIdRow($ibuG),
                 ];
-                if ($p->guardian_name) {
-                    $familyRows['Wali'] = collect([$p->guardian_name, $p->guardian_job, $p->guardian_phone])->filter()->implode(' · ');
-                    $familyRows['Wali (identitas)'] = collect([$p->guardian_nik ? 'NIK '.$p->guardian_nik : null, $p->guardian_education, $p->guardian_income])->filter()->implode(' · ');
+                if ($waliG) {
+                    $familyRows['Wali'] = $guardianRow($waliG);
+                    $familyRows['Wali (identitas)'] = $guardianIdRow($waliG);
                 }
-                $socialRows = ['KKS' => $p->social_kks, 'PKH' => $p->social_pkh, 'KIP' => $p->social_kip];
+                $socialRows = ['KKS' => $student->social_kks, 'PKH' => $student->social_pkh, 'KIP' => $student->social_kip];
                 $parentAddrRows = [
-                    'Status Rumah' => $p->parent_ownership,
-                    'Alamat' => collect([$p->parent_address, $p->parent_village, $p->parent_district, $p->parent_city, $p->parent_province])->filter()->implode(', '),
-                    'RT / RW' => collect([$p->parent_rt, $p->parent_rw])->filter()->implode(' / '),
-                    'Kode Pos' => $p->parent_postal_code,
+                    'Status Rumah' => $student->parent_ownership,
+                    'Alamat' => collect([$student->parent_address, $student->parent_village, $student->parent_district, $student->parent_city, $student->parent_province])->filter()->implode(', '),
+                    'RT / RW' => collect([$student->parent_rt, $student->parent_rw])->filter()->implode(' / '),
+                    'Kode Pos' => $student->parent_postal_code,
                 ];
+                $immLabels = ['imm_hepb' => 'Hepatitis B', 'imm_polio' => 'Polio', 'imm_bcg' => 'BCG', 'imm_campak' => 'Campak', 'imm_dpt' => 'DPT-HB-HiB', 'imm_covid' => 'COVID'];
+                $disLabels = [
+                    'dis_deaf' => 'Tuna Rungu', 'dis_blind' => 'Tuna Netra', 'dis_disabled' => 'Tuna Daksa',
+                    'dis_intellectual' => 'Tuna Grahita', 'dis_behavioral' => 'Tuna Laras', 'dis_slow_learner' => 'Lamban Belajar',
+                    'dis_communication' => 'Gangguan Komunikasi', 'dis_gifted' => 'Bakat Luar Biasa',
+                ];
+                $imms = collect($immLabels)->filter(fn ($l, $k) => $student->{$k})->values()->all();
+                $diss = collect($disLabels)->filter(fn ($l, $k) => $student->{$k})->values()->all();
             @endphp
             <div class="mt-6">
-                <x-ui.sheet title="Data Lengkap" subtitle="Snapshot dari pendaftaran PPDB — tidak hilang saat menjadi siswa" pinned ruled>
+                <x-ui.sheet title="Data Lengkap" subtitle="Data lengkap tersimpan di master — dapat diubah di menu Data Siswa" pinned ruled>
                     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         <div>
                             <p class="mb-2 text-xs font-bold uppercase tracking-wide text-ink-faint">Identitas & Asal</p>
@@ -229,7 +259,6 @@
                     <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
                         <div>
                             <p class="mb-2 text-xs font-bold uppercase tracking-wide text-ink-faint">Kesehatan & Imunisasi</p>
-                            @php $imms = $p->immunizationsDone(); @endphp
                             @if ($imms)
                                 <div class="flex flex-wrap gap-1.5">
                                     @foreach ($imms as $imm) <x-ui.badge variant="success">{{ $imm }}</x-ui.badge> @endforeach
@@ -239,7 +268,6 @@
                             @endif
 
                             <p class="mb-2 mt-5 text-xs font-bold uppercase tracking-wide text-ink-faint">Kebutuhan Khusus</p>
-                            @php $diss = $p->disabilitiesList(); @endphp
                             @if ($diss)
                                 <div class="flex flex-wrap gap-1.5">
                                     @foreach ($diss as $dis) <x-ui.badge variant="warning">{{ $dis }}</x-ui.badge> @endforeach
@@ -270,13 +298,13 @@
                         </div>
                     </div>
 
-                    @if ($p->documents)
+                    @if (! empty($student->documents))
                         <div class="mt-6">
                             <p class="mb-2 text-xs font-bold uppercase tracking-wide text-ink-faint">Dokumen</p>
                             <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                 @foreach (['kk' => 'Kartu Keluarga', 'kk_wali' => 'KK Wali', 'akta' => 'Akta Kelahiran', 'ijazah' => 'Ijazah / SKL', 'photo' => 'Foto'] as $key => $label)
-                                    @if (! empty($p->documents[$key]))
-                                        <a href="{{ $p->documents[$key] }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-paper px-3 py-2 text-xs font-semibold text-primary ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
+                                    @if (! empty($student->documents[$key]))
+                                        <a href="{{ $student->documents[$key] }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-paper px-3 py-2 text-xs font-semibold text-primary ring-1 ring-inset ring-rule-strong transition hover:bg-paper-deep">
                                             <x-dynamic-component :component="'svg-document-text'" class="size-4" /> {{ $label }}
                                         </a>
                                     @endif

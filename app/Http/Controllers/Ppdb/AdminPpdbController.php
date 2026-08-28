@@ -65,6 +65,9 @@ class AdminPpdbController extends Controller
 
     public function edit(PpdbRegistration $registration): View
     {
+        abort_unless($registration->status !== 'accepted', 403,
+            'Pendaftar yang sudah diterima dikunci. Kelola data pendaftar di Master Data Siswa.');
+
         return view('pages.ppdb.edit', [
             'roleLabel' => 'PPDB',
             'breadcrumb' => [
@@ -78,6 +81,9 @@ class AdminPpdbController extends Controller
 
     public function update(Request $request, PpdbRegistration $registration): RedirectResponse
     {
+        abort_unless($registration->status !== 'accepted', 403,
+            'Pendaftar yang sudah diterima dikunci. Kelola data pendaftar di Master Data Siswa.');
+
         $validated = $this->validateRegistration($request);
 
         $registration->update($validated);
