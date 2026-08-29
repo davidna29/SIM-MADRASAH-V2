@@ -1,6 +1,0 @@
-Provisioning pegawai lama + perbaikan mapping SATPAM/OPERATOR/LABORAN
-
-- Command account:provision-existing-employees (--dry-run): provisioning sekali jalan
-  untuk pegawai aktif belum punya akun (idempotent, transaksi per-pegawai).
-- Perbaikan roleForEmployee: SATPAM/OPERATOR/LABORAN -> tata_usaha (bukan default guru).
-- Test: dry-run tidak ubah DB, eksekusi idempotent, pegawai gagal tidak gagalkan batch.
