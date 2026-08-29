@@ -1,10 +1,6 @@
-Mutasi keluar (submenu Data Siswa) + sinkronisasi akun dengan data master
+Provisioning pegawai lama + perbaikan mapping SATPAM/OPERATOR/LABORAN
 
-- Modul Mutasi Siswa Keluar: tabel student_mutations, CRUD, refactor ke per-instance update (observer terpicu), filter siswa keluar dari Data Siswa, submenu di bawah Data Siswa.
-- Provisioning akun: config account_provisioning, kolom users.must_change_password/is_active & employees.username_source, support AccountProvisioning (username NISN/NIS, NIP/NIK; dedupe prefix s-/p-; password tanggal lahir).
-- Backfill: command account:backfill-links (menautkan user lama tanpa membuat baru).
-- EmployeeController::store: buat user otomatis saat pegawai disimpan berstatus aktif.
-- Observer: EmployeeObserver & StudentEnrollmentObserver (nonaktif/keluar/alumni -> akun nonaktif; cuti tetap aktif).
-- Aktivasi bulk siswa: halaman Akun Menunggu Aktivasi + export CSV kredensial sekali unduh lalu dibuang.
-- Keamanan: middleware EnsurePasswordChanged (redirect wajib ganti password), login menolak akun nonaktif, halaman ganti password.
-- Test: MutasiKeluarModuleTest (10) + AccountProvisioningModuleTest (13); total 420 test hijau.
+- Command account:provision-existing-employees (--dry-run): provisioning sekali jalan
+  untuk pegawai aktif belum punya akun (idempotent, transaksi per-pegawai).
+- Perbaikan roleForEmployee: SATPAM/OPERATOR/LABORAN -> tata_usaha (bukan default guru).
+- Test: dry-run tidak ubah DB, eksekusi idempotent, pegawai gagal tidak gagalkan batch.

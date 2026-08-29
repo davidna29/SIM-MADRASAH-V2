@@ -125,6 +125,9 @@ class AccountProvisioning
             'BENDAHARA' => 'bendahara',
             'TATA_USAHA' => 'tata_usaha',
             'PUSTAKAWAN' => 'pustakawan',
+            'SATPAM' => 'tata_usaha',
+            'OPERATOR' => 'tata_usaha',
+            'LABORAN' => 'tata_usaha',
             default => 'guru',
         };
     }
