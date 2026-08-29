@@ -82,7 +82,16 @@ return [
                     ['label' => 'Mingguan per Guru', 'route' => 'jurnal.admin.mingguan.guru', 'icon' => 'user', 'roles' => ['super_admin', 'wakamad_kurikulum', 'kepala_madrasah', 'guru', 'tata_usaha']],
                 ],
             ],
-            ['label' => 'Rapor', 'route' => 'dashboard', 'icon' => 'document-text', 'roles' => ['super_admin', 'wakamad_kurikulum', 'wali_kelas', 'kepala_madrasah'], 'placeholder' => true],
+            [
+                'label' => 'Penilaian & Rapor',
+                'icon' => 'document-text',
+                'roles' => ['super_admin', 'wakamad_kurikulum', 'wali_kelas', 'guru', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Input & Penugasan Nilai', 'route' => 'guru.penugasan', 'icon' => 'pencil-square', 'roles' => ['guru']],
+                    ['label' => 'Komponen Nilai', 'route' => 'akademik.komponen-nilai.index', 'icon' => 'scale', 'roles' => ['super_admin', 'wakamad_kurikulum']],
+                    ['label' => 'Rekap Rapor & Nilai', 'route' => 'akademik.rapor.index', 'icon' => 'chart-bar', 'roles' => ['super_admin', 'wakamad_kurikulum', 'wali_kelas', 'kepala_madrasah']],
+                ],
+            ],
             [
                 'label' => 'Ujian PPI',
                 'icon' => 'clipboard-document-check',

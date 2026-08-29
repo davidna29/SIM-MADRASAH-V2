@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
             LetterSeeder::class,
             PpdbDemoSeeder::class,
             MutasiDemoSeeder::class,
+            ScoreComponentSeeder::class,
             PpiExamSeeder::class,
         ]);
     }

@@ -5,8 +5,10 @@ use App\Http\Controllers\Akademik\ClassGroupController;
 use App\Http\Controllers\Akademik\HomeroomController;
 use App\Http\Controllers\Akademik\JurnalController;
 use App\Http\Controllers\Akademik\MutasiKeluarController;
+use App\Http\Controllers\Akademik\RekapRaporController;
 use App\Http\Controllers\Akademik\ScheduleCellController;
 use App\Http\Controllers\Akademik\ScheduleModelController;
+use App\Http\Controllers\Akademik\ScoreComponentController;
 use App\Http\Controllers\Akademik\StudentController;
 use App\Http\Controllers\Akademik\SubjectController;
 use App\Http\Controllers\Akademik\UjianPpi\ArsipController;
@@ -481,6 +483,21 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:guru|tata_usaha|wakamad_kurikulum|kepala_madrasah|super_admin')->group(function () {
         Route::get('/akademik/jurnal-mengajar/mingguan', [JurnalController::class, 'mingguan'])->name('jurnal.admin.mingguan');
         Route::get('/akademik/jurnal-mengajar/mingguan-guru', [JurnalController::class, 'mingguanGuru'])->name('jurnal.admin.mingguan.guru');
+    });
+
+    // Komponen Nilai (bobot penilaian) — Wakamad Kurikulum & Super Admin
+    Route::middleware('role:super_admin|wakamad_kurikulum')->prefix('akademik/komponen-nilai')->name('akademik.komponen-nilai.')->group(function () {
+        Route::get('/', [ScoreComponentController::class, 'index'])->name('index');
+        Route::post('/', [ScoreComponentController::class, 'store'])->name('store');
+        Route::put('/{scoreComponent}', [ScoreComponentController::class, 'update'])->name('update');
+        Route::delete('/{scoreComponent}', [ScoreComponentController::class, 'destroy'])->name('destroy');
+    });
+
+    // Rekap Rapor & Nilai — admin/wakamad/wali kelas pantau keterisian nilai
+    Route::middleware('role:super_admin|wakamad_kurikulum|wali_kelas|kepala_madrasah')->group(function () {
+        Route::get('/akademik/rekap-rapor', [RekapRaporController::class, 'index'])->name('akademik.rapor.index');
+        Route::get('/akademik/rekap-rapor/kelas/{classGroup}', [RekapRaporController::class, 'kelas'])->name('akademik.rapor.kelas');
+        Route::get('/akademik/rekap-rapor/siswa/{studentEnrollment}', [RekapRaporController::class, 'siswa'])->name('akademik.rapor.siswa');
     });
 
     // Guru — walking skeleton: penugasan → input nilai → terbitkan rapor

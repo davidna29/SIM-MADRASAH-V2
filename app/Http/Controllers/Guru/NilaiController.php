@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\Report;
 use App\Models\Score;
+use App\Models\ScoreComponent;
+use App\Models\ScoreComponentValue;
 use App\Models\StudentEnrollment;
 use App\Models\TeacherAssignment;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -49,11 +51,17 @@ class NilaiController extends Controller
             ->orderBy('student_id')
             ->get();
 
-        $scores = Score::where('academic_year_id', $assignment->academic_year_id)
+        $scores = Score::with('componentValues')
+            ->where('academic_year_id', $assignment->academic_year_id)
             ->where('subject_id', $assignment->subject_id)
             ->where('semester', $tahun->semester)
             ->get()
             ->keyBy('student_enrollment_id');
+
+        $components = ScoreComponent::where('academic_year_id', $assignment->academic_year_id)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
 
         return view('pages.guru.nilai', [
             'roleLabel' => 'Guru Mata Pelajaran',
@@ -66,6 +74,7 @@ class NilaiController extends Controller
             'assignment' => $assignment,
             'enrollments' => $enrollments,
             'scores' => $scores,
+            'components' => $components,
         ]);
     }
 
@@ -74,20 +83,83 @@ class NilaiController extends Controller
         abort_unless($this->owns($assignment), 403);
 
         $tahun = AcademicYear::active();
-        $enrollmentIds = StudentEnrollment::where('academic_year_id', $assignment->academic_year_id)
+        $enrollments = StudentEnrollment::where('academic_year_id', $assignment->academic_year_id)
             ->where('class_group_id', $assignment->class_group_id)
-            ->pluck('id');
+            ->get();
 
+        $components = ScoreComponent::where('academic_year_id', $assignment->academic_year_id)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        // Mode komponen: input per komponen lalu nilai akhir dihitung dari bobot.
+        if ($components->isNotEmpty()) {
+            $validated = $request->validate([
+                'values' => ['array', 'required'],
+                'values.*' => ['array'],
+                'values.*.*' => ['nullable', 'integer', 'between:0,100'],
+            ]);
+
+            foreach ($enrollments as $enrollment) {
+                $values = $validated['values'][$enrollment->id] ?? [];
+                $hasAny = collect($values)->filter(fn ($v) => $v !== null)->isNotEmpty();
+
+                if (! $hasAny) {
+                    Score::where('student_enrollment_id', $enrollment->id)
+                        ->where('subject_id', $assignment->subject_id)
+                        ->where('academic_year_id', $assignment->academic_year_id)
+                        ->where('semester', $tahun->semester)
+                        ->delete();
+
+                    continue;
+                }
+
+                $score = Score::updateOrCreate(
+                    [
+                        'student_enrollment_id' => $enrollment->id,
+                        'subject_id' => $assignment->subject_id,
+                        'academic_year_id' => $assignment->academic_year_id,
+                        'semester' => $tahun->semester,
+                    ],
+                    ['score' => null]
+                );
+
+                foreach ($components as $component) {
+                    $value = $values[$component->id] ?? null;
+
+                    if ($value === null) {
+                        ScoreComponentValue::where('score_id', $score->id)
+                            ->where('score_component_id', $component->id)
+                            ->delete();
+
+                        continue;
+                    }
+
+                    $score->componentValues()->updateOrCreate(
+                        ['score_component_id' => $component->id],
+                        ['value' => $value]
+                    );
+                }
+
+                $score->update(['score' => $score->computeFinalScore()]);
+            }
+
+            activity('akademik')->performedOn($assignment)->log('nilai_diinput');
+
+            return back()->with('status', 'Nilai berhasil disimpan ke papan.');
+        }
+
+        // Mode legacy: satu kolom nilai 0-100 langsung ke nilai akhir.
         $validated = $request->validate([
             'scores' => ['array', 'required'],
             'scores.*' => ['nullable', 'integer', 'between:0,100'],
         ]);
 
-        foreach ($enrollmentIds as $enrollmentId) {
-            $nilai = $validated['scores'][$enrollmentId] ?? null;
+        foreach ($enrollments as $enrollment) {
+            $nilai = $validated['scores'][$enrollment->id] ?? null;
 
             if ($nilai === null) {
-                Score::where('student_enrollment_id', $enrollmentId)
+                Score::where('student_enrollment_id', $enrollment->id)
                     ->where('subject_id', $assignment->subject_id)
                     ->where('academic_year_id', $assignment->academic_year_id)
                     ->where('semester', $tahun->semester)
@@ -98,7 +170,7 @@ class NilaiController extends Controller
 
             Score::updateOrCreate(
                 [
-                    'student_enrollment_id' => $enrollmentId,
+                    'student_enrollment_id' => $enrollment->id,
                     'subject_id' => $assignment->subject_id,
                     'academic_year_id' => $assignment->academic_year_id,
                     'semester' => $tahun->semester,
@@ -106,6 +178,8 @@ class NilaiController extends Controller
                 ['score' => $nilai]
             );
         }
+
+        activity('akademik')->performedOn($assignment)->log('nilai_diinput');
 
         return back()->with('status', 'Nilai berhasil disimpan ke papan.');
     }
@@ -129,12 +203,12 @@ class NilaiController extends Controller
                 ->where('semester', $tahun->semester)
                 ->first();
 
-            if (! $score) {
+            if (! $score || $score->score === null) {
                 continue;
             }
 
             // Satu rapor per siswa+tahun+semester (invariant basis data). Penerbitan ulang
-            // bersifat idempotent: parent di-update, item mapel di-upsert — bukan baris baru.
+            // bersifat idempotent: parent di-update, item mapel di-upsert - bukan baris baru.
             $report = Report::firstOrCreate(
                 [
                     'student_id' => $enrollment->student_id,
