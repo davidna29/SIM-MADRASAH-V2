@@ -10,6 +10,8 @@ use App\Models\EmployeePositionHistory;
 use App\Models\OrganizationalUnit;
 use App\Models\Person;
 use App\Models\Position;
+use App\Models\User;
+use App\Support\AccountProvisioning;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -121,7 +123,43 @@ class EmployeeController extends Controller
             ->withProperties(['nama' => $employee->person->name])
             ->log('pegawai_baru');
 
-        return redirect()->route('pegawai.show', $employee)->with('status', 'Data pegawai berhasil disimpan dan disematkan ke papan.');
+        $warning = $this->provisionEmployeeAccount($employee);
+
+        $redirect = redirect()->route('pegawai.show', $employee)
+            ->with('status', 'Data pegawai berhasil disimpan dan disematkan ke papan.');
+
+        return $warning ? $redirect->with('warning', $warning) : $redirect;
+    }
+
+    /**
+     * Provisioning akun otomatis untuk pegawai baru berstatus 'aktif'.
+     * Mengembalikan string peringatan bila akun tidak dibuat (bukan silent fail).
+     */
+    protected function provisionEmployeeAccount(Employee $employee): ?string
+    {
+        if ($employee->status !== 'aktif') {
+            return null;
+        }
+
+        $account = AccountProvisioning::employeeAccountPayload($employee);
+
+        if (! $account['ok']) {
+            return $account['reason'];
+        }
+
+        $user = User::create($account['payload']);
+
+        $employee->update([
+            'user_id' => $user->id,
+            'username_source' => $account['source'],
+        ]);
+
+        activity('account_provisioning')
+            ->performedOn($employee)
+            ->causedBy(auth()->user())
+            ->log('Akun pegawai dibuat otomatis: '.$user->username);
+
+        return null;
     }
 
     public function edit(Employee $employee): View

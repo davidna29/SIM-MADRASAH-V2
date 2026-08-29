@@ -30,6 +30,8 @@ class StudentController extends Controller
             }))
             ->when(request('class_group_id'), fn ($q, $id) => $q->whereHas('enrollments', fn ($e) => $e->where('class_group_id', $id)->where('academic_year_id', $tahun->id)))
             ->when(request('grade_level'), fn ($q, $level) => $q->whereHas('enrollments', fn ($e) => $e->whereHas('classGroup', fn ($c) => $c->where('grade_level', $level))->where('academic_year_id', $tahun->id)))
+            // Siswa yang sudah mutasi keluar tidak tampil di daftar aktif.
+            ->whereDoesntHave('enrollments', fn ($e) => $e->where('academic_year_id', $tahun->id)->where('status', 'keluar'))
             ->orderBy('id')
             ->paginate(12)
             ->withQueryString();

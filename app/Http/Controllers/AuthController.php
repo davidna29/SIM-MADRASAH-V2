@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
@@ -30,9 +32,47 @@ class AuthController extends Controller
             return back()->withErrors(['login' => 'Username/email atau kata sandi salah.'])->onlyInput('login');
         }
 
+        // Akun yang dinonaktifkan (deaktivasi otomatis) tidak boleh login.
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors(['login' => 'Akun Anda telah dinonaktifkan. Silakan hubungi tata usaha.'])->onlyInput('login');
+        }
+
         $request->session()->regenerate();
 
         return $this->redirectToRole();
+    }
+
+    public function showChangePassword(): View
+    {
+        return view('pages.auth.ubah-password');
+    }
+
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if (! Hash::check($validated['current_password'], Auth::user()->password)) {
+            return back()->withErrors(['current_password' => 'Kata sandi saat ini tidak sesuai.'])
+                ->onlyInput('current_password');
+        }
+
+        Auth::user()->update([
+            'password' => Hash::make($validated['password']),
+            'must_change_password' => false,
+        ]);
+
+        activity('auth')
+            ->causedBy(Auth::user())
+            ->log('Kata sandi berhasil diubah.');
+
+        return $this->redirectToRole()->with('status', 'Kata sandi berhasil diubah. Selamat bekerja!');
     }
 
     public function logout(Request $request): RedirectResponse

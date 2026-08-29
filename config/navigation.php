@@ -23,7 +23,15 @@ return [
         'icon' => 'cog-6-tooth',
         'items' => [
             ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home', 'roles' => ['super_admin', 'kepala_madrasah', 'wakamad_kurikulum', 'wakamad_kesiswaan', 'bendahara', 'tata_usaha']],
-            ['label' => 'Pengguna & Role', 'route' => 'pengguna.index', 'icon' => 'user-group', 'roles' => ['super_admin']],
+            [
+                'label' => 'Pengguna & Role',
+                'icon' => 'user-group',
+                'roles' => ['super_admin'],
+                'children' => [
+                    ['label' => 'Pengguna & Role', 'route' => 'pengguna.index', 'icon' => 'user-group', 'roles' => ['super_admin']],
+                    ['label' => 'Akun Menunggu Aktivasi', 'route' => 'pengguna.aktivasi.index', 'icon' => 'user-plus', 'roles' => ['super_admin']],
+                ],
+            ],
             [
                 'label' => 'Struktur Organisasi',
                 'icon' => 'building-library',
@@ -41,7 +49,16 @@ return [
         'label' => 'Akademik',
         'icon' => 'book-open',
         'items' => [
-            ['label' => 'Data Siswa', 'route' => 'siswa.index', 'icon' => 'academic-cap', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'tata_usaha', 'wali_kelas', 'kepala_madrasah']],
+            [
+                'label' => 'Data Siswa',
+                'icon' => 'academic-cap',
+                'roles' => ['super_admin', 'wakamad_kesiswaan', 'tata_usaha', 'wali_kelas', 'kepala_madrasah'],
+                'children' => [
+                    ['label' => 'Data Siswa', 'route' => 'siswa.index', 'icon' => 'user-group', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'tata_usaha', 'wali_kelas', 'kepala_madrasah']],
+                    ['label' => 'Mutasi Siswa Masuk', 'route' => 'mutasi.index', 'icon' => 'arrow-right-start-on-rectangle', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
+                    ['label' => 'Mutasi Siswa Keluar', 'route' => 'mutasi-keluar.index', 'icon' => 'arrow-right-end-on-rectangle', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
+                ],
+            ],
             ['label' => 'Data Guru & Pegawai', 'route' => 'pegawai.index', 'icon' => 'user-group', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
             ['label' => 'Kehadiran Guru & Pegawai', 'route' => 'pegawai.kehadiran.index', 'icon' => 'clipboard-document-check', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
             ['label' => 'Mata Pelajaran', 'route' => 'mapel.index', 'icon' => 'book-open', 'roles' => ['super_admin', 'wakamad_kurikulum']],
@@ -216,15 +233,6 @@ return [
                 'children' => [
                     ['label' => 'Pendaftar', 'route' => 'ppdb.index', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
                     ['label' => 'Pengaturan PPDB', 'route' => 'ppdb.settings', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
-                ],
-            ],
-            [
-                'label' => 'Mutasi Masuk',
-                'icon' => 'arrow-right',
-                'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah'],
-                'children' => [
-                    ['label' => 'Pendaftar Pindah', 'route' => 'mutasi.index', 'icon' => 'user-plus', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
-                    ['label' => 'Pengaturan Mutasi', 'route' => 'mutasi.settings', 'icon' => 'cog-6-tooth', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
                 ],
             ],
         ],

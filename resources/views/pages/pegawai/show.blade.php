@@ -23,6 +23,14 @@
             </div>
         @endif
 
+        @if (session('warning'))
+            <div class="mt-6">
+                <x-ui.alert variant="warning" dismissible>
+                    <strong class="font-bold">Perhatian:</strong> {{ session('warning') }}
+                </x-ui.alert>
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="mt-6">
                 <x-ui.alert variant="danger" dismissible>{{ $errors->first() }}</x-ui.alert>
@@ -77,6 +85,17 @@
                         <dt class="text-xs font-bold uppercase tracking-wide text-ink-faint">Unit Kerja</dt>
                         <dd class="text-right text-sm font-semibold text-ink">{{ $employee->organizationalUnit?->name }}</dd>
                     </div>
+                    @if ($employee->user)
+                        <div class="flex items-start justify-between gap-4">
+                            <dt class="text-xs font-bold uppercase tracking-wide text-ink-faint">Akun</dt>
+                            <dd class="text-right text-sm font-semibold text-ink">
+                                {{ $employee->user->username }}
+                                @unless ($employee->user->is_active)
+                                    <x-ui.badge variant="danger" :dot="false">Nonaktif</x-ui.badge>
+                                @endunless
+                            </dd>
+                        </div>
+                    @endif
                 </dl>
             </x-ui.sheet>
 

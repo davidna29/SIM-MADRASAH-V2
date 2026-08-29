@@ -53,7 +53,7 @@
         <!-- Tabel -->
         <div class="mt-4">
             <x-ui.sheet :padding="false">
-                <x-ui.table :headers="['NIS', 'Nama Lengkap', 'Kelas', 'Jenis Kelamin', 'Status', '']">
+                <x-ui.table :headers="['NIS', 'Nama Lengkap', 'Kelas', 'Jenis Kelamin', 'Status', '']" :empty="$students->isEmpty()">
                     <x-slot name="emptySlot">Tidak ada siswa yang cocok dengan filter.</x-slot>
                     <x-slot>
                         @foreach ($students as $student)

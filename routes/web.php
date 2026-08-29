@@ -4,6 +4,7 @@ use App\Http\Controllers\Akademik\AttendanceController;
 use App\Http\Controllers\Akademik\ClassGroupController;
 use App\Http\Controllers\Akademik\HomeroomController;
 use App\Http\Controllers\Akademik\JurnalController;
+use App\Http\Controllers\Akademik\MutasiKeluarController;
 use App\Http\Controllers\Akademik\ScheduleCellController;
 use App\Http\Controllers\Akademik\ScheduleModelController;
 use App\Http\Controllers\Akademik\StudentController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Cms\AgendaController;
 use App\Http\Controllers\Cms\ArticleController;
 use App\Http\Controllers\Cms\GalleryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Fondasi\AccountActivationController;
 use App\Http\Controllers\Fondasi\JabatanController;
 use App\Http\Controllers\Fondasi\PengaturanController;
 use App\Http\Controllers\Fondasi\StrukturController;
@@ -86,6 +88,10 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
+    // Ganti password wajib (must_change_password) — lintas role
+    Route::get('/ubah-password', [AuthController::class, 'showChangePassword'])->name('password.change');
+    Route::post('/ubah-password', [AuthController::class, 'updatePassword'])->name('password.update');
+
     // Dashboard admin — ringkasan kondisi madrasah (bukan data demo)
     Route::middleware('role:super_admin|kepala_madrasah|wakamad_kurikulum|wakamad_kesiswaan|bendahara|tata_usaha')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -165,6 +171,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/fondasi/pengguna', [UserController::class, 'index'])->name('pengguna.index');
         Route::get('/fondasi/pengguna/tambah', [UserController::class, 'create'])->name('pengguna.create');
         Route::post('/fondasi/pengguna', [UserController::class, 'store'])->name('pengguna.store');
+
+        // Akun Menunggu Aktivasi — fixed routes BEFORE wildcard {user}
+        Route::get('/fondasi/pengguna/aktivasi', [AccountActivationController::class, 'index'])->name('pengguna.aktivasi.index');
+        Route::post('/fondasi/pengguna/aktivasi', [AccountActivationController::class, 'activate'])->name('pengguna.aktivasi.aktifkan');
+        Route::get('/fondasi/pengguna/aktivasi/export', [AccountActivationController::class, 'exportCsv'])->name('pengguna.aktivasi.export');
+
         Route::get('/fondasi/pengguna/{user}', [UserController::class, 'show'])->name('pengguna.show');
         Route::get('/fondasi/pengguna/{user}/edit', [UserController::class, 'edit'])->name('pengguna.edit');
         Route::put('/fondasi/pengguna/{user}', [UserController::class, 'update'])->name('pengguna.update');
@@ -217,7 +229,8 @@ Route::middleware('auth')->group(function () {
     });
 
     // Mutasi Masuk (Siswa Pindahan) — admin (fixed routes BEFORE wildcard)
-    Route::middleware('role:super_admin|tata_usaha|kepala_madrasah')->prefix('mutasi/admin')->name('mutasi.')->group(function () {
+    // Prefix di-relokasi ke bawah Data Siswa; nama route 'mutasi.*' tetap agar view/test tidak pecah.
+    Route::middleware('role:super_admin|tata_usaha|kepala_madrasah')->prefix('akademik/mutasi-masuk/admin')->name('mutasi.')->group(function () {
         Route::get('/', [AdminMutasiController::class, 'index'])->name('index');
 
         // Pengaturan — fixed routes BEFORE wildcard
@@ -230,6 +243,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/{registration}', [AdminMutasiController::class, 'show'])->name('show');
         Route::post('/{registration}/accept', [AdminMutasiController::class, 'accept'])->name('accept');
         Route::post('/{registration}/reject', [AdminMutasiController::class, 'reject'])->name('reject');
+    });
+
+    // Mutasi Siswa Keluar — admin (fixed routes BEFORE wildcard {mutation})
+    Route::middleware('role:super_admin|tata_usaha|kepala_madrasah')->prefix('akademik/mutasi-keluar')->name('mutasi-keluar.')->group(function () {
+        Route::get('/', [MutasiKeluarController::class, 'index'])->name('index');
+        Route::get('/tambah', [MutasiKeluarController::class, 'create'])->name('create');
+        Route::post('/', [MutasiKeluarController::class, 'store'])->name('store');
+        Route::get('/{mutation}', [MutasiKeluarController::class, 'show'])->name('show');
+        Route::get('/{mutation}/edit', [MutasiKeluarController::class, 'edit'])->name('edit');
+        Route::put('/{mutation}', [MutasiKeluarController::class, 'update'])->name('update');
+        Route::delete('/{mutation}', [MutasiKeluarController::class, 'destroy'])->name('destroy');
     });
 
     // Pusat Laporan — multi-role

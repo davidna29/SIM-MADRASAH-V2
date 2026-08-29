@@ -13,6 +13,7 @@
                 </p>
             </div>
             <div class="flex items-center gap-2">
+                <x-ui.button variant="secondary" icon="user-plus" href="{{ route('pengguna.aktivasi.index') }}">Akun Menunggu Aktivasi</x-ui.button>
                 <x-ui.button variant="primary" icon="user-plus" href="{{ route('pengguna.create') }}">Tambah Pengguna</x-ui.button>
             </div>
         </div>
