@@ -109,7 +109,7 @@ class DashboardTest extends TestCase
         $response->assertSee('open-external-link');
         $response->assertSee('Buka Website Publik');
         $response->assertSee('Buka Tab Baru');
-        $response->assertSee(route('publik.berita.index'));
+        $response->assertSee(route('publik.beranda'));
     }
 
     public function test_dashboard_without_data_still_renders(): void

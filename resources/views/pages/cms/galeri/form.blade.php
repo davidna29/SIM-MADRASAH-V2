@@ -41,7 +41,7 @@
                         <x-ui.input name="kategori" :value="old('kategori', $editing ? $album->kategori : '')" placeholder="Mis. Kegiatan, Prestasi" />
                     </x-ui.field>
                     <x-ui.field label="Status" required :error="$errors->first('status')">
-                        <x-ui.select name="status" :options="['publik' => 'Publik (tampil di website)', 'privat' => 'Privat']" :selected="old('status', $editing ? $album->status : 'publik')" />
+                            <x-ui.select name="status" :options="['publik' => 'Publik (tampil di website)', 'privat' => 'Privat']" :selected="old('status', $editing ? $album->status : 'privat')" />
                     </x-ui.field>
                     <div class="sm:col-span-2">
                         <x-ui.field label="Deskripsi" :error="$errors->first('description')">
@@ -50,7 +50,7 @@
                         </x-ui.field>
                     </div>
                     <div class="sm:col-span-2">
-                        <x-ui.field label="Cover Album" hint="Opsional — otomatis dari foto pertama bila kosong." :error="$errors->first('cover_image')">
+                        <x-ui.field label="Cover Album" hint="Opsional — otomatis dari foto pertama bila kosong. Unggah hanya gambar yang diizinkan untuk publikasi." :error="$errors->first('cover_image')">
                             <input type="file" name="cover_image"
                                 class="w-full rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink file:mr-3 file:rounded file:border-0 file:bg-primary-soft file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-primary-strong ring-1 ring-inset ring-rule-strong transition focus:outline-none focus:ring-2 focus:ring-primary">
                         </x-ui.field>

@@ -18,7 +18,10 @@ class AgendaController extends Controller
             ->where(function ($q) use ($today) {
                 $q->whereNull('tampil_selesai')->orWhere('tampil_selesai', '>=', $today);
             })
-            ->orderByDesc('tanggal')
+            ->where(function ($q) use ($today) {
+                $q->whereNull('tanggal')->orWhere('tanggal', '>=', $today);
+            })
+            ->orderBy('tanggal')
             ->orderByDesc('created_at')
             ->paginate(15);
 

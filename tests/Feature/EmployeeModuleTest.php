@@ -53,10 +53,20 @@ class EmployeeModuleTest extends TestCase
 
         $this->assertDatabaseHas('people', ['nik' => '3508990000000001']);
         $this->assertDatabaseHas('employees', ['nip' => '199001012019031001']);
+        $this->assertFalse(Employee::where('nip', '199001012019031001')->firstOrFail()->show_on_website);
         $this->assertDatabaseCount('employee_position_histories', 1);
 
         $employee = Employee::where('nip', '199001012019031001')->first();
         $this->assertSame('pengangkatan', $employee->positionHistories->first()->reason);
+    }
+
+    public function test_employee_publication_requires_explicit_opt_in(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('pegawai.store'), $this->payload(['show_on_website' => '1']));
+
+        $response->assertRedirect();
+        $employee = Employee::where('nip', '199001012019031001')->firstOrFail();
+        $this->assertTrue($employee->show_on_website);
     }
 
     public function test_nik_and_nip_must_be_unique(): void

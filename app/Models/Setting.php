@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class Setting extends Model
 {
@@ -33,6 +34,26 @@ class Setting extends Model
     public static function getAll(): Collection
     {
         return static::pluck('value', 'key');
+    }
+
+    public static function logoUrl(?Collection $settings = null): ?string
+    {
+        $path = $settings?->get('madrasah_logo') ?? static::get('madrasah_logo');
+
+        if (! is_string($path) || $path === '') {
+            return null;
+        }
+
+        $disk = Storage::disk('public');
+        if ($disk->exists($path)) {
+            return $disk->url($path);
+        }
+
+        $legacyPath = str_starts_with($path, 'settings/')
+            ? 'settings/'.$path
+            : 'settings/settings/'.$path;
+
+        return $disk->exists($legacyPath) ? $disk->url($legacyPath) : null;
     }
 
     /**

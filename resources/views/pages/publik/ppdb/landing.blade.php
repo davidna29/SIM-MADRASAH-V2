@@ -13,7 +13,7 @@
         $jalur = collect(explode("\n", $settings->get('ppdb_jalur', '')))->map(fn ($x) => trim($x))->filter()->values();
         $biaya = $settings->get('ppdb_biaya', '');
         $wa = $settings->get('ppdb_kontak_wa', '');
-        $telp = $settings->get('ppdb_kontak_telepon', '') ?: \App\Models\Setting::get('madrasah_phone', '');
+        $telp = $settings->get('ppdb_kontak_telepon', '') ?: $siteSettings->get('madrasah_phone', '');
         $jamLayanan = $settings->get('ppdb_jam_layanan', '');
         $faq = json_decode((string) $settings->get('ppdb_faq', '[]'), true);
         $faq = is_array($faq) ? $faq : [];
@@ -75,18 +75,17 @@
                         @endif
 
                         @if ($isOpen)
-                            <a href="#daftar" class="mt-6 inline-flex items-center gap-2 rounded-[var(--radius-control)] bg-success px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:brightness-95">
+                            <a href="#minat-ppdb" class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] bg-success px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-board-ink">
                                 <x-svg-check-circle class="size-4" /> Daftar Sekarang
                             </a>
                         @else
-                            <button type="button" disabled
-                                class="mt-6 inline-flex cursor-not-allowed items-center gap-2 rounded-[var(--radius-control)] bg-board-ink/20 px-5 py-3 text-sm font-bold text-board-ink/60">
-                                <x-svg-lock-closed class="size-4" /> Form Belum Dibuka
-                            </button>
+                            <a href="#minat-ppdb" class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] bg-board-ink px-5 py-3 text-sm font-bold text-board transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-board-ink">
+                                <x-svg-bell class="size-4" aria-hidden="true" /> Ingatkan Saya Saat Dibuka
+                            </a>
                         @endif
                     </div>
 
-                    <div class="md:border-l md:border-board-deep/20 md:pl-6">
+                    <div id="minat-ppdb" class="scroll-mt-28 md:border-l md:border-board-deep/20 md:pl-6">
                         @if (session('status'))
                             <div class="mb-4 rounded-[var(--radius-control)] bg-success/90 px-4 py-3 text-xs font-semibold text-white">
                                 {{ session('status') }}
@@ -108,6 +107,11 @@
                                     class="w-full rounded-[var(--radius-control)] bg-board px-3.5 py-2.5 text-sm text-board-ink placeholder:text-board-ink/50 ring-1 ring-inset ring-board-deep/30 focus:outline-none focus:ring-2 focus:ring-primary">
                                 @error('phone')<p class="mt-1 text-xs font-medium text-danger">{{ $message }}</p>@enderror
                             </div>
+                            <label class="flex items-start gap-2.5 text-xs leading-relaxed text-board-ink/85">
+                                <input type="checkbox" name="privacy_consent" value="1" required {{ old('privacy_consent') ? 'checked' : '' }} class="mt-0.5 size-4 shrink-0 rounded border-board-ink/40 text-primary focus:ring-board-ink">
+                                <span>Saya setuju dihubungi terkait PPDB dan telah membaca <a href="{{ route('publik.privasi') }}" target="_blank" rel="noopener" class="font-bold text-white underline underline-offset-2">Pemberitahuan Privasi</a>.</span>
+                            </label>
+                            @error('privacy_consent')<p class="text-xs font-semibold text-white">{{ $message }}</p>@enderror
                             <button type="submit"
                                 class="inline-flex w-full items-center justify-center gap-2 rounded-[var(--radius-control)] bg-board-ink px-4 py-2.5 text-sm font-bold text-board transition hover:opacity-90">
                                 <x-svg-bell class="size-4" /> Ingatkan Saya
@@ -251,7 +255,7 @@
 
         {{-- FAQ --}}
         @if ($faq)
-            <section class="mt-10" id="daftar">
+            <section class="mt-10" id="faq">
                 <h2 class="flex items-center gap-2 text-lg font-extrabold tracking-tight text-ink">
                     <x-svg-question-mark-circle class="size-5 text-primary" /> Pertanyaan yang Sering Diajukan
                 </h2>

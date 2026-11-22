@@ -1,50 +1,30 @@
-<x-layouts.root :title="'PPDB - Berhasil'">
-    <div class="flex min-h-screen flex-col items-center justify-center bg-paper px-4 py-10">
-        <div class="w-full max-w-md text-center">
-            <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-success-soft">
-                <x-svg-check-circle class="size-8 text-success" />
-            </div>
+<x-layouts.publik :title="'Pendaftaran PPDB diterima'" :description="'Konfirmasi pengiriman formulir pendaftaran PPDB.'">
+    <div class="mx-auto max-w-2xl py-8 sm:py-12">
+        <div class="text-center">
+            <span class="mx-auto flex size-16 items-center justify-center rounded-full bg-success-soft text-success"><x-svg-check-circle class="size-9" aria-hidden="true" /></span>
+            <h1 class="mt-5 text-3xl font-extrabold tracking-tight text-ink">Formulir berhasil dikirim</h1>
+            <p class="mx-auto mt-3 max-w-prose text-sm leading-relaxed text-ink-soft">{{ session('status') ?: 'Terima kasih. Panitia akan meninjau pendaftaran dan menghubungi orang tua/wali jika diperlukan.' }}</p>
+        </div>
 
-            <h1 class="mt-6 text-2xl font-extrabold tracking-tight text-ink">Pendaftaran Berhasil!</h1>
-
-            @if (session('status'))
-                <p class="mt-3 text-sm leading-relaxed text-ink-soft">{{ session('status') }}</p>
-            @endif
-
-            @if ($registration)
-                <div class="mt-6 rounded-sheet bg-sheet p-5 shadow-sheet ring-1 ring-inset ring-rule/60 text-left">
-                    <h2 class="text-sm font-bold text-ink">Detail Pendaftaran</h2>
-                    <dl class="mt-3 space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <dt class="text-ink-soft">No. Pendaftaran</dt>
-                            <dd class="font-mono font-bold text-primary">{{ $registration->registration_no }}</dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-ink-soft">Nama Siswa</dt>
-                            <dd class="font-bold text-ink">{{ $registration->name }}</dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-ink-soft">Status</dt>
-                            <dd>
-                                <x-ui.badge variant="warning" :dot="true">Menunggu Verifikasi</x-ui.badge>
-                            </dd>
-                        </div>
-                    </dl>
+        @if ($registration)
+            <section class="mt-8 rounded-sheet bg-sheet p-6 shadow-sheet ring-1 ring-inset ring-rule/60 sm:p-8" aria-labelledby="detail-pendaftaran-heading">
+                <div class="flex flex-wrap items-start justify-between gap-4 border-b border-rule/70 pb-4">
+                    <div>
+                        <h2 id="detail-pendaftaran-heading" class="text-lg font-extrabold text-ink">Simpan nomor pendaftaran</h2>
+                        <p class="mt-1 text-sm text-ink-soft">Gunakan nomor ini saat menghubungi panitia.</p>
+                    </div>
+                    <x-ui.badge variant="warning">Menunggu verifikasi</x-ui.badge>
                 </div>
+                <dl class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div><dt class="text-xs font-semibold text-ink-faint">Nomor pendaftaran</dt><dd class="mt-1 font-mono text-lg font-extrabold tracking-wide text-primary-strong">{{ $registration->registration_no }}</dd></div>
+                    <div><dt class="text-xs font-semibold text-ink-faint">Nama calon siswa</dt><dd class="mt-1 font-semibold text-ink">{{ $registration->name }}</dd></div>
+                </dl>
+            </section>
+        @endif
 
-                <div class="mt-4 rounded-sheet bg-info-soft p-4 text-left text-xs leading-relaxed text-info">
-                    <strong>Catatan:</strong> Simpan nomor pendaftaran Anda. Panitia akan menghubungi via WhatsApp/telepon untuk proses verifikasi berikutnya.
-                </div>
-            @endif
-
-            <div class="mt-8 flex flex-col gap-3">
-                <a href="{{ route('ppdb.form') }}" class="inline-flex items-center justify-center rounded-[var(--radius-control)] bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-strong">
-                    Kembali ke Formulir
-                </a>
-                <a href="{{ route('publik.berita.index') }}" class="text-xs text-ink-soft transition hover:text-ink">
-                    ← Kembali ke Beranda
-                </a>
-            </div>
+        <div class="mt-7 flex flex-wrap justify-center gap-3">
+            <x-ui.button variant="primary" icon="home" :href="route('publik.beranda')">Kembali ke Beranda</x-ui.button>
+            <x-ui.button variant="secondary" icon="phone" :href="route('publik.kontak')">Kontak Madrasah</x-ui.button>
         </div>
     </div>
-</x-layouts.root>
+</x-layouts.publik>

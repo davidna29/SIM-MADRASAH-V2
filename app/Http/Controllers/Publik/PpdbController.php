@@ -14,6 +14,8 @@ use Illuminate\View\View;
 
 class PpdbController extends Controller
 {
+    private const PRIVACY_CONSENT_VERSION = '1.0';
+
     public function index(): View
     {
         $registration = null;
@@ -38,7 +40,7 @@ class PpdbController extends Controller
         ]);
     }
 
-    public function store(PpdbRegistrationRequest $request)
+    public function store(PpdbRegistrationRequest $request): RedirectResponse
     {
         // Guard: form hanya dapat di-submit ketika PPDB dibuka.
         if (! $this->isOpen()) {
@@ -46,6 +48,7 @@ class PpdbController extends Controller
         }
 
         $validated = $request->validated();
+        unset($validated['privacy_consent']);
 
         // Cast booleans
         $booleanFields = ['dis_deaf', 'dis_blind', 'dis_disabled', 'dis_intellectual',
@@ -58,6 +61,8 @@ class PpdbController extends Controller
         $validated['status'] = 'submitted';
         $validated['ip_address'] = $request->ip();
         $validated['academic_year_id'] = AcademicYear::active()?->id;
+        $validated['privacy_consent_at'] = now();
+        $validated['privacy_consent_version'] = self::PRIVACY_CONSENT_VERSION;
 
         $registration = PpdbRegistration::create($validated);
 
@@ -82,12 +87,17 @@ class PpdbController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'phone' => 'required|string|max:20',
+            'privacy_consent' => 'required|accepted',
         ]);
 
         // Dedupe per nomor telepon (updateOrCreate) agar tidak spam; simpan nama terbaru.
         PpdbInterest::updateOrCreate(
             ['phone' => $validated['phone']],
-            ['name' => $validated['name']]
+            [
+                'name' => $validated['name'],
+                'privacy_consent_at' => now(),
+                'privacy_consent_version' => self::PRIVACY_CONSENT_VERSION,
+            ]
         );
 
         return back()->with('status', 'Terima kasih! Minat Anda tercatat. Kami akan menghubungi saat pendaftaran dibuka.');

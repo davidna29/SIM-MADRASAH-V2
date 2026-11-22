@@ -21,6 +21,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Cms\AgendaController;
 use App\Http\Controllers\Cms\ArticleController;
 use App\Http\Controllers\Cms\GalleryController;
+use App\Http\Controllers\Cms\PublicPageController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Fondasi\AccountActivationController;
 use App\Http\Controllers\Fondasi\JabatanController;
@@ -51,24 +52,42 @@ use App\Http\Controllers\Perpustakaan\LibraryController;
 use App\Http\Controllers\Ppdb\AdminPpdbController;
 use App\Http\Controllers\Ppdb\PpdbSettingController;
 use App\Http\Controllers\Publik\AgendaController as PublikAgendaController;
+use App\Http\Controllers\Publik\BerandaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Publik\GaleriController as PublikGaleriController;
+use App\Http\Controllers\Publik\HalamanController;
+use App\Http\Controllers\Publik\OrganisasiController;
 use App\Http\Controllers\Publik\PindahanController;
 use App\Http\Controllers\Publik\PpdbController;
+use App\Http\Controllers\Publik\SarprasController;
+use App\Http\Controllers\Publik\SitemapController;
+use App\Http\Controllers\Publik\VideoController;
 use App\Http\Controllers\Sarpras\InventoryController;
 use App\Http\Controllers\Sarpras\RoomController;
 use App\Http\Controllers\Siswa\PortalController as SiswaPortalController;
 use App\Http\Controllers\Tu\LetterController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', [BerandaController::class, 'index'])->name('publik.beranda');
 
 // Website publik (tanpa autentikasi)
+Route::get('/profil', [HalamanController::class, 'profil'])->name('publik.profil');
+Route::get('/profil/sambutan', [HalamanController::class, 'sambutan'])->name('publik.sambutan');
+Route::get('/profil/sejarah', [HalamanController::class, 'sejarah'])->name('publik.sejarah');
+Route::get('/profil/visi-misi', [HalamanController::class, 'visiMisi'])->name('publik.visi-misi');
+Route::get('/profil/struktur-organisasi', [OrganisasiController::class, 'struktur'])->name('publik.struktur');
+Route::get('/profil/guru', [OrganisasiController::class, 'guru'])->name('publik.guru');
+Route::get('/profil/sarana-prasarana', [SarprasController::class, 'index'])->name('publik.sarpras');
+Route::get('/kontak', [HalamanController::class, 'kontak'])->name('publik.kontak');
+Route::get('/kebijakan-privasi', [HalamanController::class, 'privasi'])->name('publik.privasi');
+Route::get('/video', [VideoController::class, 'index'])->name('publik.video');
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('publik.sitemap');
 Route::get('/berita', [PublikBeritaController::class, 'index'])->name('publik.berita.index');
 Route::get('/berita/{article:slug}', [PublikBeritaController::class, 'show'])->name('publik.berita.show');
 Route::get('/agenda', [PublikAgendaController::class, 'index'])->name('publik.agenda.index');
 Route::get('/galeri', [PublikGaleriController::class, 'index'])->name('publik.galeri.index');
 Route::get('/galeri/{album:slug}', [PublikGaleriController::class, 'show'])->name('publik.galeri.show');
+Route::get('/halaman/{publicPage:slug}', [HalamanController::class, 'show'])->name('publik.halaman');
 
 // PPDB Daring (publik, tanpa auth)
 Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb.form');
@@ -362,6 +381,15 @@ Route::middleware('auth')->group(function () {
 
     // CMS — Berita & Agenda (kontributor guru + editor/humas/kepala/TU/super admin)
     Route::middleware('role:super_admin|wakamad_humas|editor_berita|kepala_madrasah|tata_usaha|guru')->prefix('publikasi')->name('cms.')->group(function () {
+        Route::middleware('role:super_admin|wakamad_humas|editor_berita|kepala_madrasah')->group(function () {
+            Route::get('/halaman', [PublicPageController::class, 'index'])->name('halaman.index');
+            Route::get('/halaman/tambah', [PublicPageController::class, 'create'])->name('halaman.create');
+            Route::post('/halaman', [PublicPageController::class, 'store'])->name('halaman.store');
+            Route::get('/halaman/{publicPage}/edit', [PublicPageController::class, 'edit'])->name('halaman.edit');
+            Route::put('/halaman/{publicPage}', [PublicPageController::class, 'update'])->name('halaman.update');
+            Route::delete('/halaman/{publicPage}', [PublicPageController::class, 'destroy'])->name('halaman.destroy');
+        });
+
         Route::get('/berita', [ArticleController::class, 'index'])->name('berita.index');
         Route::get('/berita/tambah', [ArticleController::class, 'create'])->name('berita.create');
         Route::post('/berita', [ArticleController::class, 'store'])->name('berita.store');
@@ -389,6 +417,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/galeri/{album}/foto', [GalleryController::class, 'uploadPhotos'])->name('galeri.foto');
         Route::post('/galeri/{album}/video', [GalleryController::class, 'addVideo'])->name('galeri.video');
         Route::post('/galeri/{album}/cover/{item}', [GalleryController::class, 'setCover'])->name('galeri.cover');
+        Route::post('/galeri/{album}/item/{item}/publikasi', [GalleryController::class, 'approveItem'])->name('galeri.item.approve');
         Route::delete('/galeri/{album}/item/{item}', [GalleryController::class, 'destroyItem'])->name('galeri.item.destroy');
     });
 

@@ -103,6 +103,7 @@ class EmployeeController extends Controller
                 'nip' => $validated['nip'] ?: null,
                 'employee_status' => $validated['employee_status'],
                 'status' => $validated['status'],
+                'show_on_website' => $validated['show_on_website'] ?? false,
                 'tmt' => $validated['tmt'] ?? null,
             ]);
 
@@ -204,6 +205,7 @@ class EmployeeController extends Controller
                 'nip' => $validated['nip'] ?: null,
                 'employee_status' => $validated['employee_status'],
                 'status' => $validated['status'],
+                'show_on_website' => $validated['show_on_website'] ?? false,
                 'tmt' => $validated['tmt'] ?? null,
             ]);
 

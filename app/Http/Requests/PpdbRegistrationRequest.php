@@ -44,6 +44,7 @@ class PpdbRegistrationRequest extends FormRequest
             'scanned_akta' => 'required|url|max:500',
             'scanned_ijazah' => 'nullable|url|max:500',
             'scanned_photo' => 'nullable|url|max:500',
+            'privacy_consent' => $this->routeIs('ppdb.store') ? 'required|accepted' : 'exclude',
 
             // B. Imunisasi
             'imm_hepb' => 'required|in:PERNAH,TIDAK',

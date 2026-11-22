@@ -79,7 +79,7 @@ class GalleryController extends Controller
                 ['label' => 'Berita & Agenda', 'href' => route('cms.galeri.index')],
                 ['label' => $album->title],
             ],
-            'album' => $album,
+            'album' => $album->load('items'),
         ]);
     }
 
@@ -149,6 +149,7 @@ class GalleryController extends Controller
             'photos' => ['required', 'array', 'max:10'],
             'photos.*' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'caption' => ['nullable', 'string', 'max:255'],
+            'publication_approval' => ['required', 'accepted'],
         ]);
 
         $sort = (int) $album->items()->max('sort_order');
@@ -159,6 +160,8 @@ class GalleryController extends Controller
                 'file_path' => $photo->store('galeri', 'public'),
                 'caption' => $request->input('caption') ?: null,
                 'sort_order' => ++$sort,
+                'publication_approved_at' => now(),
+                'publication_approved_by' => auth()->id(),
             ]);
         }
 
@@ -182,6 +185,7 @@ class GalleryController extends Controller
         $validated = $request->validate([
             'video_url' => ['required', 'url', 'max:255'],
             'caption' => ['nullable', 'string', 'max:255'],
+            'publication_approval' => ['required', 'accepted'],
         ]);
 
         $album->items()->create([
@@ -189,6 +193,8 @@ class GalleryController extends Controller
             'video_url' => $validated['video_url'],
             'caption' => $validated['caption'] ?? null,
             'sort_order' => (int) $album->items()->max('sort_order') + 1,
+            'publication_approved_at' => now(),
+            'publication_approved_by' => auth()->id(),
         ]);
 
         activity('publikasi')->performedOn($album)->log('galeri_video_ditambahkan');
@@ -215,6 +221,21 @@ class GalleryController extends Controller
         activity('publikasi')->performedOn($album)->log('galeri_item_dihapus');
 
         return back()->with('status', 'Item galeri dihapus.');
+    }
+
+    public function approveItem(MediaAlbum $album, MediaItem $item): RedirectResponse
+    {
+        $this->authorize('update', $album);
+        abort_unless($item->album_id === $album->id, 404);
+
+        $item->update([
+            'publication_approved_at' => now(),
+            'publication_approved_by' => auth()->id(),
+        ]);
+
+        activity('publikasi')->performedOn($album)->log('galeri_item_izin_publikasi_dikonfirmasi');
+
+        return back()->with('status', 'Izin publikasi media dikonfirmasi; item dapat tampil pada website jika album berstatus publik.');
     }
 
     public function setCover(Request $request, MediaAlbum $album, MediaItem $item): RedirectResponse

@@ -130,6 +130,7 @@ class MutasiRegistrationRequest extends FormRequest
             'scanned_akta' => 'nullable|url|max:500',
             'scanned_ijazah' => 'nullable|url|max:500',
             'scanned_photo' => 'nullable|url|max:500',
+            'privacy_consent' => $this->routeIs('pindahan.store') ? 'required|accepted' : 'exclude',
         ];
     }
 }

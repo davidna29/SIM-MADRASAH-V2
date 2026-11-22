@@ -80,6 +80,7 @@ class PpdbModuleTest extends TestCase
             'mother_education' => '7',
             'mother_job' => '05',
             'mother_income' => 'Rp2jt-3jt',
+            'privacy_consent' => '1',
             'parent_ownership' => 'Milik Sendiri',
             'parent_address' => 'Jl. Test No. 1',
             'parent_province' => 'Kalimantan Tengah',
@@ -120,7 +121,9 @@ class PpdbModuleTest extends TestCase
         $this->assertDatabaseHas('ppdb_registrations', [
             'name' => 'AHMAD TEST',
             'status' => 'submitted',
+            'privacy_consent_version' => '1.0',
         ]);
+        $this->assertNotNull(PpdbRegistration::where('name', 'AHMAD TEST')->first()?->privacy_consent_at);
     }
 
     public function test_registration_generates_number(): void
@@ -136,6 +139,15 @@ class PpdbModuleTest extends TestCase
     {
         $response = $this->post(route('ppdb.store'), ['name' => '']);
         $response->assertSessionHasErrors('name');
+    }
+
+    public function test_public_registration_requires_guardian_privacy_consent(): void
+    {
+        $data = $this->validData();
+        unset($data['privacy_consent']);
+
+        $this->post(route('ppdb.store'), $data)->assertSessionHasErrors('privacy_consent');
+        $this->assertDatabaseCount('ppdb_registrations', 0);
     }
 
     public function test_multistep_submit_not_blocked_by_hidden_required(): void
@@ -514,13 +526,14 @@ class PpdbModuleTest extends TestCase
     {
         Setting::set('ppdb_status', 'closed');
 
-        $this->post(route('ppdb.interest.store'), ['name' => 'Ibu Aisyah', 'phone' => '081234567890'])
+        $this->post(route('ppdb.interest.store'), ['name' => 'Ibu Aisyah', 'phone' => '081234567890', 'privacy_consent' => '1'])
             ->assertRedirect();
-        $this->post(route('ppdb.interest.store'), ['name' => 'Ibu Aisyah Baru', 'phone' => '081234567890'])
+        $this->post(route('ppdb.interest.store'), ['name' => 'Ibu Aisyah Baru', 'phone' => '081234567890', 'privacy_consent' => '1'])
             ->assertRedirect();
 
         $this->assertDatabaseCount('ppdb_interests', 1);
         $this->assertDatabaseHas('ppdb_interests', ['name' => 'Ibu Aisyah Baru', 'phone' => '081234567890']);
+        $this->assertNotNull(PpdbInterest::first()?->privacy_consent_at);
     }
 
     public function test_interest_store_validates_required(): void
@@ -528,7 +541,7 @@ class PpdbModuleTest extends TestCase
         Setting::set('ppdb_status', 'closed');
 
         $this->post(route('ppdb.interest.store'), ['name' => '', 'phone' => ''])
-            ->assertSessionHasErrors(['name', 'phone']);
+            ->assertSessionHasErrors(['name', 'phone', 'privacy_consent']);
         $this->assertDatabaseCount('ppdb_interests', 0);
     }
 

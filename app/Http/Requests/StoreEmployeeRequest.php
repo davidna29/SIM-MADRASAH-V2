@@ -25,6 +25,7 @@ class StoreEmployeeRequest extends FormRequest
             'nip' => ['nullable', 'string', 'max:20', 'unique:employees,nip'],
             'employee_status' => ['required', 'in:pns,pppk,honor'],
             'status' => ['required', 'in:aktif,cuti,nonaktif'],
+            'show_on_website' => ['nullable', 'boolean'],
             'position_id' => ['required', 'exists:positions,id'],
             'organizational_unit_id' => ['required', 'exists:organizational_units,id'],
             'tmt' => ['nullable', 'date'],

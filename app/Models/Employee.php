@@ -16,18 +16,21 @@ class Employee extends Model
 
     protected $fillable = [
         'person_id', 'organizational_unit_id', 'position_id', 'user_id',
-        'nip', 'username_source', 'employee_status', 'status', 'tmt',
+        'nip', 'username_source', 'employee_status', 'status', 'show_on_website', 'tmt',
     ];
 
     protected function casts(): array
     {
-        return ['tmt' => 'date'];
+        return [
+            'tmt' => 'date',
+            'show_on_website' => 'boolean',
+        ];
     }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nip', 'employee_status', 'status', 'tmt', 'position_id', 'organizational_unit_id'])
+            ->logOnly(['nip', 'employee_status', 'status', 'show_on_website', 'tmt', 'position_id', 'organizational_unit_id'])
             ->logOnlyDirty()
             ->dontLogEmptyChanges();
     }

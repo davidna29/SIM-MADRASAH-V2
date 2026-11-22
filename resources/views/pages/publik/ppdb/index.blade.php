@@ -8,6 +8,7 @@
             4 => ['kk_number','kk_head_name','father_name','father_status','father_nik','father_birth_date','father_birth_place','father_education','father_job','father_income','father_phone','mother_name','mother_status','mother_nik','mother_birth_date','mother_birth_place','mother_education','mother_job','mother_income','mother_phone','guardian_name','guardian_nik','guardian_birth_date','guardian_birth_place','guardian_education','guardian_job','guardian_income','guardian_phone'],
             5 => ['parent_ownership','parent_address','parent_province','parent_city','parent_district','parent_village','parent_rt','parent_rw','parent_postal_code'],
             6 => ['origin_school','origin_nsm','origin_npsn','origin_address'],
+            7 => ['privacy_consent'],
         ];
         $firstErrorStep = 1;
         if ($errors->any()) {
@@ -60,7 +61,7 @@
                     </div>
                 </template>
             </div>
-            <div class="mt-2 text-center">
+            <div class="mt-2 text-center" role="status" aria-live="polite">
                 <span class="text-xs font-semibold text-ink-soft">Langkah <span x-text="step"></span> / <span x-text="totalSteps"></span></span>
             </div>
         </div>
@@ -81,7 +82,7 @@
             @csrf
 
             {{-- ═══════════════════════════════════════════ STEP 1: Data Siswa ═══════════════════════════════════════════ --}}
-            <div x-show="step === 1" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="step === 1" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
 
                 <x-ui.sheet title="A. Data Siswa" subtitle="Lengkapi data pribadi calon siswa baru">
                     <div class="space-y-5">
@@ -174,8 +175,8 @@
 
                         {{-- Documents --}}
                         <div class="border-t border-rule/70 pt-5">
-                            <h3 class="text-sm font-bold tracking-tight text-ink">Dokumen (Tautan Google Drive)</h3>
-                            <p class="mt-1 text-xs text-ink-soft">Unggah file ke Google Drive dan tempelkan tautan berbagi di sini.</p>
+                            <h3 class="text-sm font-bold tracking-tight text-ink">Tautan Dokumen</h3>
+                            <p class="mt-1 text-xs leading-relaxed text-ink-soft">Gunakan tautan yang hanya dapat dibuka panitia atau akun resmi madrasah. Jangan mengatur dokumen ke akses publik.</p>
                         </div>
 
                         <x-ui.field label="Scan Kartu Keluarga" required hint="Tautan Google Drive yang bisa diakses publik" :error="$errors->first('scanned_kk')">
@@ -202,7 +203,7 @@
             </div>
 
             {{-- ═══════════════════════════════════════════ STEP 2: Kesehatan & Berkebutuhan Khusus ═══════════════════════════════════════════ --}}
-            <div x-show="step === 2" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="step === 2" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
 
                 {{-- Section B: Imunisasi --}}
                 <x-ui.sheet title="B. Imunisasi" subtitle="Riwayat imunisasi calon siswa" class="mb-5">
@@ -280,7 +281,7 @@
             </div>
 
             {{-- ═══════════════════════════════════════════ STEP 3: Alamat Siswa ═══════════════════════════════════════════ --}}
-            <div x-show="step === 3" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="step === 3" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
 
                 <x-ui.sheet title="D. Alamat Siswa" subtitle="Lengkapi alamat domisili calon siswa">
                     <div class="space-y-5">
@@ -375,7 +376,7 @@
             </div>
 
             {{-- ═══════════════════════════════════════════ STEP 4: Data Orang Tua/Wali ═══════════════════════════════════════════ --}}
-            <div x-show="step === 4" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="step === 4" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
 
                 {{-- KK --}}
                 <x-ui.sheet title="E. Data Orang Tua / Wali" subtitle="Data kartu keluarga dan orang tua/wali" class="mb-5">
@@ -563,7 +564,7 @@
             </div>
 
             {{-- ═══════════════════════════════════════════ STEP 5: Alamat Orang Tua ═══════════════════════════════════════════ --}}
-            <div x-show="step === 5" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="step === 5" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
 
                 <x-ui.sheet title="F. Alamat Orang Tua" subtitle="Alamat domisili orang tua/wali sesuai KK">
                     <div class="space-y-5">
@@ -620,7 +621,7 @@
             </div>
 
             {{-- ═══════════════════════════════════════════ STEP 6: Sekolah Asal ═══════════════════════════════════════════ --}}
-            <div x-show="step === 6" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="step === 6" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
 
                 <x-ui.sheet title="G. Sekolah Asal" subtitle="Data sekolah sebelumnya">
                     <div class="space-y-5">
@@ -650,7 +651,7 @@
             </div>
 
             {{-- ═══════════════════════════════════════════ STEP 7: Review & Submit ═══════════════════════════════════════════ --}}
-            <div x-show="step === 7" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="step === 7" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
 
                 <x-ui.sheet title="Ringkasan Pendaftaran" subtitle="Periksa kembali data yang diisi sebelum mengirim">
                     <div class="space-y-6">
@@ -760,24 +761,30 @@
                             <p class="font-semibold">Konfirmasi Pendaftaran</p>
                             <p class="mt-1">Dengan menekan tombol "Kirim Pendaftaran", saya menyatakan bahwa seluruh data yang diisi adalah benar dan dapat dipertanggungjawabkan.</p>
                         </x-ui.alert>
+                        <x-ui.field label="Persetujuan orang tua/wali" required :error="$errors->first('privacy_consent')">
+                            <label class="flex items-start gap-3 rounded-control bg-paper/70 p-4 ring-1 ring-inset ring-rule-strong">
+                                <input type="checkbox" name="privacy_consent" value="1" required {{ old('privacy_consent') ? 'checked' : '' }} class="mt-1 size-4 shrink-0 rounded border-rule-strong text-primary focus:ring-primary">
+                                <span class="text-sm leading-relaxed text-ink">Saya orang tua/wali menyetujui penggunaan data untuk proses PPDB dan telah membaca <a href="{{ route('publik.privasi') }}" target="_blank" rel="noopener" class="font-bold text-primary-strong underline underline-offset-2">Pemberitahuan Privasi</a>.</span>
+                            </label>
+                        </x-ui.field>
                     </div>
                 </x-ui.sheet>
             </div>
 
             {{-- ═══════════════════════════════════════════ NAVIGATION ═══════════════════════════════════════════ --}}
-            <div class="mt-6 flex items-center justify-between">
+            <div class="sticky bottom-0 z-10 -mx-4 mt-6 flex items-center justify-between gap-3 border-t border-rule-strong/60 bg-paper/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
                 <div>
-                    <x-ui.button type="button" variant="secondary" icon="arrow-left" x-show="step > 1" @click="step--">
+                    <x-ui.button type="button" variant="secondary" icon="arrow-left" x-show="step > 1" x-cloak @click="step--">
                         Sebelumnya
                     </x-ui.button>
                 </div>
 
                 <div>
-                    <x-ui.button type="button" variant="primary" icon-right="arrow-right" x-show="step < 7" @click="step++">
+                    <x-ui.button type="button" variant="primary" icon-right="arrow-right" x-show="step < 7" x-cloak @click="step++">
                         Selanjutnya
                     </x-ui.button>
 
-                    <x-ui.button type="submit" variant="success" icon="check-circle" x-show="step === 7">
+                    <x-ui.button type="submit" variant="success" icon="check-circle" x-show="step === 7" x-cloak>
                         Kirim Pendaftaran
                     </x-ui.button>
                 </div>

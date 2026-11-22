@@ -1,10 +1,28 @@
+@props(['title' => null, 'description' => null, 'image' => null, 'canonical' => null, 'siteName' => null])
+
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'SIM Madrasah' }} · {{ config('app.name', 'SIM Madrasah') }}</title>
+    <title>{{ $title ? $title.' · ' : '' }}{{ $siteName ?: config('app.name', 'SIM Madrasah') }}</title>
+    @if ($description)
+        <meta name="description" content="{{ $description }}">
+        <meta property="og:description" content="{{ $description }}">
+    @endif
+    <meta property="og:title" content="{{ $title ?? $siteName ?? config('app.name', 'SIM Madrasah') }}">
+    <meta property="og:type" content="website">
+    @if ($canonical)
+        <link rel="canonical" href="{{ $canonical }}">
+        <meta property="og:url" content="{{ $canonical }}">
+    @endif
+    @if ($image)
+        <meta property="og:image" content="{{ $image }}">
+        <meta name="twitter:card" content="summary_large_image">
+    @else
+        <meta name="twitter:card" content="summary">
+    @endif
     @fonts
     <script>
         (function(){var t=localStorage.getItem('sim-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}})();

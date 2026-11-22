@@ -17,6 +17,7 @@ class SettingSeeder extends Seeder
             'madrasah_jenjang' => 'MTs',
             'madrasah_status' => 'swasta',
             'madrasah_tahun_berdiri' => '2000',
+            'madrasah_tagline' => '',
 
             // Alamat & Lokasi
             'madrasah_jalan' => 'Jl. Pendidikan No. 123',
@@ -32,6 +33,12 @@ class SettingSeeder extends Seeder
             'madrasah_phone' => '(022) 1234567',
             'madrasah_email' => 'info@alikhlas.sch.id',
             'madrasah_website' => 'https://alikhlas.sch.id',
+            'madrasah_whatsapp' => '',
+            'madrasah_jam_layanan' => '',
+            'madrasah_facebook' => '',
+            'madrasah_instagram' => '',
+            'madrasah_youtube' => '',
+            'madrasah_tiktok' => '',
 
             // Legalitas
             'madrasah_sk_pendirian' => '001/SK/2000',

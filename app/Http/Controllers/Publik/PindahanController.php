@@ -14,6 +14,8 @@ use Illuminate\View\View;
 
 class PindahanController extends Controller
 {
+    private const PRIVACY_CONSENT_VERSION = '1.0';
+
     public function index(): View
     {
         $registration = null;
@@ -43,11 +45,14 @@ class PindahanController extends Controller
         }
 
         $validated = $request->validated();
+        unset($validated['privacy_consent']);
 
         $validated['registration_no'] = MutasiRegistration::generateRegistrationNo();
         $validated['status'] = 'submitted';
         $validated['ip_address'] = $request->ip();
         $validated['academic_year_id'] = AcademicYear::active()?->id;
+        $validated['privacy_consent_at'] = now();
+        $validated['privacy_consent_version'] = self::PRIVACY_CONSENT_VERSION;
 
         $registration = MutasiRegistration::create($validated);
 
@@ -72,11 +77,16 @@ class PindahanController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'phone' => 'required|string|max:20',
+            'privacy_consent' => 'required|accepted',
         ]);
 
         MutasiInterest::updateOrCreate(
             ['phone' => $validated['phone']],
-            ['name' => $validated['name']]
+            [
+                'name' => $validated['name'],
+                'privacy_consent_at' => now(),
+                'privacy_consent_version' => self::PRIVACY_CONSENT_VERSION,
+            ]
         );
 
         return back()->with('status', 'Terima kasih! Minat Anda tercatat. Kami akan menghubungi saat pendaftaran pindahan dibuka.');

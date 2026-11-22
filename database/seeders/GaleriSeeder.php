@@ -25,7 +25,7 @@ class GaleriSeeder extends Seeder
                 'title' => 'Dokumentasi MPLS 2026',
                 'kategori' => 'Kegiatan',
                 'description' => 'Momen masa pengenalan lingkungan sekolah tahun ajaran 2026/2027.',
-                'status' => 'publik',
+                'status' => 'privat',
                 'created_by' => $editor->id,
             ]
         );

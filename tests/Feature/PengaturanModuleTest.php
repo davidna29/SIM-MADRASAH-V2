@@ -72,6 +72,10 @@ class PengaturanModuleTest extends TestCase
             'madrasah_phone' => '(022) 9999999',
             'madrasah_email' => 'baru@madrasah.sch.id',
             'madrasah_website' => 'https://baru.sch.id',
+            'madrasah_tagline' => 'Informasi resmi madrasah',
+            'madrasah_whatsapp' => '628123456789',
+            'madrasah_jam_layanan' => 'Senin–Jumat, 08.00–14.00 WIB',
+            'madrasah_instagram' => 'https://instagram.com/madrasah.resmi',
             'madrasah_sk_pendirian' => '001/SK/2026',
             'madrasah_tgl_sk_pendirian' => '2026-01-01',
             'madrasah_sk_operasional' => '002/SK/2026',
@@ -91,6 +95,8 @@ class PengaturanModuleTest extends TestCase
         $this->assertEquals('negeri', Setting::get('madrasah_status'));
         $this->assertEquals('99999999', Setting::get('madrasah_nsm'));
         $this->assertEquals('A', Setting::get('madrasah_nilai_akreditasi'));
+        $this->assertEquals('Informasi resmi madrasah', Setting::get('madrasah_tagline'));
+        $this->assertEquals('https://instagram.com/madrasah.resmi', Setting::get('madrasah_instagram'));
     }
 
     public function test_update_requires_name(): void
@@ -142,6 +148,8 @@ class PengaturanModuleTest extends TestCase
         $logoPath = Setting::get('madrasah_logo');
         $this->assertNotEmpty($logoPath);
         $this->assertStringStartsWith('settings/', $logoPath);
+        Storage::disk('public')->assertExists($logoPath);
+        $this->assertStringContainsString($logoPath, Setting::logoUrl());
     }
 
     public function test_guru_cannot_update(): void

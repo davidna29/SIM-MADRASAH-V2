@@ -58,7 +58,7 @@
                     <x-ui.field label="Tag" hint="Pisahkan dengan koma." :error="$errors->first('tags')">
                         <x-ui.input name="tags" :value="old('tags', $editing ? $article->tags : '')" placeholder="ppdb, prestasi" />
                     </x-ui.field>
-                    <x-ui.field label="Gambar Utama" hint="Opsional — jpg/png/webp maks. 2 MB." :error="$errors->first('featured_image')">
+                    <x-ui.field label="Gambar Utama" hint="Opsional — jpg/png/webp maks. 2 MB. Pastikan izin publikasi orang yang tampak di foto telah diperoleh." :error="$errors->first('featured_image')">
                         <input type="file" name="featured_image"
                             class="w-full rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink file:mr-3 file:rounded file:border-0 file:bg-primary-soft file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-primary-strong ring-1 ring-inset ring-rule-strong transition focus:outline-none focus:ring-2 focus:ring-primary">
                         @if ($editing && $article->featured_image)

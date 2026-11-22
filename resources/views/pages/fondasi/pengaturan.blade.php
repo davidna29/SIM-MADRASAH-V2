@@ -121,6 +121,34 @@
                 </div>
             </x-ui.sheet>
 
+            <x-ui.sheet title="Website Publik" subtitle="Pengantar, jam layanan, dan tautan resmi media sosial" pinned ruled>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <x-ui.field label="Kalimat pengantar" hint="Opsional. Gunakan informasi yang sudah dikonfirmasi." :error="$errors->first('madrasah_tagline')">
+                            <x-ui.input name="madrasah_tagline" :value="old('madrasah_tagline', $settings->get('madrasah_tagline', ''))" maxlength="180" placeholder="Kalimat singkat tentang madrasah" />
+                        </x-ui.field>
+                    </div>
+                    <x-ui.field label="WhatsApp" hint="Nomor resmi, format internasional." :error="$errors->first('madrasah_whatsapp')">
+                        <x-ui.input name="madrasah_whatsapp" :value="old('madrasah_whatsapp', $settings->get('madrasah_whatsapp', ''))" placeholder="62812…" maxlength="20" />
+                    </x-ui.field>
+                    <x-ui.field label="Jam layanan" :error="$errors->first('madrasah_jam_layanan')">
+                        <x-ui.input name="madrasah_jam_layanan" :value="old('madrasah_jam_layanan', $settings->get('madrasah_jam_layanan', ''))" placeholder="Senin–Jumat, 08.00–14.00 WIB" maxlength="100" />
+                    </x-ui.field>
+                    <x-ui.field label="Facebook resmi" :error="$errors->first('madrasah_facebook')">
+                        <x-ui.input type="url" name="madrasah_facebook" :value="old('madrasah_facebook', $settings->get('madrasah_facebook', ''))" placeholder="https://facebook.com/…" />
+                    </x-ui.field>
+                    <x-ui.field label="Instagram resmi" :error="$errors->first('madrasah_instagram')">
+                        <x-ui.input type="url" name="madrasah_instagram" :value="old('madrasah_instagram', $settings->get('madrasah_instagram', ''))" placeholder="https://instagram.com/…" />
+                    </x-ui.field>
+                    <x-ui.field label="YouTube resmi" :error="$errors->first('madrasah_youtube')">
+                        <x-ui.input type="url" name="madrasah_youtube" :value="old('madrasah_youtube', $settings->get('madrasah_youtube', ''))" placeholder="https://youtube.com/@…" />
+                    </x-ui.field>
+                    <x-ui.field label="TikTok resmi" :error="$errors->first('madrasah_tiktok')">
+                        <x-ui.input type="url" name="madrasah_tiktok" :value="old('madrasah_tiktok', $settings->get('madrasah_tiktok', ''))" placeholder="https://tiktok.com/@…" />
+                    </x-ui.field>
+                </div>
+            </x-ui.sheet>
+
             {{-- Legalitas --}}
             <x-ui.sheet title="Legalitas" subtitle="SK pendirian dan izin operasional" pinned ruled>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -164,7 +192,7 @@
             </x-ui.sheet>
 
             {{-- Logo --}}
-            <x-ui.sheet title="Logo Madrasah" subtitle="Logo tampil di sidebar, login, dan cetakan" pinned ruled>
+            <x-ui.sheet title="Logo Madrasah" subtitle="Logo tampil di sistem dan website publik" pinned ruled>
                 <div class="flex flex-wrap items-start gap-6">
                     <div class="flex-1 min-w-[200px]">
                         <label for="madrasah_logo" class="block pb-1.5 text-xs font-bold text-ink">Upload Logo</label>
@@ -173,10 +201,10 @@
                         <p class="mt-1 text-xs text-ink-faint">Format: JPG/PNG, maks 2MB.</p>
                     </div>
 
-                    @if ($settings->get('madrasah_logo'))
+                    @if ($logoUrl)
                         <div class="flex flex-col items-center gap-2">
                             <div class="size-24 overflow-hidden rounded-[var(--radius-control)] ring-1 ring-inset ring-rule-strong">
-                                <img src="{{ Storage::disk('public')->url($settings->get('madrasah_logo')) }}" alt="Logo"
+                                <img src="{{ $logoUrl }}" alt="Logo madrasah"
                                     class="size-full object-contain">
                             </div>
                             <span class="text-xs text-ink-faint">Logo saat ini</span>

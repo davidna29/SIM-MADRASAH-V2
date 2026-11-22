@@ -1,54 +1,56 @@
-<x-layouts.publik :title="$article->title">
-    <div class="mx-auto max-w-3xl">
-        <p class="text-xs font-semibold text-ink-faint">
-            <a href="{{ route('publik.berita.index') }}" class="text-primary hover:underline">← Semua berita</a>
-        </p>
+<x-layouts.publik
+    :title="$article->title"
+    :description="$article->summary ?: $article->excerpt()"
+    :image="$article->featured_image ? url(\Illuminate\Support\Facades\Storage::disk('public')->url($article->featured_image)) : null">
+    <article class="mx-auto max-w-4xl">
+        <x-ui.breadcrumb :items="[['label' => 'Beranda', 'href' => route('publik.beranda')], ['label' => 'Berita', 'href' => route('publik.berita.index')], ['label' => $article->title]]" />
 
-        <h1 class="mt-3 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{{ $article->title }}</h1>
+        <header class="mt-8 border-b border-rule-strong/70 pb-6">
+            @if ($article->category)<x-ui.badge variant="primary" :dot="false">{{ $article->category }}</x-ui.badge>@endif
+            <h1 class="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-ink sm:text-4xl lg:text-5xl">{{ $article->title }}</h1>
+            <div class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-ink-faint">
+                <span class="font-semibold text-ink-soft">{{ $article->author?->name ?: 'Redaksi Madrasah' }}</span>
+                <span aria-hidden="true">·</span>
+                <time class="font-mono" datetime="{{ $article->published_at?->toDateString() }}">{{ $article->published_at?->isoFormat('D MMMM YYYY') }}</time>
+            </div>
+        </header>
 
-        <div class="mt-3 flex flex-wrap items-center gap-2">
-            @if ($article->category)
-                <x-ui.badge variant="primary" :dot="false">{{ $article->category }}</x-ui.badge>
-            @endif
-            <span class="tabular font-mono text-xs text-ink-faint">
-                {{ $article->author?->name ?? 'Admin' }} · {{ $article->published_at?->isoFormat('D MMMM YYYY') }}
-            </span>
-        </div>
+        @if ($article->featured_image)
+            <figure class="mt-7 overflow-hidden rounded-sheet bg-paper-deep shadow-sheet ring-1 ring-inset ring-rule/60">
+                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($article->featured_image) }}" alt="{{ $article->title }}" class="max-h-[38rem] w-full object-cover" fetchpriority="high">
+            </figure>
+        @endif
 
-        <div class="mt-8">
-            @if ($article->featured_image)
-                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($article->featured_image) }}"
-                    alt="{{ $article->title }}" class="mb-6 w-full rounded-sheet object-cover shadow-sheet">
-            @endif
-
+        <div class="mx-auto mt-8 max-w-[70ch]">
             @if ($article->summary)
-                <p class="text-[15px] font-semibold leading-relaxed text-ink-soft">{{ $article->summary }}</p>
+                <p class="border-b border-rule/70 pb-6 text-lg font-semibold leading-relaxed text-ink-soft">{{ $article->summary }}</p>
             @endif
-
-            <div class="mt-4 whitespace-pre-line text-[15px] leading-relaxed text-ink">{{ $article->body }}</div>
-
+            <div class="whitespace-pre-line py-6 text-[15px] leading-8 text-ink">{{ $article->body }}</div>
             @if ($article->tags)
-                <div class="mt-8 flex flex-wrap gap-2 border-t border-rule/70 pt-4">
+                <div class="flex flex-wrap gap-2 border-t border-rule/70 pt-5">
                     @foreach (explode(',', $article->tags) as $tag)
                         <x-ui.badge variant="neutral" :dot="false">#{{ trim($tag) }}</x-ui.badge>
                     @endforeach
                 </div>
             @endif
         </div>
-    </div>
+    </article>
 
     @if ($lainnya->isNotEmpty())
-        <div class="mt-12">
-            <h2 class="text-lg font-bold tracking-tight text-ink">Berita Lainnya</h2>
-            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section class="mt-16 border-t border-rule-strong/70 pt-8" aria-labelledby="berita-lainnya-heading">
+            <div class="flex items-end justify-between gap-4">
+                <h2 id="berita-lainnya-heading" class="text-xl font-extrabold tracking-tight text-ink">Berita lainnya</h2>
+                <a href="{{ route('publik.berita.index') }}" class="text-sm font-bold text-primary-strong hover:underline">Semua berita</a>
+            </div>
+            <div class="mt-4 grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($lainnya as $item)
-                    <a href="{{ route('publik.berita.show', $item) }}"
-                        class="group rounded-sheet bg-sheet p-4 shadow-sheet ring-1 ring-inset ring-rule/60 transition duration-150 hover:-translate-y-0.5 hover:shadow-sheet-raised">
-                        <p class="text-sm font-bold leading-snug text-ink group-hover:text-primary-strong">{{ $item->title }}</p>
-                        <p class="tabular mt-2 font-mono text-xs text-ink-faint">{{ $item->published_at?->isoFormat('D MMM YYYY') }}</p>
+                    <a href="{{ route('publik.berita.show', $item) }}" class="group border-b border-rule/70 py-5">
+                        @if ($item->category)<p class="text-xs font-bold text-primary-strong">{{ $item->category }}</p>@endif
+                        <h3 class="mt-1 text-base font-bold leading-snug text-ink group-hover:text-primary-strong">{{ $item->title }}</h3>
+                        <time class="mt-2 block font-mono text-xs text-ink-faint" datetime="{{ $item->published_at?->toDateString() }}">{{ $item->published_at?->isoFormat('D MMM YYYY') }}</time>
                     </a>
                 @endforeach
             </div>
-        </div>
+        </section>
     @endif
 </x-layouts.publik>

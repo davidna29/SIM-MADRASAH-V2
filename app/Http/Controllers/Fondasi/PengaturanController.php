@@ -23,6 +23,7 @@ class PengaturanController extends Controller
                 ['label' => 'Pengaturan Sistem'],
             ],
             'settings' => $settings,
+            'logoUrl' => Setting::logoUrl($settings),
         ]);
     }
 
@@ -36,6 +37,7 @@ class PengaturanController extends Controller
             'madrasah_jenjang' => 'required|in:RA,MI,MTs,MA',
             'madrasah_status' => 'required|in:negeri,swasta',
             'madrasah_tahun_berdiri' => 'nullable|string|max:4',
+            'madrasah_tagline' => 'nullable|string|max:180',
 
             // Alamat & Lokasi
             'madrasah_jalan' => 'nullable|string|max:255',
@@ -51,6 +53,12 @@ class PengaturanController extends Controller
             'madrasah_phone' => 'nullable|string|max:30',
             'madrasah_email' => 'nullable|email|max:100',
             'madrasah_website' => 'nullable|url|max:200',
+            'madrasah_whatsapp' => 'nullable|string|max:20',
+            'madrasah_jam_layanan' => 'nullable|string|max:100',
+            'madrasah_facebook' => 'nullable|url|max:200',
+            'madrasah_instagram' => 'nullable|url|max:200',
+            'madrasah_youtube' => 'nullable|url|max:200',
+            'madrasah_tiktok' => 'nullable|url|max:200',
 
             // Legalitas
             'madrasah_sk_pendirian' => 'nullable|string|max:100',
@@ -73,11 +81,13 @@ class PengaturanController extends Controller
             if ($oldLogo && Storage::disk('public')->exists($oldLogo)) {
                 Storage::disk('public')->delete($oldLogo);
             }
+            if ($oldLogo && str_starts_with($oldLogo, 'settings/') && Storage::disk('public')->exists('settings/'.$oldLogo)) {
+                Storage::disk('public')->delete('settings/'.$oldLogo);
+            }
 
             $file = $request->file('madrasah_logo');
-            $filename = 'settings/logo.'.$file->getClientOriginalExtension();
-            $file->storeAs('settings', $filename, 'public');
-            $validated['madrasah_logo'] = $filename;
+            $filename = 'logo.'.$file->getClientOriginalExtension();
+            $validated['madrasah_logo'] = $file->storeAs('settings', $filename, 'public');
         }
 
         // Remove the file object from validated data (it's not a string)

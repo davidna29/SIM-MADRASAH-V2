@@ -88,6 +88,12 @@
                     <x-ui.field label="Status Keaktifan" :error="$errors->first('status')">
                         <x-ui.select name="status" :options="['aktif' => 'Aktif', 'cuti' => 'Cuti', 'nonaktif' => 'Nonaktif']" :selected="old('status', $editing ? $employee->status : null)" />
                     </x-ui.field>
+                    <x-ui.field label="Publikasi Website" :error="$errors->first('show_on_website')">
+                        <label class="flex min-h-11 items-start gap-3 rounded-control bg-paper/70 p-3 ring-1 ring-inset ring-rule-strong">
+                            <input type="checkbox" name="show_on_website" value="1" @checked(old('show_on_website', $editing ? $employee->show_on_website : false)) class="mt-1 size-4 shrink-0 rounded border-rule-strong text-primary focus:ring-primary">
+                            <span class="text-xs leading-relaxed text-ink-soft">Izinkan nama dan jabatan tampil di website publik. NIP, NIK, kontak, dan data pribadi tidak akan ditampilkan.</span>
+                        </label>
+                    </x-ui.field>
                 </div>
             </x-ui.form-section>
 

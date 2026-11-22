@@ -48,6 +48,9 @@
                         <h2 class="text-lg font-extrabold tracking-tight text-ink">{{ $employee->person->name }}</h2>
                         <div class="mt-1.5 flex flex-wrap items-center gap-2">
                             <x-ui.badge variant="primary" :dot="false">{{ $employee->positionLabel() }}</x-ui.badge>
+                            @if ($employee->show_on_website)
+                                <x-ui.badge variant="info" :dot="false">Ditampilkan di website</x-ui.badge>
+                            @endif
                             @php
                                 $st = match ($employee->status) {
                                     'aktif' => ['Aktif', 'success'],

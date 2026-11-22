@@ -46,6 +46,7 @@ class MutasiModuleTest extends TestCase
             'father_name' => 'HENDRA TEST',
             'mother_name' => 'DEWI TEST',
             'scanned_rekomendasi' => 'https://drive.google.com/file/d/r-test',
+            'privacy_consent' => '1',
         ], $overrides);
     }
 
@@ -79,6 +80,7 @@ class MutasiModuleTest extends TestCase
         $this->assertDatabaseHas('mutasi_registrations', [
             'name' => 'RAIHAN TEST',
             'status' => 'submitted',
+            'privacy_consent_version' => '1.0',
         ]);
         $reg = MutasiRegistration::where('name', 'RAIHAN TEST')->first();
         $this->assertStringStartsWith('MUT-'.now()->year.'-', $reg->registration_no);
@@ -100,12 +102,23 @@ class MutasiModuleTest extends TestCase
         $response->assertSessionHasErrors('scanned_rekomendasi');
     }
 
+    public function test_public_registration_requires_guardian_privacy_consent(): void
+    {
+        Setting::set('mutasi_status', 'open');
+        $data = $this->payload();
+        unset($data['privacy_consent']);
+
+        $this->post(route('pindahan.store'), $data)->assertSessionHasErrors('privacy_consent');
+        $this->assertDatabaseCount('mutasi_registrations', 0);
+    }
+
     public function test_interest_dedupe_by_phone(): void
     {
-        $this->post(route('pindahan.interest.store'), ['name' => 'Bu Ani', 'phone' => '081299887766']);
-        $this->post(route('pindahan.interest.store'), ['name' => 'Bu Ani Baru', 'phone' => '081299887766']);
+        $this->post(route('pindahan.interest.store'), ['name' => 'Bu Ani', 'phone' => '081299887766', 'privacy_consent' => '1']);
+        $this->post(route('pindahan.interest.store'), ['name' => 'Bu Ani Baru', 'phone' => '081299887766', 'privacy_consent' => '1']);
 
         $this->assertSame(1, MutasiInterest::count());
+        $this->assertNotNull(MutasiInterest::first()?->privacy_consent_at);
     }
 
     public function test_admin_index_lists_registrants(): void

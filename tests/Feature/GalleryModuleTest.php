@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\MediaAlbum;
+use App\Models\MediaItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -80,6 +81,7 @@ class GalleryModuleTest extends TestCase
         $this->actingAs($this->editor)->post(route('cms.galeri.foto', $album), [
             'photos' => $photos,
             'caption' => 'Sesi pengenalan',
+            'publication_approval' => '1',
         ])->assertSessionHasNoErrors();
 
         $album->refresh();
@@ -90,6 +92,37 @@ class GalleryModuleTest extends TestCase
         Storage::disk('public')->assertExists($album->items()->first()->file_path);
     }
 
+    public function test_public_media_upload_requires_publication_permission_confirmation(): void
+    {
+        $this->actingAs($this->editor)->post(route('cms.galeri.store'), $this->albumPayload());
+        $album = MediaAlbum::first();
+
+        $this->actingAs($this->editor)->post(route('cms.galeri.foto', $album), [
+            'photos' => [UploadedFile::fake()->image('siswa.jpg')],
+        ])->assertSessionHasErrors('publication_approval');
+
+        $this->assertSame(0, $album->items()->count());
+    }
+
+    public function test_existing_media_needs_editor_confirmation_before_public_display(): void
+    {
+        $this->actingAs($this->editor)->post(route('cms.galeri.store'), $this->albumPayload());
+        $album = MediaAlbum::firstOrFail();
+        $item = MediaItem::create([
+            'album_id' => $album->id,
+            'tipe' => 'foto',
+            'file_path' => 'galeri/arsip.jpg',
+            'caption' => 'Foto yang menunggu konfirmasi',
+        ]);
+
+        $this->get(route('publik.galeri.show', $album))->assertOk()->assertDontSee($item->caption);
+
+        $this->actingAs($this->editor)->post(route('cms.galeri.item.approve', [$album, $item]))->assertRedirect();
+        $this->assertNotNull($item->fresh()->publication_approved_at);
+
+        $this->get(route('publik.galeri.show', $album))->assertOk()->assertSee($item->caption);
+    }
+
     public function test_invalid_photo_type_is_rejected(): void
     {
         $this->actingAs($this->editor)->post(route('cms.galeri.store'), $this->albumPayload());
@@ -97,6 +130,7 @@ class GalleryModuleTest extends TestCase
 
         $this->actingAs($this->editor)->post(route('cms.galeri.foto', $album), [
             'photos' => [UploadedFile::fake()->create('catatan.pdf', 100, 'application/pdf')],
+            'publication_approval' => '1',
         ])->assertSessionHasErrors('photos.0');
 
         $this->assertSame(0, $album->items()->count());
@@ -110,6 +144,7 @@ class GalleryModuleTest extends TestCase
         $this->actingAs($this->editor)->post(route('cms.galeri.video', $album), [
             'video_url' => 'https://www.youtube.com/watch?v=abc12345678',
             'caption' => 'Video MPLS',
+            'publication_approval' => '1',
         ])->assertSessionHasNoErrors();
 
         $item = $album->items()->first();
@@ -141,6 +176,7 @@ class GalleryModuleTest extends TestCase
 
         $this->actingAs($this->editor)->post(route('cms.galeri.foto', $album), [
             'photos' => [UploadedFile::fake()->image('x.jpg')],
+            'publication_approval' => '1',
         ]);
         $item = $album->items()->first();
 

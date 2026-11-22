@@ -4,7 +4,7 @@
             1 => ['name','nik','nisn','nis_asal','gender','religion','birth_place','birth_date','previous_school','child_order','sibling_count','ever_tk','ever_paud','origin_school','origin_nsm','origin_npsn','origin_address','kelas_asal'],
             2 => ['kelas_tujuan','alasan_pindah','tanggal_mutasi','residence_type','address','province','city','district','village','rt','rw','postal_code','distance','transport','commute_time','home_phone','student_phone','student_email'],
             3 => ['kk_number','kk_head_name','father_name','father_status','father_nik','father_education','father_job','father_phone','mother_name','mother_status','mother_nik','mother_education','mother_job','mother_income','mother_phone','guardian_name','guardian_nik','guardian_phone'],
-            4 => ['scanned_rekomendasi','scanned_rapor','scanned_kk','scanned_kk_wali','scanned_akta','scanned_ijazah','scanned_photo'],
+            4 => ['scanned_rekomendasi','scanned_rapor','scanned_kk','scanned_kk_wali','scanned_akta','scanned_ijazah','scanned_photo','privacy_consent'],
         ];
         $firstErrorStep = 1;
         if ($errors->any()) {
@@ -48,7 +48,7 @@
                     </div>
                 </template>
             </div>
-            <div class="mt-2 text-center">
+            <div class="mt-2 text-center" role="status" aria-live="polite">
                 <span class="text-xs font-semibold text-ink-soft">Langkah <span x-text="step"></span> / <span x-text="totalSteps"></span></span>
             </div>
         </div>
@@ -66,7 +66,7 @@
             @csrf
 
             {{-- ══ STEP 1: Identitas & Asal ══ --}}
-            <div x-show="step === 1" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+            <div x-show="step === 1" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
                 <x-ui.sheet title="A. Identitas Siswa & Asal" subtitle="Data pribadi beserta madrasah / sekolah asal">
                     <div class="space-y-5">
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -283,7 +283,7 @@
 
             {{-- ══ STEP 4: Dokumen & Kirim ══ --}}
             <div x-show="step === 4" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
-                <x-ui.sheet title="D. Dokumen" subtitle="Unggah tautan Google Drive berisi scan dokumen">
+                <x-ui.sheet title="D. Dokumen & Persetujuan" subtitle="Berikan tautan yang hanya dapat diakses panitia penerimaan">
                     <div class="space-y-5">
                         <x-ui.field label="Surat Rekomendasi Madrasah" required hint="Wajib — rekomendasi dari madrasah asal untuk siswa bersangkutan." :error="$errors->first('scanned_rekomendasi')">
                             <x-ui.input name="scanned_rekomendasi" placeholder="https://drive.google.com/…" :value="old('scanned_rekomendasi')" required maxlength="500" />
@@ -308,15 +308,21 @@
                                 <x-ui.input name="scanned_photo" placeholder="https://drive.google.com/…" :value="old('scanned_photo')" maxlength="500" />
                             </x-ui.field>
                         </div>
+                        <x-ui.field label="Persetujuan orang tua/wali" required :error="$errors->first('privacy_consent')">
+                            <label class="flex items-start gap-3 rounded-control bg-paper/70 p-4 ring-1 ring-inset ring-rule-strong">
+                                <input type="checkbox" name="privacy_consent" value="1" required {{ old('privacy_consent') ? 'checked' : '' }} class="mt-1 size-4 shrink-0 rounded border-rule-strong text-primary focus:ring-primary">
+                                <span class="text-sm leading-relaxed text-ink">Saya orang tua/wali menyetujui penggunaan data untuk proses siswa pindahan dan telah membaca <a href="{{ route('publik.privasi') }}" target="_blank" rel="noopener" class="font-bold text-primary-strong underline underline-offset-2">Pemberitahuan Privasi</a>. Jangan gunakan tautan berkas dengan akses publik.</span>
+                            </label>
+                        </x-ui.field>
                     </div>
                 </x-ui.sheet>
             </div>
 
             {{-- Navigasi langkah --}}
-            <div class="mt-6 flex items-center justify-between gap-3">
-                <x-ui.button variant="ghost" icon="arrow-left" type="button" x-show="step > 1" @click="step--">Sebelumnya</x-ui.button>
-                <x-ui.button variant="primary" icon="arrow-right" iconRight="check" type="button" x-show="step < totalSteps" @click="step++">Lanjut</x-ui.button>
-                <x-ui.button variant="success" icon="check" type="submit" x-show="step === totalSteps">Kirim Pendaftaran</x-ui.button>
+            <div class="sticky bottom-0 z-10 -mx-4 mt-6 flex items-center justify-between gap-3 border-t border-rule-strong/60 bg-paper/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
+                <x-ui.button variant="ghost" icon="arrow-left" type="button" x-show="step > 1" x-cloak @click="step--">Sebelumnya</x-ui.button>
+                <x-ui.button variant="primary" icon="arrow-right" iconRight="check" type="button" x-show="step < totalSteps" x-cloak @click="step++">Lanjut</x-ui.button>
+                <x-ui.button variant="success" icon="check" type="submit" x-show="step === totalSteps" x-cloak>Kirim Pendaftaran</x-ui.button>
             </div>
         </form>
     </div>

@@ -13,7 +13,7 @@ class PpdbRegistration extends Model
 
     protected $fillable = [
         'registration_no', 'status', 'rejection_reason', 'notes',
-        'academic_year_id', 'student_id', 'ip_address',
+        'academic_year_id', 'student_id', 'ip_address', 'privacy_consent_at', 'privacy_consent_version',
         // A. Data Siswa
         'name', 'nik', 'nisn', 'gender', 'religion', 'birth_place', 'birth_date',
         'previous_school', 'hobby', 'ambition', 'child_order', 'sibling_count',
@@ -53,6 +53,7 @@ class PpdbRegistration extends Model
         'mother_birth_date' => 'date',
         'guardian_birth_date' => 'date',
         'entry_date' => 'date',
+        'privacy_consent_at' => 'datetime',
         'dis_deaf' => 'boolean',
         'dis_blind' => 'boolean',
         'dis_disabled' => 'boolean',
