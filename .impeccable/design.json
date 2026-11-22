@@ -1,23 +1,44 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-23T08:35:00+07:00",
+  "generatedAt": "2026-11-22T17:38:38Z",
   "title": "Design System: SIM Madrasah",
   "extensions": {
     "colorMeta": {
       "paper": { "role": "neutral", "displayName": "Kertas", "canonical": "#f6f1e7", "tonalRamp": ["#3a342a", "#4e4638", "#635a49", "#776d5a", "#8c816c", "#a1977e", "#b9af96", "#d6cdb7", "#f6f1e7"] },
+      "paper-deep": { "role": "neutral", "displayName": "Kertas Pekat", "canonical": "#ece5d3", "tonalRamp": ["#2b2412", "#4e4222", "#726031", "#967e41", "#b59a54", "#c5af78", "#d4c49b", "#e6ddc6", "#ece5d3"] },
       "sheet": { "role": "neutral", "displayName": "Lembar", "canonical": "#ffffff", "tonalRamp": ["#4a4a4a", "#5c5c5c", "#707070", "#848484", "#9a9a9a", "#b3b3b3", "#d1d1d1", "#ededed", "#ffffff"] },
       "ink": { "role": "neutral", "displayName": "Tinta", "canonical": "#22322a", "tonalRamp": ["#0e1712", "#162219", "#1e2d21", "#22322a", "#2c4034", "#3b5143", "#526c5a", "#778d7f", "#a9bab0"] },
+      "ink-soft": { "role": "neutral", "displayName": "Tinta Lembut", "canonical": "#55665b", "tonalRamp": ["#1c211e", "#333d37", "#4a594f", "#55665b", "#799081", "#95a79c", "#b1beb6", "#d2dad5", "#f1f3f2"] },
+      "ink-faint": { "role": "neutral", "displayName": "Tinta Samar", "canonical": "#5f7067", "tonalRamp": ["#1c211e", "#333d38", "#4b5851", "#5f7067", "#7b8f84", "#96a69e", "#b2bdb7", "#d3dad6", "#f1f3f2"] },
+      "rule": { "role": "neutral", "displayName": "Garis", "canonical": "#e4dcc8", "tonalRamp": ["#292314", "#4b4025", "#6d5e36", "#907b47", "#ae975b", "#bfac7d", "#d0c29f", "#e4dcc8", "#f7f4ee"] },
+      "rule-strong": { "role": "neutral", "displayName": "Garis Pekat", "canonical": "#d3c8ad", "tonalRamp": ["#282215", "#493f27", "#6a5c39", "#8b794b", "#aa9460", "#bbaa81", "#cdc1a2", "#d3c8ad", "#f6f4ee"] },
       "board": { "role": "secondary", "displayName": "Hijau Papan", "canonical": "#12402f", "tonalRamp": ["#041109", "#082015", "#0c3023", "#12402f", "#18543d", "#1e6a4c", "#2c8460", "#45a47c", "#7acba7"] },
+      "board-deep": { "role": "secondary", "displayName": "Hijau Papan Pekat", "canonical": "#0c3023", "tonalRamp": ["#0c3124", "#165a41", "#21835f", "#2bab7d", "#3bce99", "#64d8ae", "#8de2c3", "#beefdd", "#ebfaf4"] },
+      "board-soft": { "role": "secondary", "displayName": "Hijau Papan Lembut", "canonical": "#1e5a42", "tonalRamp": ["#0f2e22", "#1e5a42", "#297a5a", "#36a176", "#47c291", "#6ecfa8", "#94dbbf", "#c2ebda", "#ecf9f4"] },
+      "board-ink": { "role": "secondary", "displayName": "Tinta Papan", "canonical": "#e9f4ee", "tonalRamp": ["#14291e", "#254b36", "#366d4f", "#478f68", "#5cad81", "#7ebe9b", "#a0cfb5", "#c9e4d5", "#e9f4ee"] },
       "primary": { "role": "primary", "displayName": "Hijau Madrasah", "canonical": "#1b7a45", "tonalRamp": ["#051c10", "#0a3319", "#0f4c24", "#11602f", "#1b7a45", "#2a9557", "#43b06f", "#6dcd91", "#a8e6bd"] },
+      "primary-strong": { "role": "primary", "displayName": "Hijau Madrasah Pekat", "canonical": "#11602f", "tonalRamp": ["#093419", "#11602f", "#198b44", "#20b659", "#2fda70", "#5ae28e", "#86eaac", "#baf3cf", "#e9fbf0"] },
+      "primary-soft": { "role": "primary", "displayName": "Hijau Lembut", "canonical": "#e3f1e8", "tonalRamp": ["#14291c", "#254b33", "#366d4a", "#478f61", "#5cad79", "#7ebe95", "#a0cfb1", "#c9e4d2", "#e3f1e8"] },
       "success": { "role": "tertiary", "displayName": "Sukses / Lunas", "canonical": "#157a3c", "tonalRamp": ["#04250f", "#093d1a", "#0c5423", "#157a3c", "#1f9250", "#35ab66", "#5cc584", "#93dfae", "#cbf2d8"] },
+      "success-soft": { "role": "tertiary", "displayName": "Sukses Lembut", "canonical": "#e4f3e9", "tonalRamp": ["#132a1b", "#234e31", "#327147", "#42945d", "#56b475", "#79c392", "#9cd3ae", "#c7e6d1", "#e4f3e9"] },
       "warning": { "role": "tertiary", "displayName": "Peringatan / Cicilan", "canonical": "#9c4308", "tonalRamp": ["#2b1201", "#462004", "#5e2c06", "#7d3b08", "#9c4308", "#bb5c14", "#d97f2e", "#eda95c", "#f9d9a8"] },
+      "warning-soft": { "role": "tertiary", "displayName": "Peringatan Lembut", "canonical": "#fdf1dc", "tonalRamp": ["#3a2603", "#6a4606", "#9a6509", "#cb850c", "#f2a217", "#f5b648", "#f7c978", "#fbe0b2", "#fdf1dc"] },
       "danger": { "role": "tertiary", "displayName": "Bahaya / Error", "canonical": "#b42318", "tonalRamp": ["#3a0703", "#590d06", "#7d150c", "#9c1e12", "#b42318", "#cd3a26", "#e2634a", "#f0937f", "#fbcbbd"] },
-      "info": { "role": "tertiary", "displayName": "Informasi", "canonical": "#1d5fa5", "tonalRamp": ["#051a30", "#0b2c50", "#103f70", "#174f8d", "#1d5fa5", "#2e78c2", "#4d93da", "#7db3e8", "#bfd9f4"] }
+      "danger-soft": { "role": "tertiary", "displayName": "Bahaya Lembut", "canonical": "#fdeae7", "tonalRamp": ["#380c05", "#681609", "#971f0d", "#c62910", "#ec391d", "#f0624c", "#f48c7b", "#f9bdb4", "#fdeae7"] },
+      "info": { "role": "tertiary", "displayName": "Informasi", "canonical": "#1d5fa5", "tonalRamp": ["#051a30", "#0b2c50", "#103f70", "#174f8d", "#1d5fa5", "#2e78c2", "#4d93da", "#7db3e8", "#bfd9f4"] },
+      "info-soft": { "role": "tertiary", "displayName": "Informasi Lembut", "canonical": "#e6f0fa", "tonalRamp": ["#0a1f33", "#13385e", "#1b5288", "#246bb2", "#3385d6", "#5e9edf", "#88b8e7", "#bbd6f1", "#e6f0fa"] }
     },
     "typographyMeta": {
       "display": { "displayName": "Display", "purpose": "Judul halaman — display 800, tracking -0.02em." },
       "headline": { "displayName": "Headline", "purpose": "Judul section sheet." },
-      "data": { "displayName": "Data", "purpose": "Angka tabular (NIS, nominal Rupiah, pagination) — JetBrains Mono + tabular-nums." }
+      "title": { "displayName": "Title", "purpose": "Judul kartu dan header." },
+      "body": { "displayName": "Body", "purpose": "Isi dan deskripsi; lebar baca 65–75ch." },
+      "label": { "displayName": "Label", "purpose": "Label form, meta, dan timestamp." },
+      "caption": { "displayName": "Caption", "purpose": "Label grup navigasi uppercase." },
+      "item": { "displayName": "Item", "purpose": "Baris daftar dan detail ringkas." },
+      "meta": { "displayName": "Meta", "purpose": "ID lembar, NIS kecil, dan tanggal — mono tabular." },
+      "data": { "displayName": "Data", "purpose": "Angka tabular (NIS, nominal Rupiah, pagination) — JetBrains Mono + tabular-nums." },
+      "print": { "displayName": "Print", "purpose": "Template PDF DomPDF; DejaVu Sans, tidak memakai font web." }
     },
     "shadows": [
       { "name": "sheet", "value": "0 1px 1px rgb(34 50 42/0.05), 0 2px 4px -1px rgb(34 50 42/0.06), 0 12px 32px -16px rgb(34 50 42/0.22)", "purpose": "Lembar yang disematkan — kartu, sheet, KPI." },
@@ -52,7 +73,7 @@
       "refersTo": "button-secondary",
       "description": "Tindakan sekunder; lembar putih dengan ring garis.",
       "html": "<button class=\"ds-btn-secondary\">Buka</button>",
-      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 10px; background: #ffffff; color: #22322a; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: inset 0 0 0 1px #d3c8ad; transition: background 150ms ease-out; } .ds-btn-secondary:hover { background: #ece5d3; } .ds-btn-secondary:focus-visible { outline: 2px solid #1b7a45; outline-offset: 2px; }"
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 10px; background: #ffffff; color: #22322a; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: inset 0 0 0 1px #d3c8ad; transition: background 150ms ease-out; } .ds-btn-secondary:hover { background: #ece5d3; } .ds-btn-secondary:focus-visible { outline: 2px solid #1b7a45; outline-offset: 2px; }"
     },
     {
       "name": "Status Badge",
@@ -95,6 +116,14 @@
       "css": ".ds-board { background: #12402f; background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 16px 16px; padding: 16px 12px; width: 288px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; } .ds-nav-label { margin: 0 0 6px; padding: 0 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(233,244,238,0.6); } .ds-nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; font-size: 13px; font-weight: 600; color: rgba(233,244,238,0.7); text-decoration: none; transition: background 150ms ease-out, color 150ms ease-out; } .ds-nav-item:hover { background: rgba(30,90,66,0.3); color: #e9f4ee; } .ds-nav-item.is-active { background: rgba(30,90,66,0.4); color: #e9f4ee; box-shadow: inset 0 0 0 1px rgba(30,90,66,0.6); } .ds-nav-ico { width: 18px; height: 18px; } .ds-pin { width: 6px; height: 6px; margin-left: auto; border-radius: 999px; background: #e9f4ee; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), inset 0 -2px 3px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.25); }"
     },
     {
+      "name": "Public Header",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Papan hijau website publik: identitas madrasah, navigasi berkelompok, dan tombol masuk.",
+      "html": "<header class=\"ds-public-header\"><a class=\"ds-public-brand\" href=\"#\"><span class=\"ds-public-mark\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" width=\"22\" height=\"22\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75a5.981 5.981 0 0 0 2.374.49m9.876-6.6a5.981 5.981 0 0 1 0-6.6M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m0 18a9 9 0 0 1 0-18\"/></svg></span><span>Nama Madrasah</span></a><nav class=\"ds-public-nav\"><a class=\"ds-public-link\" href=\"#\">Beranda</a><a class=\"ds-public-link\" href=\"#\">Profil</a><a class=\"ds-public-link\" href=\"#\">Berita</a><a class=\"ds-public-link\" href=\"#\">Kontak</a><a class=\"ds-public-login\" href=\"#\">Masuk</a></nav></header>",
+      "css": ".ds-public-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 24px; background: #12402f; background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 16px 16px; color: #e9f4ee; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; } .ds-public-brand { display: inline-flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; font-size: 16px; font-weight: 800; letter-spacing: -0.02em; } .ds-public-mark { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 10px; background: #e9f4ee; color: #12402f; } .ds-public-nav { display: flex; align-items: center; gap: 4px; } .ds-public-link { padding: 8px 12px; border-radius: 10px; color: rgba(233,244,238,0.85); text-decoration: none; font-size: 14px; font-weight: 600; transition: background 150ms ease-out, color 150ms ease-out; } .ds-public-link:hover { background: rgba(30,90,66,0.5); color: #fff; } .ds-public-link:focus-visible { outline: 2px solid #e9f4ee; outline-offset: 2px; } .ds-public-login { display: inline-flex; align-items: center; height: 40px; margin-left: 8px; padding: 0 16px; border-radius: 10px; background: #e9f4ee; color: #12402f; font-size: 14px; font-weight: 700; text-decoration: none; } .ds-public-login:hover { background: #fff; } .ds-public-login:focus-visible { outline: 2px solid #e9f4ee; outline-offset: 2px; }"
+    },
+    {
       "name": "Data Table",
       "kind": "custom",
       "refersTo": null,
@@ -105,7 +134,7 @@
   ],
   "narrative": {
     "northStar": "Papan Pengumuman Madrasah (Mading)",
-    "overview": "Seluruh sistem operasional madrasah disajikan sebagai dinding papan pengumuman yang tertata: papan hijau madrasah di kiri sebagai indeks, lembaran kertas putih bergaris sebagai kartu, dan penanda status sebagai pin berwarna yang disematkan. Setiap modul adalah sebuah papan; setiap catatan adalah lembar; persetujuan berarti menyematkan sebuah lembar; riwayat tidak pernah hilang dari papan. Sistem ini menolak dashboard admin abu-abu generik.\n\nPersonality: terang, sederhana, dan hangat — dibangun untuk guru dan pegawai madrasah yang belum terbiasa aplikasi kompleks. Kertas hangat sebagai tanah memberi kehangatan; hijau madrasah sebagai papan memberi otoritas institusional; lembaran bergaris memberi keteraturan yang akrab dengan administrasi kertas. Plus Jakarta Sans dirancang di Jakarta — kesejajaran budaya; JetBrains Mono menjaga angka (NIS, nominal Rupiah, tanggal) presisi dan tabular.",
+    "overview": "Seluruh sistem operasional madrasah disajikan sebagai dinding papan pengumuman yang tertata: papan hijau madrasah di kiri sebagai indeks, lembaran kertas putih bergaris sebagai kartu, dan penanda status sebagai pin berwarna yang disematkan. Setiap modul adalah sebuah papan; setiap catatan adalah lembar; persetujuan berarti menyematkan sebuah lembar; riwayat tidak pernah hilang dari papan. Sistem ini menolak dashboard admin abu-abu generik.\n\nPersonality: terang, sederhana, dan hangat — dibangun untuk guru dan pegawai madrasah yang belum terbiasa aplikasi kompleks. Kertas hangat sebagai tanah memberi kehangatan; hijau madrasah sebagai papan memberi otoritas institusional; lembaran bergaris memberi keteraturan yang akrab dengan administrasi kertas. Plus Jakarta Sans — dirancang di Jakarta — memberi kesejajaran budaya; JetBrains Mono menjaga angka (NIS, nominal Rupiah, tanggal) presisi dan tabular.",
     "keyCharacteristics": [
       "Kertas hangat sebagai tanah, lembar putih sebagai kartu, papan hijau sebagai navigasi.",
       "Status selalu sebagai pin berwarna + label teks (tidak pernah hanya ikon).",
