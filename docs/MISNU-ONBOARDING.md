@@ -24,6 +24,7 @@ Log kronologis penerapan data madrasah ke SIM Madrasah V2.
 - Identitas, logo, 31 pegawai, 18 rombel, 13 mapel, 16 ruang, 18 wali kelas, 9 ekskul, 7 halaman publik, kalender 2026/2027 (2 periode, 26 kegiatan).
 - 57 siswa pilot VI-A/VI-B diimpor lebih dulu; kemudian **521 siswa + 941 wali** setelah perbaikan idempotensi.
 - 57 foto galeri; 2 prestasi siswa aktif (sisanya alumni → `storage/app/reports/prestasi-unmatched.csv`).
+- **31 foto guru** (700×700) di `/profil/guru` & `/profil/struktur-organisasi`; **hero slider** beranda berisi foto Kamad (Pramuka), guru bersama, dan album **Sorotan Madrasah** (20 gambar termasuk poster).
 - Foto Kepala Madrasah (Erna, S.Ag.) di halaman `/profil/sambutan` — berkas `storage/app/public/halaman/kepala-madrasah-erna.png`, caption “Kepala Madrasah” (tanda tangan teks di body dihapus agar tidak ganda).
 - Perbaikan data: NISN 9 digit dipulihkan nol depan; tanggal invalid dikosongkan + laporan; NIK kosong/ganda → NIK sintetis + flag `documents.nik_sintetis`; nilai EMIS berpenomoran (`15.Buruh …`) dinormalisasi agar muat kolom (30 karakter).
 - NIK ganda di workbook: `AINUN HAYATI` (256510) & `AKHMAD BADALI` (256503) → siswa kedua memakai NIK sintetis.

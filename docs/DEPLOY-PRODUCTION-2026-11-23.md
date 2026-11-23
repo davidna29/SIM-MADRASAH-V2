@@ -432,3 +432,35 @@ Uji HTTP: `/`, `/profil*`, `/kontak`, `/galeri`, `/kalender`, `/sitemap.xml`, `/
 - Header/footer publik kini memakai lambang MISNU (`settings/favicon.png`); admin/sidebar & login juga memakai lambang yang sama.
 - Tabel **Kelola Berita** menambah kolom **Terbit** (`published_at`, format `d M Y H:i`; `—` bila belum terbit).
 - Commit `8083c39`; test 541 lulus; production bersih.
+
+
+---
+
+## 16. Hero Slider, Foto Guru & Struktur — 23 November 2026
+
+### 16.1 Hero beranda
+- Hero kanan menjadi **slider di dalam hero** (Alpine, autoplay 6 detik, pause saat hover/fokus, dot + counter + panah, hormati `prefers-reduced-motion`).
+- Slide pertama: **foto Kepala Madrasah** (berseragam Pramuka, caption “Kepala Madrasah”); slide kedua: **foto guru bersama** (caption “Guru & Tenaga Kependidikan”); sisanya 20 item album **Sorotan Madrasah** dengan `object-contain` (termasuk poster).
+- Foto hero disimpan di `settings/beranda/kepala-madrasah.jpg` (277×471) dan `guru-bersama.jpg` (748×235); dapat diganti via **Pengaturan → Foto Hero Beranda**.
+- Fallback: gambar Beranda → kartu agenda → placeholder.
+
+### 16.2 Foto guru
+- Migrasi `employees.photo_path`; 31 pegawai memiliki foto (termasuk 4 tambahan: YULIA AMELIA, H. MUHAMMAD MAHLAN, ALWAFA AMRULLAH, ZAHRATUNNISA).
+- Foto disimpan `storage/app/public/pegawai/{id}.jpg` (700×700, q82, total ±2,7 MB).
+- Halaman `/profil/guru` menjadi grid kartu foto; `/profil/struktur-organisasi` memakai avatar bulat; fallback inisial bila kosong.
+- Form Tambah/Ubah Pegawai dapat unggah/ganti/hapus foto (maks 2 MB); daftar & detail pegawai menampilkan thumbnail.
+- Hanya tampil bila `show_on_website = true`.
+
+### 16.3 Album Sorotan Madrasah
+- Album publik `sorotan-madrasah` berisi **20 gambar** (13 foto + 7 poster), semua approved dan terurut; total ±5,8 MB (resize maks 1920 px, q82).
+- Sky slider memakai album ini; admin dapat mengelola lewat **Kelola Galeri**.
+
+### 16.4 Perintah & verifikasi
+```bash
+php artisan misnu:import-hero
+php artisan misnu:import-foto-guru
+php artisan misnu:import-slider
+php artisan misnu:import-slider --processed=/path/ke/folder-teroptimasi
+```
+- Production: 31 foto pegawai, 20 item sorotan, 2 setting hero; halaman `/`, `/profil/guru`, `/profil/struktur-organisasi` dan seluruh gambar diuji **200**.
+- Commit `c6b8e52`; test 552 lulus; repo server bersih.
