@@ -192,3 +192,24 @@ Disiplin (PRD Bagian 16): **frontend → persetujuan pengguna → backend → te
 
 - `PRODUCT.md` · `DESIGN.md` (+ `.impeccable/design.json`) · surface briefs di `.impeccable/surfaces/` · screenshots review di `.impeccable/review/`.
 - Git: commit API v1 `96f0054` sudah di-push ke `origin/main` (GitHub `davidna29/SIM-MADRASAH-V2`); commit dokumentasi API dan sinkronisasi `package-lock.json` dibuat setelahnya. 492 test lulus; `main` disinkronkan sebelum sesi baru.
+
+## 8. Deploy Production & Integrasi Hermes (23 Nov 2026)
+
+Production: `https://misnupalangkaraya.sch.id` — PHP 8.4.28, Laravel 13.26.1, MariaDB 11.8.9, DB `u549935065_simmadv2`.
+
+**Selesai**
+- `composer install --no-dev` (37 paket dev dihapus, termasuk Boost); 7 migrasi batch 11; `PublicPageSeeder`; `optimize`; `storage:link`.
+- `.env` production: `APP_ENV=production`, `APP_DEBUG=false`, `LOG_CHANNEL=daily`, `LOG_LEVEL=warning`, `SESSION_SECURE_COOKIE=true`.
+- Semua halaman publik yang sebelumnya 500 sudah 200 (beranda, profil, guru, kontak, video, sitemap, login, PPDB).
+- Galeri: album demo “Dokumentasi MPLS 2026” (id 1) → Privat; album “Siswa Berprestasi” (id 3, slug `siswa-berprestasi`) → Publik + cover. Item “video testing” dibiarkan.
+- API v1 + Hermes: user `hermes.asisten` (`super_admin`, aktif, tanpa paksa ganti password), token `hermes-stb` 4 scope, `expires_at=null`; token di STB `/root/.hermes/.env` (600), service `hermes-gateway.service`.
+- Verifikasi Hermes: `/me` 200, `/dashboard/ringkasan` 200, `/berita` 200, `POST /cms/berita` 201 draft + retry idempoten 200.
+
+**Terbuka**
+- Cron hPanel sudah dibuat (`* * * * *`) tetapi **belum terbukti eksekusi**; `crontab -l` kosong (normal di Hostinger). Verifikasi via “Lihat Output”/uji artikel terjadwal. Command: `cd /home/u549935065/domains/misnupalangkaraya.sch.id/public_html/laravel_app && /opt/alt/php84/usr/bin/php artisan schedule:run >> /dev/null 2>&1`.
+- Draft tes id 5 “Tes API Hermes…” masih ada → hapus lewat CMS.
+- Timezone aplikasi masih UTC (`config/app.php`); jadwal berita/presensi berpotensi geser 7 jam. Perlu keputusan terpisah.
+- Uji manual upload 4 MB, PDF rapor, submit PPDB, alur admin lengkap belum.
+- Token permanen + 4 scope: pastikan `.env` 600, SSH key-only, prosedur revoke, dan konfirmasi eksplisit sebelum Hermes menulis SPP.
+
+Detail operasional, perintah, dan runbook: `docs/DEPLOY-PRODUCTION-2026-11-23.md`.
