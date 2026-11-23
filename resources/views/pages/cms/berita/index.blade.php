@@ -56,7 +56,7 @@
 
         <div class="mt-3">
             <x-ui.sheet title="Daftar Berita" :subtitle="$articles->total() . ' berita'" pinned :padding="false">
-                <x-ui.table :headers="$isEditor ? ['Pilih', 'Judul', 'Status', 'Kategori', 'Penulis', 'Diperbarui', ''] : ['Judul', 'Status', 'Kategori', 'Penulis', 'Diperbarui', '']">
+                <x-ui.table :headers="$isEditor ? ['Pilih', 'Judul', 'Status', 'Kategori', 'Penulis', 'Terbit', 'Diperbarui', ''] : ['Judul', 'Status', 'Kategori', 'Penulis', 'Terbit', 'Diperbarui', '']">
                     <x-slot name="emptySlot">Belum ada berita.</x-slot>
                     <x-slot>
                         @foreach ($articles as $article)
@@ -82,6 +82,13 @@
                                 <td class="px-4 py-3"><x-ui.badge :variant="$variant">{{ $statusLabels[$article->status] ?? $article->status }}</x-ui.badge></td>
                                 <td class="px-4 py-3 text-xs text-ink-soft">{{ $article->category ?: '—' }}</td>
                                 <td class="whitespace-nowrap px-4 py-3 text-xs text-ink-soft">{{ $article->author?->name ?? '—' }}</td>
+                                <td class="tabular whitespace-nowrap px-4 py-3 font-mono text-xs text-ink-soft">
+                                    @if ($article->published_at)
+                                        {{ $article->published_at->format('d M Y H:i') }}
+                                    @else
+                                        <span class="text-ink-faint">—</span>
+                                    @endif
+                                </td>
                                 <td class="tabular whitespace-nowrap px-4 py-3 font-mono text-xs text-ink-faint">{{ $article->updated_at->format('d M Y') }}</td>
                                 <td class="whitespace-nowrap px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1.5">

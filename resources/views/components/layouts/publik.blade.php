@@ -2,6 +2,9 @@
 
 @php
     $schoolName = $siteSettings->get('madrasah_name') ?: config('app.name', 'Madrasah');
+    $siteMarkUrl = file_exists(public_path('storage/settings/favicon.png'))
+        ? asset('storage/settings/favicon.png')
+        : $siteLogoUrl;
     $address = collect([
         $siteSettings->get('madrasah_jalan'),
         $siteSettings->get('madrasah_desa'),
@@ -25,8 +28,8 @@
         <header class="board-face sticky top-0 z-30 text-board-ink shadow-sheet">
             <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
                 <a href="{{ route('publik.beranda') }}" class="flex min-w-0 items-center gap-3 rounded-control focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-board-ink">
-                    @if ($siteLogoUrl)
-                        <img src="{{ $siteLogoUrl }}" alt="Logo {{ $schoolName }}" class="h-11 w-auto max-w-[7.5rem] shrink-0 rounded-control bg-white object-contain px-1.5 py-1">
+                    @if ($siteMarkUrl)
+                        <img src="{{ $siteMarkUrl }}" alt="Logo {{ $schoolName }}" class="size-11 shrink-0 rounded-control bg-white object-contain p-1.5">
                     @else
                         <span class="flex size-11 shrink-0 items-center justify-center rounded-control bg-board-ink text-board">
                             <x-svg-academic-cap class="size-6" aria-hidden="true" />
@@ -134,9 +137,9 @@
             <div class="mx-auto grid max-w-7xl gap-9 px-4 py-9 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8 lg:py-12">
                 <div class="sm:col-span-2">
                     <a href="{{ route('publik.beranda') }}" class="inline-flex items-center gap-3 text-ink">
-                        @if ($siteLogoUrl)
-                            <span class="flex h-10 max-w-[7rem] items-center justify-center rounded-control bg-white px-1.5 py-1">
-                                <img src="{{ $siteLogoUrl }}" alt="Logo {{ $schoolName }}" class="h-full w-auto max-w-full object-contain">
+                        @if ($siteMarkUrl)
+                            <span class="flex size-10 items-center justify-center rounded-control bg-white p-1">
+                                <img src="{{ $siteMarkUrl }}" alt="Logo {{ $schoolName }}" class="size-full object-contain">
                             </span>
                         @else
                             <span class="flex size-10 items-center justify-center rounded-control bg-board text-board-ink">
