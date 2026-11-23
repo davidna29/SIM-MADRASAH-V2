@@ -12,7 +12,7 @@ class TuitionPayment extends Model
 
     protected $fillable = [
         'student_enrollment_id', 'academic_year_id', 'semester', 'bulan',
-        'nominal', 'status', 'tanggal_bayar', 'metode', 'catatan', 'recorded_by',
+        'nominal', 'status', 'tanggal_bayar', 'metode', 'catatan', 'external_reference', 'recorded_by',
     ];
 
     protected function casts(): array

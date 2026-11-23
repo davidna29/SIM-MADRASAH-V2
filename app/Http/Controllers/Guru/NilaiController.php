@@ -7,9 +7,9 @@ use App\Models\AcademicYear;
 use App\Models\Report;
 use App\Models\Score;
 use App\Models\ScoreComponent;
-use App\Models\ScoreComponentValue;
 use App\Models\StudentEnrollment;
 use App\Models\TeacherAssignment;
+use App\Services\Akademik\ScoreEntryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +17,8 @@ use Illuminate\View\View;
 
 class NilaiController extends Controller
 {
+    public function __construct(private readonly ScoreEntryService $scores) {}
+
     public function penugasan(): View
     {
         $tahun = AcademicYear::active();
@@ -83,101 +85,22 @@ class NilaiController extends Controller
         abort_unless($this->owns($assignment), 403);
 
         $tahun = AcademicYear::active();
-        $enrollments = StudentEnrollment::where('academic_year_id', $assignment->academic_year_id)
-            ->where('class_group_id', $assignment->class_group_id)
-            ->get();
+        $components = $this->scores->componentsFor($assignment->academic_year_id);
 
-        $components = ScoreComponent::where('academic_year_id', $assignment->academic_year_id)
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get();
-
-        // Mode komponen: input per komponen lalu nilai akhir dihitung dari bobot.
         if ($components->isNotEmpty()) {
             $validated = $request->validate([
                 'values' => ['array', 'required'],
                 'values.*' => ['array'],
                 'values.*.*' => ['nullable', 'integer', 'between:0,100'],
             ]);
-
-            foreach ($enrollments as $enrollment) {
-                $values = $validated['values'][$enrollment->id] ?? [];
-                $hasAny = collect($values)->filter(fn ($v) => $v !== null)->isNotEmpty();
-
-                if (! $hasAny) {
-                    Score::where('student_enrollment_id', $enrollment->id)
-                        ->where('subject_id', $assignment->subject_id)
-                        ->where('academic_year_id', $assignment->academic_year_id)
-                        ->where('semester', $tahun->semester)
-                        ->delete();
-
-                    continue;
-                }
-
-                $score = Score::updateOrCreate(
-                    [
-                        'student_enrollment_id' => $enrollment->id,
-                        'subject_id' => $assignment->subject_id,
-                        'academic_year_id' => $assignment->academic_year_id,
-                        'semester' => $tahun->semester,
-                    ],
-                    ['score' => null]
-                );
-
-                foreach ($components as $component) {
-                    $value = $values[$component->id] ?? null;
-
-                    if ($value === null) {
-                        ScoreComponentValue::where('score_id', $score->id)
-                            ->where('score_component_id', $component->id)
-                            ->delete();
-
-                        continue;
-                    }
-
-                    $score->componentValues()->updateOrCreate(
-                        ['score_component_id' => $component->id],
-                        ['value' => $value]
-                    );
-                }
-
-                $score->update(['score' => $score->computeFinalScore()]);
-            }
-
-            activity('akademik')->performedOn($assignment)->log('nilai_diinput');
-
-            return back()->with('status', 'Nilai berhasil disimpan ke papan.');
+        } else {
+            $validated = $request->validate([
+                'scores' => ['array', 'required'],
+                'scores.*' => ['nullable', 'integer', 'between:0,100'],
+            ]);
         }
 
-        // Mode legacy: satu kolom nilai 0-100 langsung ke nilai akhir.
-        $validated = $request->validate([
-            'scores' => ['array', 'required'],
-            'scores.*' => ['nullable', 'integer', 'between:0,100'],
-        ]);
-
-        foreach ($enrollments as $enrollment) {
-            $nilai = $validated['scores'][$enrollment->id] ?? null;
-
-            if ($nilai === null) {
-                Score::where('student_enrollment_id', $enrollment->id)
-                    ->where('subject_id', $assignment->subject_id)
-                    ->where('academic_year_id', $assignment->academic_year_id)
-                    ->where('semester', $tahun->semester)
-                    ->delete();
-
-                continue;
-            }
-
-            Score::updateOrCreate(
-                [
-                    'student_enrollment_id' => $enrollment->id,
-                    'subject_id' => $assignment->subject_id,
-                    'academic_year_id' => $assignment->academic_year_id,
-                    'semester' => $tahun->semester,
-                ],
-                ['score' => $nilai]
-            );
-        }
+        $this->scores->save($assignment, $tahun, $validated);
 
         activity('akademik')->performedOn($assignment)->log('nilai_diinput');
 

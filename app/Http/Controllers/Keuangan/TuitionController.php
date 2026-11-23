@@ -9,6 +9,7 @@ use App\Models\StudentEnrollment;
 use App\Models\TuitionOverride;
 use App\Models\TuitionPayment;
 use App\Models\TuitionSetting;
+use App\Services\Keuangan\TuitionService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,8 @@ use Illuminate\View\View;
 
 class TuitionController extends Controller
 {
+    public function __construct(private readonly TuitionService $tuition) {}
+
     public function index(): View
     {
         $this->authorize('viewAny', TuitionPayment::class);
@@ -100,23 +103,11 @@ class TuitionController extends Controller
 
         abort_unless($enrollment && $enrollment->academic_year_id === $tahun->id, 422);
 
-        $tanggalBayar = $validated['tanggal_bayar'] ?? null;
-
-        $payment = TuitionPayment::updateOrCreate(
-            [
-                'student_enrollment_id' => $enrollment->id,
-                'academic_year_id' => $tahun->id,
-                'bulan' => $validated['bulan'],
-            ],
-            [
-                'semester' => $tahun->semester,
-                'nominal' => $validated['nominal'],
-                'status' => $tanggalBayar ? 'lunas' : 'belum_bayar',
-                'tanggal_bayar' => $tanggalBayar,
-                'metode' => $validated['metode'] ?? null,
-                'catatan' => $validated['catatan'] ?? null,
-                'recorded_by' => auth()->id(),
-            ]
+        $payment = $this->tuition->recordPayment(
+            $tahun,
+            $enrollment,
+            $validated,
+            (int) $validated['nominal'],
         );
 
         activity('keuangan')->performedOn($payment)->log($payment->wasRecentlyCreated ? 'spp_dibayar' : 'spp_diubah');

@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agenda;
+use App\Services\Publikasi\AgendaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AgendaController extends Controller
 {
+    public function __construct(private readonly AgendaService $agendas) {}
+
     public function index(): View
     {
         $this->authorize('viewAny', Agenda::class);
@@ -52,11 +55,7 @@ class AgendaController extends Controller
         $this->authorize('create', Agenda::class);
 
         $validated = $request->validate($this->rules());
-
-        $agenda = Agenda::create([
-            ...$validated,
-            'created_by' => auth()->id(),
-        ]);
+        $agenda = $this->agendas->create($validated, auth()->id());
 
         activity('publikasi')->performedOn($agenda)->log('agenda_dibuat');
 
@@ -84,8 +83,7 @@ class AgendaController extends Controller
         $this->authorize('update', $agenda);
 
         $validated = $request->validate($this->rules());
-
-        $agenda->update($validated);
+        $this->agendas->update($agenda, $validated);
 
         activity('publikasi')->performedOn($agenda)->log('agenda_diubah');
 

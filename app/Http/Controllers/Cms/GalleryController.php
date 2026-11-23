@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Cms;
 use App\Http\Controllers\Controller;
 use App\Models\MediaAlbum;
 use App\Models\MediaItem;
+use App\Services\Publikasi\GalleryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class GalleryController extends Controller
 {
+    public function __construct(private readonly GalleryService $galleries) {}
+
     public function index(): View
     {
         $this->authorize('viewAny', MediaAlbum::class);
@@ -55,13 +57,7 @@ class GalleryController extends Controller
         $this->authorize('create', MediaAlbum::class);
 
         $validated = $request->validate($this->albumRules());
-
-        $album = MediaAlbum::create([
-            ...$validated,
-            'slug' => $this->uniqueSlug($validated['title']),
-            'cover_image' => $request->hasFile('cover_image') ? $request->file('cover_image')->store('galeri', 'public') : null,
-            'created_by' => auth()->id(),
-        ]);
+        $album = $this->galleries->create($validated, $request->file('cover_image'), auth()->id());
 
         activity('publikasi')->performedOn($album)->log('galeri_album_dibuat');
 
@@ -104,16 +100,7 @@ class GalleryController extends Controller
         $this->authorize('update', $album);
 
         $validated = $request->validate($this->albumRules());
-
-        $cover = $album->cover_image;
-        if ($request->hasFile('cover_image')) {
-            if ($cover && ! $album->items()->where('file_path', $cover)->exists()) {
-                Storage::disk('public')->delete($cover);
-            }
-            $cover = $request->file('cover_image')->store('galeri', 'public');
-        }
-
-        $album->update([...$validated, 'cover_image' => $cover]);
+        $this->galleries->update($album, $validated, $request->file('cover_image'));
 
         activity('publikasi')->performedOn($album)->log('galeri_album_diubah');
 
@@ -261,19 +248,5 @@ class GalleryController extends Controller
             'status' => ['required', 'in:publik,privat'],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
-    }
-
-    protected function uniqueSlug(string $title): string
-    {
-        $base = Str::slug($title);
-        $slug = $base;
-        $i = 2;
-
-        while (MediaAlbum::where('slug', $slug)->exists()) {
-            $slug = $base.'-'.$i;
-            $i++;
-        }
-
-        return $slug;
     }
 }

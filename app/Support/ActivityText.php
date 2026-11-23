@@ -7,6 +7,18 @@ class ActivityText
     public static function readable(string $description): string
     {
         return match ($description) {
+            'api_login' => 'masuk melalui API',
+            'api_logout' => 'keluar dari API',
+            'api_logout_all' => 'mencabut seluruh token API',
+            'api_kehadiran_disimpan' => 'menyimpan kehadiran via API',
+            'api_nilai_disimpan' => 'menyimpan nilai via API',
+            'api_spp_dibayar' => 'mencatat pembayaran SPP via API',
+            'api_berita_dibuat' => 'membuat draft berita via API',
+            'api_berita_diubah' => 'mengubah draft berita via API',
+            'api_agenda_dibuat' => 'membuat draft agenda via API',
+            'api_agenda_diubah' => 'mengubah draft agenda via API',
+            'api_galeri_dibuat' => 'membuat album privat via API',
+            'api_galeri_diubah' => 'mengubah album privat via API',
             'kehadiran_diinput' => 'mencatat kehadiran siswa',
             'jurnal_diisi' => 'mengisi jurnal mengajar',
             'jurnal_diubah' => 'mengubah jurnal mengajar',

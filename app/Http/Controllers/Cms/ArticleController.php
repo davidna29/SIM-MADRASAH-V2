@@ -4,14 +4,16 @@ namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Services\Publikasi\ArticleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ArticleController extends Controller
 {
+    public function __construct(private readonly ArticleService $articles) {}
+
     protected array $editorRoles = ['editor_berita', 'wakamad_humas', 'kepala_madrasah', 'super_admin'];
 
     public function index(): View
@@ -59,19 +61,7 @@ class ArticleController extends Controller
         $this->authorize('create', Article::class);
 
         $validated = $request->validate($this->rules());
-        $slug = $this->uniqueSlug($validated['slug'] ?? Str::slug($validated['title']));
-
-        $article = Article::create([
-            'title' => $validated['title'],
-            'slug' => $slug,
-            'summary' => $validated['summary'] ?? null,
-            'body' => $validated['body'],
-            'category' => $validated['category'] ?? null,
-            'tags' => $validated['tags'] ?? null,
-            'featured_image' => $request->hasFile('featured_image') ? $request->file('featured_image')->store('berita', 'public') : null,
-            'status' => Article::DRAFT,
-            'author_id' => auth()->id(),
-        ]);
+        $article = $this->articles->create($validated, $request->file('featured_image'), auth()->id());
 
         activity('publikasi')->performedOn($article)->log('berita_dibuat');
 
@@ -138,24 +128,7 @@ class ArticleController extends Controller
         $this->authorize('update', $article);
 
         $validated = $request->validate($this->rules($article->id));
-
-        $featured = $article->featured_image;
-        if ($request->hasFile('featured_image')) {
-            if ($featured) {
-                Storage::disk('public')->delete($featured);
-            }
-            $featured = $request->file('featured_image')->store('berita', 'public');
-        }
-
-        $article->update([
-            'title' => $validated['title'],
-            'slug' => $validated['slug'] ?? $article->slug,
-            'summary' => $validated['summary'] ?? null,
-            'body' => $validated['body'],
-            'category' => $validated['category'] ?? null,
-            'tags' => $validated['tags'] ?? null,
-            'featured_image' => $featured,
-        ]);
+        $this->articles->update($article, $validated, $request->file('featured_image'));
 
         activity('publikasi')->performedOn($article)->log('berita_diubah');
 
@@ -224,17 +197,5 @@ class ArticleController extends Controller
             'tags' => ['nullable', 'string', 'max:255'],
             'featured_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
-    }
-
-    protected function uniqueSlug(string $slug): string
-    {
-        $base = $slug;
-        $i = 2;
-        while (Article::where('slug', $slug)->exists()) {
-            $slug = $base.'-'.$i;
-            $i++;
-        }
-
-        return $slug;
     }
 }
