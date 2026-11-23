@@ -421,3 +421,14 @@ Uji HTTP: `/`, `/profil*`, `/kontak`, `/galeri`, `/kalender`, `/sitemap.xml`, `/
 - `public_pages.sambutan`: `featured_image` diisi, `image_alt = "Erna, S.Ag."`; tanda tangan teks di body dihapus.
 - Tampilan: grid foto + teks pada `/profil/sambutan` (foto tidak lagi memakai figure lebar penuh).
 - Commit `0c973e1`; production bersih dan halaman/berkas diuji 200.
+
+
+---
+
+## 15. Koreksi Logo & Kolom Tanggal Terbit Berita — 23 November 2026
+
+- Logo production sebelumnya memakai `settings/settings/logo.jpeg` (logo **Al-Barizah**, bukan MISNU) dan setting menunjuk `settings/logo.jpeg` yang 404.
+- Perbaikan: unggah `settings/logo.png` (wordmark MISNU), set `madrasah_logo=settings/logo.png`, pindahkan logo lama ke `~/backup-sim/wrong-logo/albarizah-logo.jpeg`, hapus folder `settings/settings`.
+- Header/footer publik kini memakai lambang MISNU (`settings/favicon.png`); admin/sidebar & login juga memakai lambang yang sama.
+- Tabel **Kelola Berita** menambah kolom **Terbit** (`published_at`, format `d M Y H:i`; `—` bila belum terbit).
+- Commit `8083c39`; test 541 lulus; production bersih.
