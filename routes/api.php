@@ -63,6 +63,9 @@ Route::prefix('v1')
                 Route::post('galeri/{album}/item', [GalleryController::class, 'storeItem'])
                     ->middleware('idempotency')
                     ->name('galeri.item.store');
+                Route::put('galeri/{album}/item/{item}', [GalleryController::class, 'updateItem'])
+                    ->middleware('idempotency')
+                    ->name('galeri.item.update');
                 Route::put('galeri/{album}', [GalleryController::class, 'update'])
                     ->middleware('idempotency:optional')
                     ->name('galeri.update');

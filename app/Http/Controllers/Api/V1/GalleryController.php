@@ -7,8 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreAlbumRequest;
 use App\Http\Requests\Api\V1\StoreGalleryItemRequest;
 use App\Http\Requests\Api\V1\UpdateAlbumRequest;
+use App\Http\Requests\Api\V1\UpdateGalleryItemRequest;
 use App\Http\Resources\Api\V1\MediaAlbumResource;
 use App\Models\MediaAlbum;
+use App\Models\MediaItem;
 use App\Services\Publikasi\GalleryService;
 use App\Support\Api\ApiAudit;
 use App\Support\Api\ApiErrorCode;
@@ -96,19 +98,41 @@ class GalleryController extends Controller
         ]);
 
         return ApiResponse::success(
-            [
-                'id' => $item->id,
-                'album_id' => $item->album_id,
-                'tipe' => $item->tipe,
-                'title' => $item->title,
-                'deskripsi' => $item->description,
-                'file_url' => $item->file_path ? Storage::disk('public')->url($item->file_path) : null,
-                'video_url' => $item->video_url,
-                'publication_approved_at' => null,
-                'sort_order' => $item->sort_order,
-            ],
+            $this->itemPayload($item),
             warnings: ['Item tersimpan tanpa persetujuan publikasi. Setujui melalui CMS sebelum tampil di website.'],
             status: 201,
+        );
+    }
+
+    public function updateItem(UpdateGalleryItemRequest $request, MediaAlbum $album, MediaItem $item): JsonResponse
+    {
+        $this->authorize('update', $album);
+        abort_unless($item->album_id === $album->id, 404);
+
+        if ($album->status !== 'privat') {
+            throw ApiException::conflict(
+                'Hanya item pada album privat yang dapat diubah melalui API.',
+                ApiErrorCode::RECORD_ALREADY_PUBLISHED,
+            );
+        }
+
+        if ($item->publication_approved_at !== null) {
+            throw ApiException::conflict(
+                'Item yang sudah disetujui tidak dapat diubah melalui API.',
+                ApiErrorCode::RECORD_ALREADY_PUBLISHED,
+            );
+        }
+
+        $this->galleries->updateItem($item, $request->validated());
+
+        ApiAudit::log($request, 'api_galeri_item_diubah', $item, [
+            'album_id' => $album->id,
+            'tipe' => $item->tipe,
+        ]);
+
+        return ApiResponse::success(
+            $this->itemPayload($item->fresh()),
+            warnings: ['Status persetujuan item tidak berubah.'],
         );
     }
 
@@ -131,5 +155,23 @@ class GalleryController extends Controller
             MediaAlbumResource::make($album->fresh())->resolve($request),
             warnings: ['Status album tetap privat; publikasi dilakukan melalui web.'],
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function itemPayload(MediaItem $item): array
+    {
+        return [
+            'id' => $item->id,
+            'album_id' => $item->album_id,
+            'tipe' => $item->tipe,
+            'title' => $item->title,
+            'deskripsi' => $item->description,
+            'file_url' => $item->file_path ? Storage::disk('public')->url($item->file_path) : null,
+            'video_url' => $item->video_url,
+            'publication_approved_at' => $item->publication_approved_at?->toIso8601String(),
+            'sort_order' => $item->sort_order,
+        ];
     }
 }

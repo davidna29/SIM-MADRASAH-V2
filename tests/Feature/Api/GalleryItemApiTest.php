@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\MediaAlbum;
+use App\Models\MediaItem;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,6 +19,141 @@ class GalleryItemApiTest extends ApiTestCase
             'status' => $status,
             'created_by' => $editor->id,
         ]);
+    }
+
+    protected function item(MediaAlbum $album, array $overrides = []): MediaItem
+    {
+        return $album->items()->create(array_merge([
+            'tipe' => 'foto',
+            'title' => 'Foto Lama',
+            'description' => 'Deskripsi lama.',
+            'file_path' => 'galeri/lama.jpg',
+            'sort_order' => 1,
+            'publication_approved_at' => null,
+        ], $overrides));
+    }
+
+    public function test_editor_updates_item_description_and_sort_order(): void
+    {
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['cms:write']);
+        $album = $this->album();
+        $item = $this->item($album);
+
+        $this->withHeaders($this->idempotentHeaders('galeri-item-update-1', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.galeri.item.update', [$album, $item]), [
+                'title' => 'Foto Baru',
+                'deskripsi' => 'Deskripsi baru.',
+                'sort_order' => 7,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.title', 'Foto Baru')
+            ->assertJsonPath('data.deskripsi', 'Deskripsi baru.')
+            ->assertJsonPath('data.sort_order', 7);
+
+        $item->refresh();
+        $this->assertSame('Foto Baru', $item->title);
+        $this->assertSame('Deskripsi baru.', $item->description);
+        $this->assertSame(7, $item->sort_order);
+        $this->assertDatabaseHas('activity_log', [
+            'log_name' => 'api',
+            'description' => 'api_galeri_item_diubah',
+        ]);
+    }
+
+    public function test_video_url_is_immutable(): void
+    {
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['cms:write']);
+        $album = $this->album();
+        $videoUrl = 'https://youtu.be/dQw4w9WgXcQ';
+        $item = $this->item($album, [
+            'tipe' => 'video',
+            'file_path' => null,
+            'video_url' => $videoUrl,
+        ]);
+
+        $this->withHeaders($this->idempotentHeaders('galeri-item-update-video-diff', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.galeri.item.update', [$album, $item]), [
+                'title' => 'Video Baru',
+                'video_url' => 'https://youtu.be/abcdefghijk',
+            ])
+            ->assertStatus(422)
+            ->assertJsonPath('code', 'VALIDATION_ERROR')
+            ->assertJsonValidationErrors('video_url');
+
+        $this->assertSame($videoUrl, $item->fresh()->video_url);
+
+        $this->withHeaders($this->idempotentHeaders('galeri-item-update-video-same', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.galeri.item.update', [$album, $item]), [
+                'title' => 'Video Baru',
+                'video_url' => $videoUrl,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.video_url', $videoUrl);
+    }
+
+    public function test_item_update_in_public_album_is_rejected_with_409(): void
+    {
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['cms:write']);
+        $album = $this->album('publik');
+        $item = $this->item($album);
+
+        $this->withHeaders($this->idempotentHeaders('galeri-item-update-publik', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.galeri.item.update', [$album, $item]), [
+                'title' => 'Foto Baru',
+            ])
+            ->assertStatus(409)
+            ->assertJsonPath('code', 'RECORD_ALREADY_PUBLISHED');
+
+        $this->assertSame('Foto Lama', $item->fresh()->title);
+    }
+
+    public function test_approved_item_update_is_rejected_with_409(): void
+    {
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['cms:write']);
+        $album = $this->album();
+        $item = $this->item($album, ['publication_approved_at' => now()]);
+
+        $this->withHeaders($this->idempotentHeaders('galeri-item-update-approved', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.galeri.item.update', [$album, $item]), [
+                'title' => 'Foto Baru',
+            ])
+            ->assertStatus(409)
+            ->assertJsonPath('code', 'RECORD_ALREADY_PUBLISHED');
+
+        $this->assertSame('Foto Lama', $item->fresh()->title);
+    }
+
+    public function test_item_update_scope_cms_write_is_required(): void
+    {
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['website:read']);
+        $album = $this->album();
+        $item = $this->item($album);
+
+        $this->withHeaders($this->idempotentHeaders('galeri-item-update-scope', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.galeri.item.update', [$album, $item]), [
+                'title' => 'Foto Baru',
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_item_update_requires_idempotency_key(): void
+    {
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['cms:write']);
+        $album = $this->album();
+        $item = $this->item($album);
+
+        $this->withHeaders($this->authHeaders($token))
+            ->putJson(route('api.v1.cms.galeri.item.update', [$album, $item]), [
+                'title' => 'Foto Baru',
+            ])
+            ->assertStatus(422)
+            ->assertJsonPath('code', 'IDEMPOTENCY_KEY_REQUIRED');
     }
 
     public function test_editor_adds_photo_item_to_private_album(): void

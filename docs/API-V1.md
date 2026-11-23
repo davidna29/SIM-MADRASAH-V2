@@ -114,6 +114,7 @@ Catatan privasi:
 | PUT | `/cms/agenda/{agenda}` | Hanya agenda arsip; status diprohibisi |
 | POST | `/cms/galeri` | Selalu `status=privat`; upload `cover_image` |
 | POST | `/cms/galeri/{album}/item` | Tambah item ke album **privat**: `title`, `deskripsi`, `tipe=foto\|video`, `file` (foto, maks 4 MB) **atau** `video_url` (khusus YouTube). `Idempotency-Key` wajib; item baru `publication_approved_at=null` |
+| PUT | `/cms/galeri/{album}/item/{item}` | Ubah `title`, `deskripsi`, `sort_order` pada item album **privat** yang belum disetujui; `video_url` immutable (beda → 422); `Idempotency-Key` wajib; album publik/item approved → 409 |
 | PUT | `/cms/galeri/{album}` | Hanya album privat; status diprohibisi |
 
 API tidak menyediakan DELETE item/album. Publikasi berita dilakukan lewat `PUT /cms/berita/{article}` dengan `status=publish`; persetujuan media/agenda tetap lewat web.

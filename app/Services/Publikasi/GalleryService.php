@@ -70,6 +70,26 @@ class GalleryService
         ]);
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function updateItem(MediaItem $item, array $data): MediaItem
+    {
+        $payload = ['title' => $data['title']];
+
+        if (array_key_exists('deskripsi', $data)) {
+            $payload['description'] = $data['deskripsi'];
+        }
+
+        if (array_key_exists('sort_order', $data)) {
+            $payload['sort_order'] = (int) $data['sort_order'];
+        }
+
+        $item->update($payload);
+
+        return $item;
+    }
+
     public function uniqueSlug(string $title, ?int $ignoreId = null): string
     {
         $base = Str::slug($title);
