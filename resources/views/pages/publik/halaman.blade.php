@@ -11,34 +11,55 @@
             @endif
         </header>
 
-        @if ($page?->featured_image)
-            <figure class="mt-8 overflow-hidden rounded-sheet bg-paper-deep shadow-sheet ring-1 ring-inset ring-rule/60">
-                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($page->featured_image) }}" alt="{{ $page->image_alt ?: $pageTitle }}" class="max-h-[34rem] w-full object-cover" fetchpriority="high">
-                @if ($page->image_alt)
-                    <figcaption class="px-4 py-3 text-xs text-ink-faint">{{ $page->image_alt }}</figcaption>
-                @endif
-            </figure>
-        @endif
+        @php($headmasterPhoto = $slug === 'sambutan' ? $page?->featured_image : null)
 
-        @if ($page?->body)
-            <div class="prose-madrasah mt-8 max-w-[70ch] whitespace-pre-line text-[15px] leading-8 text-ink">{{ $page->body }}</div>
-        @elseif ($slug === 'kebijakan-privasi')
-            <div class="mt-8 space-y-5 rounded-sheet bg-sheet p-6 shadow-sheet ring-1 ring-inset ring-rule/60 sm:p-8">
-                <p class="text-sm leading-relaxed text-ink">Data yang dimasukkan pada formulir PPDB dan siswa pindahan digunakan untuk menerima pendaftaran, memeriksa kelengkapan, dan menghubungi orang tua/wali terkait proses penerimaan.</p>
-                <p class="text-sm leading-relaxed text-ink">Formulir dapat memuat data identitas, alamat, keluarga, kesehatan, serta tautan dokumen. Data tersebut bukan informasi publik dan tidak ditampilkan pada halaman website.</p>
-                <p class="text-sm leading-relaxed text-ink">Saat membagikan berkas, atur akses hanya untuk panitia atau akun resmi madrasah yang menangani pendaftaran; jangan gunakan setelan akses publik. Periode penyimpanan berkas perlu ditetapkan dan ditinjau oleh pihak madrasah.</p>
-                <p class="text-sm leading-relaxed text-ink">Untuk pertanyaan atau permintaan koreksi data pendaftaran, silakan hubungi madrasah melalui informasi pada halaman Kontak.</p>
-                <p class="border-t border-rule/70 pt-4 text-xs leading-relaxed text-ink-faint">Pemberitahuan ini perlu ditinjau oleh pengelola madrasah sebelum pendaftaran dibuka.</p>
+        @if ($headmasterPhoto)
+            <div class="mt-8 grid gap-8 lg:grid-cols-[18rem_minmax(0,1fr)]">
+                <figure class="relative self-start overflow-hidden rounded-sheet bg-white p-3 shadow-sheet ring-1 ring-inset ring-rule/60">
+                    <span class="pin-dot absolute left-1/2 top-2 size-2 -translate-x-1/2 bg-primary" aria-hidden="true"></span>
+                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($headmasterPhoto) }}"
+                        alt="{{ $page->image_alt ?: $pageTitle }}"
+                        class="w-full rounded-control object-cover" loading="lazy">
+                    <figcaption class="px-2 pb-1 pt-4 text-center">
+                        @if ($page->image_alt)
+                            <span class="block text-sm font-extrabold text-ink">{{ $page->image_alt }}</span>
+                        @endif
+                        <span class="mt-1 block text-xs font-semibold uppercase tracking-[0.08em] text-ink-faint">Kepala Madrasah</span>
+                    </figcaption>
+                </figure>
+
+                <div class="prose-madrasah max-w-[70ch] whitespace-pre-line text-[15px] leading-8 text-ink">{{ $page->body }}</div>
             </div>
         @else
-            <div class="mt-8 rounded-sheet bg-sheet p-7 shadow-sheet ring-1 ring-inset ring-rule/60 sm:p-10">
-                <p class="text-lg font-bold text-ink">Informasi sedang disiapkan.</p>
-                <p class="mt-2 max-w-prose text-sm leading-relaxed text-ink-soft">Tim madrasah sedang melengkapi halaman ini. Sementara itu, Anda dapat membaca berita terbaru atau menghubungi madrasah.</p>
-                <div class="mt-5 flex flex-wrap gap-3">
-                    <x-ui.button variant="primary" :href="route('publik.berita.index')">Lihat berita</x-ui.button>
-                    <x-ui.button variant="secondary" :href="route('publik.kontak')">Hubungi madrasah</x-ui.button>
+            @if ($page?->featured_image)
+                <figure class="mt-8 overflow-hidden rounded-sheet bg-paper-deep shadow-sheet ring-1 ring-inset ring-rule/60">
+                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($page->featured_image) }}" alt="{{ $page->image_alt ?: $pageTitle }}" class="max-h-[34rem] w-full object-cover" fetchpriority="high">
+                    @if ($page->image_alt)
+                        <figcaption class="px-4 py-3 text-xs text-ink-faint">{{ $page->image_alt }}</figcaption>
+                    @endif
+                </figure>
+            @endif
+
+            @if ($page?->body)
+                <div class="prose-madrasah mt-8 max-w-[70ch] whitespace-pre-line text-[15px] leading-8 text-ink">{{ $page->body }}</div>
+            @elseif ($slug === 'kebijakan-privasi')
+                <div class="mt-8 space-y-5 rounded-sheet bg-sheet p-6 shadow-sheet ring-1 ring-inset ring-rule/60 sm:p-8">
+                    <p class="text-sm leading-relaxed text-ink">Data yang dimasukkan pada formulir PPDB dan siswa pindahan digunakan untuk menerima pendaftaran, memeriksa kelengkapan, dan menghubungi orang tua/wali terkait proses penerimaan.</p>
+                    <p class="text-sm leading-relaxed text-ink">Formulir dapat memuat data identitas, alamat, keluarga, kesehatan, serta tautan dokumen. Data tersebut bukan informasi publik dan tidak ditampilkan pada halaman website.</p>
+                    <p class="text-sm leading-relaxed text-ink">Saat membagikan berkas, atur akses hanya untuk panitia atau akun resmi madrasah yang menangani pendaftaran; jangan gunakan setelan akses publik. Periode penyimpanan berkas perlu ditetapkan dan ditinjau oleh pihak madrasah.</p>
+                    <p class="text-sm leading-relaxed text-ink">Untuk pertanyaan atau permintaan koreksi data pendaftaran, silakan hubungi madrasah melalui informasi pada halaman Kontak.</p>
+                    <p class="border-t border-rule/70 pt-4 text-xs leading-relaxed text-ink-faint">Pemberitahuan ini perlu ditinjau oleh pengelola madrasah sebelum pendaftaran dibuka.</p>
                 </div>
-            </div>
+            @else
+                <div class="mt-8 rounded-sheet bg-sheet p-7 shadow-sheet ring-1 ring-inset ring-rule/60 sm:p-10">
+                    <p class="text-lg font-bold text-ink">Informasi sedang disiapkan.</p>
+                    <p class="mt-2 max-w-prose text-sm leading-relaxed text-ink-soft">Tim madrasah sedang melengkapi halaman ini. Sementara itu, Anda dapat membaca berita terbaru atau menghubungi madrasah.</p>
+                    <div class="mt-5 flex flex-wrap gap-3">
+                        <x-ui.button variant="primary" :href="route('publik.berita.index')">Lihat berita</x-ui.button>
+                        <x-ui.button variant="secondary" :href="route('publik.kontak')">Hubungi madrasah</x-ui.button>
+                    </div>
+                </div>
+            @endif
         @endif
 
         @if ($slug === 'profil' && ! empty($legalDocuments))

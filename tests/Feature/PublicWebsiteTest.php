@@ -223,4 +223,23 @@ class PublicWebsiteTest extends TestCase
         $this->get(route('publik.sitemap'))->assertOk()->assertSee(route('publik.beranda'), false);
         $this->get(route('login'))->assertOk();
     }
+
+    public function test_headmaster_photo_is_shown_on_sambutan_page(): void
+    {
+        PublicPage::create([
+            'slug' => 'sambutan',
+            'title' => 'Sambutan Kepala Madrasah',
+            'body' => "Assalamu'alaikum warahmatullahi wabarakatuh.\n\nErna, S.Ag.",
+            'featured_image' => 'halaman/kepala-madrasah-erna.png',
+            'image_alt' => 'Erna, S.Ag.',
+            'status' => PublicPage::PUBLISHED,
+        ]);
+
+        $this->get(route('publik.sambutan'))
+            ->assertOk()
+            ->assertSee('kepala-madrasah-erna.png')
+            ->assertSee('Erna, S.Ag.')
+            ->assertSee('Kepala Madrasah')
+            ->assertSee('Assalamu&#039;alaikum', false);
+    }
 }
