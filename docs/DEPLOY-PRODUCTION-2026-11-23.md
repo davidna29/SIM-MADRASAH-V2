@@ -411,3 +411,13 @@ Uji HTTP: `/`, `/profil*`, `/kontak`, `/galeri`, `/kalender`, `/sitemap.xml`, `/
 - Foto: multipart `file` (jpg/jpeg/png/webp, maks 4 MB); video: JSON `video_url` **khusus YouTube** (`youtube.com/watch?v=`, `youtu.be/`).
 - Album publik → 409; `file`/`video_url` kosong → 422; item baru `publication_approved_at=null`; audit `api_galeri_item_ditambah`.
 - Sosial media lain (Facebook/Instagram/TikTok) **ditolak 422** — lihat `docs/API-V1.md`.
+
+
+---
+
+## 14. Foto Kepala Madrasah di Halaman Sambutan — 23 November 2026
+
+- Berkas: `storage/app/public/halaman/kepala-madrasah-erna.png` (367×526, latar transparan/putih, dipotong dari foto asli).
+- `public_pages.sambutan`: `featured_image` diisi, `image_alt = "Erna, S.Ag."`; tanda tangan teks di body dihapus.
+- Tampilan: grid foto + teks pada `/profil/sambutan` (foto tidak lagi memakai figure lebar penuh).
+- Commit `0c973e1`; production bersih dan halaman/berkas diuji 200.
