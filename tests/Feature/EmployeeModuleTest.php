@@ -8,6 +8,8 @@ use App\Models\Person;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class EmployeeModuleTest extends TestCase
@@ -156,5 +158,38 @@ class EmployeeModuleTest extends TestCase
         $this->actingAs($this->admin)->delete(route('pegawai.destroy', $employee));
 
         $this->assertSoftDeleted('employees', ['id' => $employee->id]);
+    }
+
+    public function test_admin_uploads_replaces_and_removes_employee_photo(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin)
+            ->post(route('pegawai.store'), $this->payload([
+                'photo' => UploadedFile::fake()->image('guru.jpg', 700, 700),
+            ]))
+            ->assertRedirect();
+
+        $employee = Employee::where('nip', '199001012019031001')->firstOrFail();
+        $this->assertNotNull($employee->photo_path);
+        Storage::disk('public')->assertExists($employee->photo_path);
+        $firstPath = $employee->photo_path;
+
+        $this->actingAs($this->admin)
+            ->put(route('pegawai.update', $employee), $this->payload([
+                'photo' => UploadedFile::fake()->image('guru-baru.png', 700, 700),
+            ]))
+            ->assertRedirect();
+
+        $employee->refresh();
+        $this->assertNotSame($firstPath, $employee->photo_path);
+        Storage::disk('public')->assertMissing($firstPath);
+        Storage::disk('public')->assertExists($employee->photo_path);
+
+        $this->actingAs($this->admin)
+            ->put(route('pegawai.update', $employee), $this->payload(['remove_photo' => '1']))
+            ->assertRedirect();
+
+        $this->assertNull($employee->fresh()->photo_path);
     }
 }

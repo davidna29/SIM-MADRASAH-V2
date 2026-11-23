@@ -59,9 +59,13 @@
                             <tr class="transition hover:bg-paper/60">
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-3">
-                                        <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft text-[11px] font-extrabold text-primary-strong">
-                                            {{ mb_substr($emp->person->name, 0, 1) }}
-                                        </span>
+                                        @if ($emp->photoUrl())
+                                            <img src="{{ $emp->photoUrl() }}" alt="{{ $emp->person->name }}" class="size-9 shrink-0 rounded-full object-cover ring-1 ring-inset ring-rule/70">
+                                        @else
+                                            <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-soft text-[11px] font-extrabold text-primary-strong">
+                                                {{ mb_substr($emp->person->name, 0, 1) }}
+                                            </span>
+                                        @endif
                                         <div>
                                             <span class="font-semibold text-ink">{{ $emp->person->name }}</span>
                                             <p class="mt-0.5 text-xs text-ink-faint">

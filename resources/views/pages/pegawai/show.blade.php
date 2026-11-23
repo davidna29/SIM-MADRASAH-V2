@@ -41,9 +41,13 @@
         <div class="mt-6">
             <x-ui.sheet title="Identitas" pinned>
                 <div class="flex items-start gap-4">
-                    <span class="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-lg font-extrabold text-primary-strong">
-                        {{ mb_substr($employee->person->name, 0, 1) }}
-                    </span>
+                    @if ($employee->photoUrl())
+                        <img src="{{ $employee->photoUrl() }}" alt="{{ $employee->person->name }}" class="size-16 shrink-0 rounded-2xl object-cover ring-1 ring-inset ring-rule/70">
+                    @else
+                        <span class="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-lg font-extrabold text-primary-strong">
+                            {{ mb_substr($employee->person->name, 0, 1) }}
+                        </span>
+                    @endif
                     <div>
                         <h2 class="text-lg font-extrabold tracking-tight text-ink">{{ $employee->person->name }}</h2>
                         <div class="mt-1.5 flex flex-wrap items-center gap-2">

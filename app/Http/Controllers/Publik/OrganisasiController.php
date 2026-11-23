@@ -26,7 +26,7 @@ class OrganisasiController extends Controller
     private function publicEmployees(): Builder
     {
         return Employee::query()
-            ->select(['id', 'person_id', 'organizational_unit_id', 'position_id'])
+            ->select(['id', 'person_id', 'organizational_unit_id', 'position_id', 'photo_path'])
             ->where('status', 'aktif')
             ->where('show_on_website', true)
             ->with([

@@ -32,6 +32,8 @@ class UpdateEmployeeRequest extends FormRequest
             'position_id' => ['required', 'exists:positions,id'],
             'organizational_unit_id' => ['required', 'exists:organizational_units,id'],
             'tmt' => ['nullable', 'date'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_photo' => ['nullable', 'boolean'],
         ];
     }
 

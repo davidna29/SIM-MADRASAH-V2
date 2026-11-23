@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\PublicPage;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -81,5 +82,23 @@ class LegalDocumentSettingsTest extends TestCase
         ]));
 
         $this->assertCount(1, Storage::disk('public')->files('settings/legalitas'));
+    }
+
+    public function test_admin_uploads_hero_photos(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($admin)
+            ->put(route('pengaturan.update'), $this->payload([
+                'beranda_hero_kamad' => UploadedFile::fake()->image('kamad.jpg', 400, 600),
+                'beranda_hero_group' => UploadedFile::fake()->image('guru.jpg', 1200, 500),
+            ]))
+            ->assertRedirect();
+
+        Storage::disk('public')->assertExists('settings/beranda/kepala-madrasah.jpg');
+        Storage::disk('public')->assertExists('settings/beranda/guru-bersama.jpg');
+        $this->assertSame('settings/beranda/kepala-madrasah.jpg', Setting::get('beranda_hero_kamad'));
+        $this->assertSame('settings/beranda/guru-bersama.jpg', Setting::get('beranda_hero_group'));
     }
 }

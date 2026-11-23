@@ -219,6 +219,30 @@
                 <p class="mt-4 text-xs text-ink-faint">Format PDF, maksimal 5 MB per berkas. Unggah ulang untuk mengganti dokumen lama.</p>
             </x-ui.sheet>
 
+            {{-- Foto Hero Beranda --}}
+            <x-ui.sheet title="Foto Hero Beranda" subtitle="Foto kepala madrasah dan guru bersama pada sorotan beranda" pinned ruled>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    @foreach ([
+                        'beranda_hero_kamad' => ['label' => 'Foto Kepala Madrasah', 'hint' => 'Disarankan portrait. Caption: “Kepala Madrasah”.'],
+                        'beranda_hero_group' => ['label' => 'Foto Guru Bersama', 'hint' => 'Disarankan landscape. Caption: “Guru & Tenaga Kependidikan”.'],
+                    ] as $key => $hero)
+                        @php($existing = $settings->get($key))
+                        <div class="space-y-2">
+                            <x-ui.field :label="$hero['label']" :hint="$hero['hint']" :error="$errors->first($key)">
+                                <input type="file" name="{{ $key }}" accept="image/jpeg,image/png,image/webp"
+                                    class="w-full rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink ring-1 ring-inset ring-rule-strong transition file:mr-3 file:rounded-md file:border-0 file:bg-primary-soft file:px-3 file:py-1 file:text-xs file:font-semibold file:text-primary-strong hover:ring-ink-faint/60 focus:outline-none focus:ring-2 focus:ring-primary">
+                            </x-ui.field>
+                            @if ($existing && \Illuminate\Support\Facades\Storage::disk('public')->exists($existing))
+                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($existing) }}" alt="{{ $hero['label'] }}" class="h-40 w-full rounded-control bg-white object-contain ring-1 ring-inset ring-rule/60">
+                            @else
+                                <p class="text-xs text-ink-faint">Belum ada foto.</p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                <p class="mt-4 text-xs text-ink-faint">Slide album “Sorotan Madrasah” (Kelola Galeri) tampil setelah dua foto ini. Format JPG/PNG/WebP, maks 4 MB.</p>
+            </x-ui.sheet>
+
             {{-- Logo --}}
             <x-ui.sheet title="Logo Madrasah" subtitle="Logo tampil di sistem dan website publik" pinned ruled>
                 <div class="flex flex-wrap items-start gap-6">

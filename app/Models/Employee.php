@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -16,7 +17,7 @@ class Employee extends Model
 
     protected $fillable = [
         'person_id', 'organizational_unit_id', 'position_id', 'user_id',
-        'nip', 'nuptk', 'education_level', 'major', 'username_source', 'employee_status', 'status', 'show_on_website', 'tmt',
+        'nip', 'nuptk', 'education_level', 'major', 'photo_path', 'username_source', 'employee_status', 'status', 'show_on_website', 'tmt',
     ];
 
     protected function casts(): array
@@ -58,6 +59,17 @@ class Employee extends Model
     public function positionHistories(): HasMany
     {
         return $this->hasMany(EmployeePositionHistory::class);
+    }
+
+    public function photoUrl(): ?string
+    {
+        if (! $this->photo_path) {
+            return null;
+        }
+
+        $disk = Storage::disk('public');
+
+        return $disk->exists($this->photo_path) ? $disk->url($this->photo_path) : null;
     }
 
     public function positionLabel(): string

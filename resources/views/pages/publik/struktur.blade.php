@@ -15,7 +15,11 @@
                 <ul class="mt-2 divide-y divide-rule/70">
                     @foreach ($employees as $employee)
                         <li class="flex items-center gap-4 py-4">
-                            <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-base font-extrabold text-primary-strong" aria-hidden="true">{{ mb_substr($employee->person?->name ?? '?', 0, 1) }}</span>
+                            @if ($employee->photoUrl())
+                                <img src="{{ $employee->photoUrl() }}" alt="{{ $employee->person?->name }}" class="size-12 shrink-0 rounded-full object-cover ring-2 ring-sheet shadow-sm">
+                            @else
+                                <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-base font-extrabold text-primary-strong" aria-hidden="true">{{ mb_substr($employee->person?->name ?? '?', 0, 1) }}</span>
+                            @endif
                             <div class="min-w-0">
                                 <p class="truncate text-sm font-bold text-ink">{{ $employee->person?->name }}</p>
                                 <p class="mt-1 text-sm text-ink-soft">{{ $employee->position?->name ?: 'Tenaga Kependidikan' }}</p>

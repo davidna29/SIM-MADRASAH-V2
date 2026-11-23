@@ -55,6 +55,61 @@ document.addEventListener('alpine:init', () => {
         },
     });
 
+    Alpine.data('heroSlider', (count = 0) => ({
+        active: 0,
+        count,
+        timer: null,
+        reduced: false,
+
+        init() {
+            this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!this.reduced && this.count > 1) {
+                this.play();
+            }
+        },
+
+        play() {
+            this.stop();
+            if (this.count > 1) {
+                this.timer = setInterval(() => this.next(), 6000);
+            }
+        },
+
+        stop() {
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
+        },
+
+        pause() {
+            this.stop();
+        },
+
+        resume() {
+            if (!this.reduced) {
+                this.play();
+            }
+        },
+
+        next() {
+            this.active = (this.active + 1) % this.count;
+        },
+
+        prev() {
+            this.active = (this.active - 1 + this.count) % this.count;
+        },
+
+        go(index) {
+            this.active = index;
+            this.play();
+        },
+
+        destroy() {
+            this.stop();
+        },
+    }));
+
     Alpine.data('sortableTable', (options = {}) => ({
         init() {
             const el = this.$root.querySelector('tbody');

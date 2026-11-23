@@ -28,8 +28,63 @@
                 </div>
             </div>
 
-            <div class="relative min-h-64 overflow-hidden bg-board-deep/50 lg:min-h-full">
-                @if ($homePage?->featured_image)
+            <div class="relative min-h-[26rem] overflow-hidden bg-board-deep/50 lg:min-h-full"
+                x-data="heroSlider({{ $heroSlides->count() }})"
+                @mouseenter="pause()" @mouseleave="resume()"
+                @focusin="pause()" @focusout="resume()"
+                @keydown.left="prev()" @keydown.right="next()"
+                tabindex="0" role="region" aria-roledescription="carousel" aria-label="Sorotan madrasah">
+
+                @if ($heroSlides->isNotEmpty())
+                    <div class="pointer-events-none absolute inset-0">
+                        @foreach ($heroSlides as $index => $slide)
+                            <div x-show="active === {{ $index }}" x-cloak
+                                class="absolute inset-0 flex items-center justify-center px-5 py-16 sm:px-8"
+                                role="group" aria-roledescription="slide"
+                                aria-label="Slide {{ $index + 1 }} dari {{ $heroSlides->count() }}">
+
+                                @if (in_array($slide['variant'], ['kamad', 'group'], true))
+                                    <figure class="flex max-h-full w-full flex-col overflow-hidden rounded-sheet bg-white p-2.5 shadow-sheet-raised ring-1 ring-white/25 {{ $slide['variant'] === 'group' ? 'max-w-2xl' : 'max-w-xs' }}">
+                                        <img src="{{ $slide['url'] }}" alt="{{ $slide['alt'] }}"
+                                            class="w-full rounded-control object-contain {{ $slide['variant'] === 'group' ? 'max-h-[13rem]' : 'max-h-[22rem]' }}"
+                                            @if ($index === 0) fetchpriority="high" @else loading="lazy" @endif decoding="async">
+                                        <figcaption class="px-2 pb-1 pt-3 text-center text-sm font-extrabold tracking-tight text-ink">{{ $slide['caption'] }}</figcaption>
+                                    </figure>
+                                @else
+                                    <img src="{{ $slide['url'] }}" alt="{{ $slide['alt'] }}"
+                                        class="max-h-[22rem] max-w-full rounded-sheet object-contain shadow-sheet-raised sm:max-h-[26rem] lg:max-h-[30rem]"
+                                        loading="lazy" decoding="async">
+                                    @if ($slide['caption'])
+                                        <p class="absolute inset-x-0 bottom-14 bg-gradient-to-t from-board-deep/85 to-transparent px-6 pb-4 pt-14 text-center text-sm font-bold text-white">{{ $slide['caption'] }}</p>
+                                    @endif
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 bg-gradient-to-t from-board-deep/90 via-board-deep/35 to-transparent px-4 pb-4 pt-12">
+                        <span class="font-mono text-xs font-semibold text-board-ink/80"><span x-text="active + 1">1</span> / {{ $heroSlides->count() }}</span>
+
+                        <div class="flex max-w-[55%] flex-wrap items-center justify-center gap-1.5">
+                            @foreach ($heroSlides as $index => $slide)
+                                <button type="button" @click="go({{ $index }})"
+                                    class="size-1.5 rounded-full transition"
+                                    :class="active === {{ $index }} ? 'bg-white' : 'bg-white/35 hover:bg-white/60'"
+                                    aria-label="Tampilkan slide {{ $index + 1 }}"></button>
+                            @endforeach
+                        </div>
+
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" @click="prev()" class="flex size-8 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-inset ring-white/20 transition hover:bg-white/20" aria-label="Slide sebelumnya">
+                                <x-svg-arrow-right class="size-4 rotate-180" aria-hidden="true" />
+                            </button>
+                            <button type="button" @click="next()" class="flex size-8 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-inset ring-white/20 transition hover:bg-white/20" aria-label="Slide berikutnya">
+                                <x-svg-arrow-right class="size-4" aria-hidden="true" />
+                            </button>
+                        </div>
+                    </div>
+
+                @elseif ($homePage?->featured_image)
                     <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($homePage->featured_image) }}"
                         alt="{{ $homePage->image_alt ?: $schoolName }}" class="absolute inset-0 size-full object-cover" fetchpriority="high">
                     <div class="absolute inset-0 bg-gradient-to-t from-board-deep/55 via-transparent to-transparent" aria-hidden="true"></div>

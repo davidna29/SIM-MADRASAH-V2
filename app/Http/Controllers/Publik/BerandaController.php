@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Publik;
 use App\Http\Controllers\Controller;
 use App\Models\Agenda;
 use App\Models\Article;
+use App\Models\MediaAlbum;
 use App\Models\MediaItem;
 use App\Models\PublicPage;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class BerandaController extends Controller
@@ -52,7 +54,53 @@ class BerandaController extends Controller
             ->take(4)
             ->get();
 
+        $heroSlides = collect();
+
+        foreach ([
+            ['key' => 'beranda_hero_kamad', 'caption' => 'Kepala Madrasah', 'variant' => 'kamad'],
+            ['key' => 'beranda_hero_group', 'caption' => 'Guru & Tenaga Kependidikan', 'variant' => 'group'],
+        ] as $hero) {
+            $path = Setting::get($hero['key']);
+
+            if ($path && Storage::disk('public')->exists($path)) {
+                $heroSlides->push([
+                    'url' => Storage::disk('public')->url($path),
+                    'caption' => $hero['caption'],
+                    'alt' => $hero['caption'],
+                    'variant' => $hero['variant'],
+                ]);
+            }
+        }
+
+        $sliderAlbum = MediaAlbum::query()
+            ->where('slug', 'sorotan-madrasah')
+            ->where('status', 'publik')
+            ->first();
+
+        if ($sliderAlbum) {
+            $sliderAlbum->items()
+                ->where('tipe', 'foto')
+                ->whereNotNull('file_path')
+                ->whereNotNull('publication_approved_at')
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get()
+                ->each(function (MediaItem $item) use ($heroSlides) {
+                    if (! Storage::disk('public')->exists($item->file_path)) {
+                        return;
+                    }
+
+                    $heroSlides->push([
+                        'url' => Storage::disk('public')->url($item->file_path),
+                        'caption' => $item->title ?: $item->caption,
+                        'alt' => $item->title ?: 'Dokumentasi Madrasah',
+                        'variant' => 'media',
+                    ]);
+                });
+        }
+
         return view('pages.publik.beranda', [
+            'heroSlides' => $heroSlides,
             'featuredArticle' => $featuredArticle,
             'articles' => $articles,
             'agenda' => $agenda,

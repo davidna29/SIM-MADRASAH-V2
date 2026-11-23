@@ -77,6 +77,10 @@ class PengaturanController extends Controller
             'madrasah_file_akreditasi' => 'nullable|file|mimes:pdf|max:5120',
             'madrasah_file_sk_pendirian' => 'nullable|file|mimes:pdf|max:5120',
             'madrasah_file_ijop' => 'nullable|file|mimes:pdf|max:5120',
+
+            // Foto hero beranda
+            'beranda_hero_kamad' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'beranda_hero_group' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
 
         // Handle logo upload
@@ -93,6 +97,24 @@ class PengaturanController extends Controller
             $file = $request->file('madrasah_logo');
             $filename = 'logo.'.$file->getClientOriginalExtension();
             $validated['madrasah_logo'] = $file->storeAs('settings', $filename, 'public');
+        }
+
+        // Foto hero beranda — simpan ulang dan hapus berkas lama.
+        foreach (['beranda_hero_kamad' => 'kepala-madrasah', 'beranda_hero_group' => 'guru-bersama'] as $key => $filename) {
+            if (! $request->hasFile($key)) {
+                unset($validated[$key]);
+
+                continue;
+            }
+
+            $old = Setting::get($key);
+
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+
+            $extension = strtolower($request->file($key)->getClientOriginalExtension() ?: 'jpg');
+            $validated[$key] = $request->file($key)->storeAs('settings/beranda', $filename.'.'.$extension, 'public');
         }
 
         // Dokumen legalitas — simpan PDF dan hapus berkas lama.

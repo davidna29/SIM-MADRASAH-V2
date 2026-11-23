@@ -13,8 +13,10 @@ use App\Models\Position;
 use App\Models\User;
 use App\Support\AccountProvisioning;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
@@ -119,6 +121,10 @@ class EmployeeController extends Controller
             return $employee;
         });
 
+        if ($request->file('photo')) {
+            $this->savePhoto($employee, $request->file('photo'));
+        }
+
         activity('kepegawaian')
             ->performedOn($employee)
             ->withProperties(['nama' => $employee->person->name])
@@ -221,12 +227,41 @@ class EmployeeController extends Controller
             }
         });
 
+        if ($request->file('photo')) {
+            $this->savePhoto($employee, $request->file('photo'));
+        } elseif ($request->boolean('remove_photo')) {
+            $this->deletePhoto($employee);
+        }
+
         activity('kepegawaian')
             ->performedOn($employee)
             ->withProperties(['nama' => $employee->person->name])
             ->log('pegawai_diubah');
 
         return redirect()->route('pegawai.show', $employee)->with('status', 'Data pegawai berhasil diperbarui.');
+    }
+
+    private function savePhoto(Employee $employee, UploadedFile $photo): void
+    {
+        if ($employee->photo_path && Storage::disk('public')->exists($employee->photo_path)) {
+            Storage::disk('public')->delete($employee->photo_path);
+        }
+
+        $extension = strtolower($photo->getClientOriginalExtension() ?: 'jpg');
+        $path = $photo->storeAs('pegawai', $employee->id.'.'.$extension, 'public');
+
+        $employee->update(['photo_path' => $path]);
+    }
+
+    private function deletePhoto(Employee $employee): void
+    {
+        if ($employee->photo_path && Storage::disk('public')->exists($employee->photo_path)) {
+            Storage::disk('public')->delete($employee->photo_path);
+        }
+
+        if ($employee->photo_path) {
+            $employee->update(['photo_path' => null]);
+        }
     }
 
     public function destroy(Employee $employee): RedirectResponse
@@ -238,6 +273,7 @@ class EmployeeController extends Controller
         }
 
         $nama = $employee->person->name;
+        $this->deletePhoto($employee);
         $employee->delete();
 
         activity('kepegawaian')

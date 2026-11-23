@@ -7,13 +7,23 @@
         </header>
 
         @if ($employees->isNotEmpty())
-            <ul class="mt-8 grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+            <ul class="mt-8 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
                 @foreach ($employees as $employee)
-                    <li class="flex items-center gap-4 border-b border-rule/70 py-5">
-                        <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-board text-lg font-extrabold text-board-ink" aria-hidden="true">{{ mb_substr($employee->person?->name ?? '?', 0, 1) }}</span>
-                        <div class="min-w-0">
-                            <h2 class="truncate text-sm font-extrabold text-ink">{{ $employee->person?->name }}</h2>
-                            <p class="mt-1 text-sm text-ink-soft">{{ $employee->position?->name ?: 'Tenaga Kependidikan' }}</p>
+                    <li class="group overflow-hidden rounded-sheet bg-sheet shadow-sheet ring-1 ring-inset ring-rule/60">
+                        <div class="relative aspect-square overflow-hidden bg-paper-deep">
+                            @if ($employee->photoUrl())
+                                <img src="{{ $employee->photoUrl() }}" alt="Foto {{ $employee->person?->name }}"
+                                    class="size-full object-cover transition duration-500 group-hover:scale-[1.02]" loading="lazy" decoding="async">
+                            @else
+                                <span class="flex size-full items-center justify-center bg-board text-3xl font-extrabold text-board-ink" aria-hidden="true">
+                                    {{ mb_substr($employee->person?->name ?? '?', 0, 1) }}
+                                </span>
+                            @endif
+                            <span class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-board-deep/55 to-transparent" aria-hidden="true"></span>
+                        </div>
+                        <div class="p-4">
+                            <h2 class="text-sm font-extrabold leading-snug text-ink">{{ $employee->person?->name }}</h2>
+                            <p class="mt-1 text-xs font-semibold text-primary-strong">{{ $employee->position?->name ?: 'Tenaga Kependidikan' }}</p>
                             @if ($employee->organizationalUnit?->name)
                                 <p class="mt-1 text-xs text-ink-faint">{{ $employee->organizationalUnit->name }}</p>
                             @endif

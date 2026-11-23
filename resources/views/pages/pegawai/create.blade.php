@@ -65,6 +65,29 @@
                     <x-ui.field label="Email" :error="$errors->first('email')">
                         <x-ui.input name="email" type="email" :value="old('email', $editing ? $employee->person->email : '')" placeholder="nama@madrasah.sch.id" />
                     </x-ui.field>
+                    <div class="sm:col-span-2">
+                        <x-ui.field label="Foto Pegawai" hint="JPG/PNG/WebP, maks 2 MB. Tampil di halaman Guru dan Struktur bila publikasi website aktif." :error="$errors->first('photo')">
+                            <div class="flex flex-wrap items-center gap-4">
+                                @if ($editing && $employee->photoUrl())
+                                    <img src="{{ $employee->photoUrl() }}" alt="Foto {{ $employee->person->name }}" class="size-20 rounded-control object-cover ring-1 ring-inset ring-rule-strong">
+                                @else
+                                    <span class="flex size-20 shrink-0 items-center justify-center rounded-control bg-primary-soft text-xl font-extrabold text-primary-strong">
+                                        {{ mb_substr($editing ? $employee->person->name : '?', 0, 1) }}
+                                    </span>
+                                @endif
+                                <div class="min-w-0 flex-1 space-y-2">
+                                    <input type="file" name="photo" accept="image/jpeg,image/png,image/webp"
+                                        class="w-full rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink ring-1 ring-inset ring-rule-strong transition file:mr-3 file:rounded-md file:border-0 file:bg-primary-soft file:px-3 file:py-1 file:text-xs file:font-semibold file:text-primary-strong hover:ring-ink-faint/60 focus:outline-none focus:ring-2 focus:ring-primary">
+                                    @if ($editing && $employee->photo_path)
+                                        <label class="flex items-center gap-2 text-xs font-medium text-ink-soft">
+                                            <input type="checkbox" name="remove_photo" value="1" class="size-4 rounded border-rule-strong text-primary focus:ring-primary">
+                                            Hapus foto saat menyimpan
+                                        </label>
+                                    @endif
+                                </div>
+                            </div>
+                        </x-ui.field>
+                    </div>
                 </div>
             </x-ui.form-section>
 
