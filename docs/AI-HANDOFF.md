@@ -43,7 +43,7 @@
 -   **Ujian PPI Kelas VI (Munaqasah)** (event ujian akhir kelas VI sekali/tahun — lihat `docs/UJIAN-PPI-PLAN.md` & `docs/UJIAN-PPI-ALUR-KERJA.md`)
 - **Kalender Pendidikan (MOD-020):** modul baru (periode semester + kegiatan/libur), hitung pekan & hari efektif otomatis, halaman publik `/kalender`, cetak PDF — lihat §4.
 - **Export EMIS & Import Excel:** export data siswa 98 kolom EMIS; import Excel siswa/guru/mapel dengan pratinjau validasi — lihat §4.
-- **Onboarding data MIS NU Palangka Raya:** identitas madrasah, logo, 31 pegawai, 18 rombel, 13 mapel KMA 1503/2025, 18 wali kelas, 9 ekstrakurikuler, 16 ruang, 7 halaman publik, 57 foto galeri, dan **521 siswa + 941 wali di lokal**. Production sudah berisi 57 siswa pilot; impor 521 di production dijalankan setelah deploy Git — lihat §4 & §5.
+- **Onboarding data MIS NU Palangka Raya:** identitas madrasah, logo, 31 pegawai, 18 rombel, 13 mapel KMA 1503/2025, 18 wali kelas, 9 ekstrakurikuler, 16 ruang, 7 halaman publik, 57 foto galeri, dan **521 siswa + 941 wali di lokal**. Production juga sudah berisi **521 siswa + 941 wali**, 2 PDF legalitas publik, dan repo server bersih pada commit `3fa7d40` — lihat §4 & §5.
 - **Sisa MVP (PRD 8.1):** Perluasan tagihan non-SPP dihapus dari proyek (sesuai keputusan — tidak akan dikerjakan).
 
 ## 2. Cara Menjalankan

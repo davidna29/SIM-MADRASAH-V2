@@ -33,7 +33,7 @@ Log kronologis penerapan data madrasah ke SIM Madrasah V2.
 - Deploy awal lewat sinkronisasi berkas (bukan Git) → repo server dirty.
 - 4 migrasi + seeder master + purge demo + 57 siswa pilot + galeri.
 - Rekonsiliasi Git (Opsi A): commit & push lokal, lalu `git fetch` + `git reset --hard origin/main` + `git clean -fd public/build`; build aset ikut di-commit.
-- Setelah reset: impor 521 siswa production + unggah PDF legalitas (lihat §5).
+- Setelah reset (commit `3fa7d40`): **521 siswa + 941 wali** production, PDF akreditasi & SK pendirian terunggah dan tampil di `/profil` (IJOP “Menyusul”). Repo server bersih.
 
 ## 5. Perintah penting
 
@@ -50,5 +50,6 @@ Production memakai `--file=/home/u549935065/misnu-data/database-siswa-emis-2026-
 
 - IJOP: unggah saat berkas diterima.
 - Nomor/tanggal SK pendirian di field teks: cukup lampiran PDF untuk saat ini.
-- 58 artikel production masih `draft`; bulk approve hanya untuk `diajukan`/`review`.
+- 58 artikel production masih `draft`; gunakan “Setujui terpilih” (bulk; draft otomatis diajukan lalu disetujui).
 - Jadwal pelajaran & penugasan mengajar 2026/2027 belum disusun.
+- Email resmi masih `admin@misnu.sch.id` (domain `misnu.sch.id`, bukan `misnupalangkaraya.sch.id`).

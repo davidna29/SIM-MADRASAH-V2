@@ -368,6 +368,46 @@ Uji HTTP: `/`, `/profil*`, `/kontak`, `/galeri`, `/kalender`, `/sitemap.xml`, `/
 
 ### 12.4 Peringatan penting
 
-- Repo production kini **dirty** (perubahan belum di-commit/push). Auto-deploy Git berikutnya dapat menimpa kode ini — segera commit/push dari lingkungan pengembang setelah disetujui.
+- ~~Repo production dirty~~ — **diselesaikan** pada §13 (commit `3fa7d40` + reset keras; `git status` bersih).
 - `public/build` diganti dengan hasil `npm run build` (hash baru) karena kelas Tailwind untuk view baru belum ada di build lama.
 - Jangan jalankan `migrate:fresh` atau `misnu:purge-demo` lagi di production.
+
+
+---
+
+## 13. Rekonsiliasi Git, 521 Siswa, Legalitas, Bulk Approve, API Galeri — 23 November 2026
+
+### 13.1 Rekonsiliasi Git (Opsi A)
+
+1. Commit lokal `0cbb931` (fitur + build aset `public/build`) dan `3fa7d40` (bulk setujui draf), push ke `origin/main`.
+2. Backup kode/build sebelum reset sudah tersedia (`~/backup-sim/code/…`, `public-build-…`).
+3. Di server: `php artisan down`, `git fetch`, `git reset --hard origin/main`, `git clean -fd public/build`, `composer2 dump-autoload -o`, `php artisan migrate --force`, `php artisan optimize`, `php artisan up`.
+4. `git status` production **bersih**; auto-deploy berikutnya aman (fast-forward).
+
+### 13.2 Semua siswa (521)
+
+- Dry-run: 521 diproses, 464 dibuat, 57 diperbarui, 0 dilewati, 832 wali baru, 1.034 penautan.
+- Impor nyata dijalankan; hasil production: **521 siswa, 521 enrollment, 941 wali**, 0 person dipakai dua siswa.
+- Sebaran: I 77 · II 100 · III 115 · IV 83 · V 89 · VI 57.
+- Dua siswa berbagi NIK di workbook; siswa kedua otomatis memakai NIK sintetis.
+
+### 13.3 Dokumen legalitas
+
+- `storage/app/public/settings/legalitas/sertifikat-akreditasi.pdf` (2024–2029) dan `sk-pendirian.pdf` diunggah; setting `madrasah_file_akreditasi` & `madrasah_file_sk_pendirian` diisi.
+- IJOP belum ada; kartu di `/profil` menampilkan **Menyusul**.
+- Nilai akreditasi tetap `A` (93) sesuai keputusan.
+- Kedua PDF dapat diunduh publik: `/storage/settings/legalitas/…` (HTTP 200).
+
+### 13.4 Bulk setujui berita
+
+- Di `/publikasi/berita`: checkbox per baris + “Pilih semua di halaman ini” + tombol “Setujui terpilih”.
+- `draft` → `diajukan` → `disetujui`; `diajukan`/`review` → `disetujui`; status lain dilewati.
+- Route `cms.berita.bulk-setujui`, hanya editor/humas/kepala/super admin; audit `berita_bulk_setujui`.
+- 58 berita production masih `draft` — belum disetujui otomatis (menunggu tindakan operator).
+
+### 13.5 API item galeri
+
+- `POST /api/v1/cms/galeri/{album}/item` (scope `cms:write`, `Idempotency-Key` wajib).
+- Foto: multipart `file` (jpg/jpeg/png/webp, maks 4 MB); video: JSON `video_url` **khusus YouTube** (`youtube.com/watch?v=`, `youtu.be/`).
+- Album publik → 409; `file`/`video_url` kosong → 422; item baru `publication_approved_at=null`; audit `api_galeri_item_ditambah`.
+- Sosial media lain (Facebook/Instagram/TikTok) **ditolak 422** — lihat `docs/API-V1.md`.
