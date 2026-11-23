@@ -6,6 +6,10 @@
 ])
 
 @php
+    $siteLogo = \App\Models\Setting::logoUrl();
+    $siteMark = file_exists(public_path('storage/settings/favicon.png'))
+        ? asset('storage/settings/favicon.png')
+        : $siteLogo;
     $user = auth()->user();
     $role = $role ?? $user?->role ?? 'super_admin';
     $roleLabel = $roleLabel ?? (match ($role) {
@@ -40,9 +44,15 @@
 
         <!-- Kop papan -->
         <div :class="collapsed ? 'lg:px-3' : 'lg:px-5'" class="flex items-center gap-3 border-b border-white/10 px-5 py-4">
-            <div class="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-control)] bg-board-ink text-board">
-                <x-svg-academic-cap class="size-6" aria-hidden="true" />
-            </div>
+            @if ($siteMark)
+                <div class="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-control)] bg-white p-1">
+                    <img src="{{ $siteMark }}" alt="{{ $madrasah }}" class="h-full w-full object-contain">
+                </div>
+            @else
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-control)] bg-board-ink text-board">
+                    <x-svg-academic-cap class="size-6" aria-hidden="true" />
+                </div>
+            @endif
             <div x-cloak :class="collapsed ? 'lg:hidden' : 'lg:flex'" class="hidden min-w-0 flex-1 flex-col">
                 <p class="truncate text-sm font-extrabold leading-tight tracking-tight text-board-ink">{{ $madrasah }}</p>
                 <p class="mt-0.5 text-[11px] font-medium text-board-ink/60">Sistem Informasi Manajemen</p>

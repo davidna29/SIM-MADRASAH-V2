@@ -39,6 +39,7 @@ class ArticleController extends Controller
             ],
             'articles' => $articles,
             'statusLabels' => Article::statusLabels(),
+            'isEditor' => in_array(auth()->user()->role, $this->editorRoles, true),
         ]);
     }
 
@@ -149,6 +150,33 @@ class ArticleController extends Controller
         activity('publikasi')->performedOn($article)->log('berita_dihapus');
 
         return redirect()->route('cms.berita.index')->with('status', 'Berita dihapus.');
+    }
+
+    public function bulkApprove(Request $request): RedirectResponse
+    {
+        abort_unless(in_array(auth()->user()->role, $this->editorRoles, true), 403);
+
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'exists:articles,id'],
+        ]);
+
+        $approved = 0;
+        $skipped = 0;
+
+        foreach (Article::whereIn('id', $validated['ids'])->get() as $article) {
+            if (! $article->canTransitionTo(Article::DISETUJUI)) {
+                $skipped++;
+
+                continue;
+            }
+
+            $article->transitionTo(Article::DISETUJUI, null, auth()->id());
+            activity('publikasi')->performedOn($article)->log('berita_bulk_setujui');
+            $approved++;
+        }
+
+        return back()->with('status', "{$approved} berita disetujui".($skipped > 0 ? ", {$skipped} dilewati karena status tidak memungkinkan." : '.'));
     }
 
     public function transition(Request $request, Article $article, string $aksi): RedirectResponse

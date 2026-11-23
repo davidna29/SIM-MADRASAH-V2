@@ -40,5 +40,29 @@
                 </div>
             </div>
         @endif
+
+        @if ($slug === 'profil' && ! empty($legalDocuments))
+            <section class="mt-10">
+                <h2 class="text-xl font-extrabold tracking-tight text-ink">Dokumen Legalitas</h2>
+                <p class="mt-1 text-sm text-ink-soft">Dokumen resmi madrasah yang dapat diunduh publik.</p>
+
+                <div class="mt-5 grid gap-4 sm:grid-cols-3">
+                    @foreach ($legalDocuments as $document)
+                        <div class="rounded-sheet bg-sheet p-5 shadow-sheet ring-1 ring-inset ring-rule/60">
+                            <div class="flex size-9 items-center justify-center rounded-control bg-primary-soft text-primary-strong">
+                                <x-svg-document-text class="size-5" aria-hidden="true" />
+                            </div>
+                            <h3 class="mt-3 text-sm font-bold text-ink">{{ $document['label'] }}</h3>
+                            <p class="mt-1 text-xs leading-relaxed text-ink-soft">{{ $document['description'] }}</p>
+                            @if ($document['url'])
+                                <x-ui.button variant="secondary" size="sm" icon="arrow-down-tray" :href="$document['url']" target="_blank" class="mt-4">Unduh PDF</x-ui.button>
+                            @else
+                                <x-ui.badge variant="warning" :dot="false" class="mt-4">Menyusul</x-ui.badge>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endif
     </div>
 </x-layouts.publik>

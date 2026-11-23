@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSubjectRequest extends FormRequest
 {
@@ -16,6 +17,9 @@ class StoreSubjectRequest extends FormRequest
         return [
             'code' => ['required', 'string', 'max:10', 'unique:subjects,code'],
             'name' => ['required', 'string', 'max:60'],
+            'category' => ['nullable', Rule::in(['keagamaan', 'umum', 'mulok'])],
+            'jp' => ['nullable', 'array'],
+            'jp.*' => ['nullable', 'integer', 'min:0', 'max:12'],
         ];
     }
 
@@ -24,6 +28,8 @@ class StoreSubjectRequest extends FormRequest
         return [
             'code' => 'kode mata pelajaran',
             'name' => 'nama mata pelajaran',
+            'category' => 'kelompok mata pelajaran',
+            'jp' => 'alokasi JP',
         ];
     }
 }

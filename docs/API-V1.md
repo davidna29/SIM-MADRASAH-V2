@@ -112,10 +112,36 @@ Catatan privasi:
 | PUT | `/cms/berita/{article}` | Draft/revisi untuk edit; kirim `status=publish` untuk menerbitkan (hanya dari `disetujui`/`dijadwalkan`); `published_at` opsional (≤ now, default now); berita publish → 409 |
 | POST | `/cms/agenda` | Selalu `status=arsip`; publikasi lewat web |
 | PUT | `/cms/agenda/{agenda}` | Hanya agenda arsip; status diprohibisi |
-| POST | `/cms/galeri` | Selalu `status=privat`; upload `cover_image`; media lewat web |
+| POST | `/cms/galeri` | Selalu `status=privat`; upload `cover_image` |
+| POST | `/cms/galeri/{album}/item` | Tambah item ke album **privat**: `title`, `deskripsi`, `tipe=foto\|video`, `file` (foto, maks 4 MB) **atau** `video_url` (khusus YouTube). `Idempotency-Key` wajib; item baru `publication_approved_at=null` |
 | PUT | `/cms/galeri/{album}` | Hanya album privat; status diprohibisi |
 
-API tidak menyediakan unggah item galeri atau DELETE. Publikasi berita dilakukan lewat `PUT /cms/berita/{article}` dengan `status=publish`; agenda/galeri tetap publikasi lewat web.
+API tidak menyediakan DELETE item/album. Publikasi berita dilakukan lewat `PUT /cms/berita/{article}` dengan `status=publish`; persetujuan media/agenda tetap lewat web.
+
+Contoh tambah foto galeri (multipart):
+
+```bash
+curl -X POST https://misnupalangkaraya.sch.id/api/v1/cms/galeri/12/item \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Idempotency-Key: galeri-foto-001" \
+  -F "title=Foto Kegiatan" \
+  -F "deskripsi=Dokumentasi kegiatan madrasah" \
+  -F "tipe=foto" \
+  -F "file=@foto.jpg"
+```
+
+Contoh tambah video YouTube (JSON):
+
+```json
+{
+  "title": "Video Profil Madrasah",
+  "deskripsi": "Profil singkat.",
+  "tipe": "video",
+  "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+}
+```
+
+Aturan `video_url`: hanya `youtube.com/watch?v=…` (termasuk `www.`/`m.`) atau `youtu.be/…` dengan ID 11 karakter. URL Facebook/Instagram/TikTok/ lainnya ditolak **422**. Album publik → **409**; salah satu `file`/`video_url` wajib (kosong → **422**). Audit: `api_galeri_item_ditambah`.
 
 Contoh publikasi berita dengan tanggal terbit manual (maks. sekarang):
 

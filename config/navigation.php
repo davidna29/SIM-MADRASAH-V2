@@ -28,7 +28,7 @@ return [
                 'icon' => 'user-group',
                 'roles' => ['super_admin'],
                 'children' => [
-                    ['label' => 'Pengguna & Role', 'route' => 'pengguna.index', 'icon' => 'user-group', 'roles' => ['super_admin']],
+                    ['label' => 'Daftar Pengguna', 'route' => 'pengguna.index', 'icon' => 'user-group', 'roles' => ['super_admin']],
                     ['label' => 'Akun Menunggu Aktivasi', 'route' => 'pengguna.aktivasi.index', 'icon' => 'user-plus', 'roles' => ['super_admin']],
                 ],
             ],
@@ -54,7 +54,7 @@ return [
                 'icon' => 'academic-cap',
                 'roles' => ['super_admin', 'wakamad_kesiswaan', 'tata_usaha', 'wali_kelas', 'kepala_madrasah'],
                 'children' => [
-                    ['label' => 'Data Siswa', 'route' => 'siswa.index', 'icon' => 'user-group', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'tata_usaha', 'wali_kelas', 'kepala_madrasah']],
+                    ['label' => 'Daftar Siswa', 'route' => 'siswa.index', 'icon' => 'user-group', 'roles' => ['super_admin', 'wakamad_kesiswaan', 'tata_usaha', 'wali_kelas', 'kepala_madrasah']],
                     ['label' => 'Mutasi Siswa Masuk', 'route' => 'mutasi.index', 'icon' => 'arrow-right-start-on-rectangle', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
                     ['label' => 'Mutasi Siswa Keluar', 'route' => 'mutasi-keluar.index', 'icon' => 'arrow-right-end-on-rectangle', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
                 ],
@@ -63,6 +63,7 @@ return [
             ['label' => 'Kehadiran Guru & Pegawai', 'route' => 'pegawai.kehadiran.index', 'icon' => 'clipboard-document-check', 'roles' => ['super_admin', 'tata_usaha', 'kepala_madrasah']],
             ['label' => 'Mata Pelajaran', 'route' => 'mapel.index', 'icon' => 'book-open', 'roles' => ['super_admin', 'wakamad_kurikulum']],
             ['label' => 'Kelas & Penempatan', 'route' => 'kelas.index', 'icon' => 'building-library', 'roles' => ['super_admin', 'wakamad_kurikulum']],
+            ['label' => 'Kalender Pendidikan', 'route' => 'kalender.index', 'icon' => 'calendar', 'roles' => ['super_admin', 'wakamad_kurikulum', 'tata_usaha', 'kepala_madrasah', 'guru']],
             [
                 'label' => 'Jadwal Pelajaran',
                 'icon' => 'calendar-days',

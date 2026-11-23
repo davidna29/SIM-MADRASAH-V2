@@ -72,6 +72,11 @@ class PengaturanController extends Controller
 
             // Logo
             'madrasah_logo' => 'nullable|image|max:2048',
+
+            // Dokumen legalitas (PDF)
+            'madrasah_file_akreditasi' => 'nullable|file|mimes:pdf|max:5120',
+            'madrasah_file_sk_pendirian' => 'nullable|file|mimes:pdf|max:5120',
+            'madrasah_file_ijop' => 'nullable|file|mimes:pdf|max:5120',
         ]);
 
         // Handle logo upload
@@ -88,6 +93,29 @@ class PengaturanController extends Controller
             $file = $request->file('madrasah_logo');
             $filename = 'logo.'.$file->getClientOriginalExtension();
             $validated['madrasah_logo'] = $file->storeAs('settings', $filename, 'public');
+        }
+
+        // Dokumen legalitas — simpan PDF dan hapus berkas lama.
+        $documents = [
+            'madrasah_file_akreditasi' => 'sertifikat-akreditasi.pdf',
+            'madrasah_file_sk_pendirian' => 'sk-pendirian.pdf',
+            'madrasah_file_ijop' => 'ijop.pdf',
+        ];
+
+        foreach ($documents as $key => $filename) {
+            if (! $request->hasFile($key)) {
+                unset($validated[$key]);
+
+                continue;
+            }
+
+            $old = Setting::get($key);
+
+            if ($old && Storage::disk('public')->exists($old)) {
+                Storage::disk('public')->delete($old);
+            }
+
+            $validated[$key] = $request->file($key)->storeAs('settings/legalitas', $filename, 'public');
         }
 
         // Remove the file object from validated data (it's not a string)

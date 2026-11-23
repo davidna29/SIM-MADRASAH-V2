@@ -1,14 +1,24 @@
 @php
     $madrasahName = \App\Models\Setting::get('madrasah_name', 'SIM Madrasah');
+    $siteLogo = \App\Models\Setting::logoUrl();
+    $siteMark = file_exists(public_path('storage/settings/favicon.png'))
+        ? asset('storage/settings/favicon.png')
+        : $siteLogo;
 @endphp
 
 <x-layouts.root :title="'Masuk'">
     <div class="paper-grain flex min-h-screen flex-col items-center justify-center px-4 py-10">
         <!-- Kepala papan -->
         <div class="mb-8 flex flex-col items-center text-center">
-            <div class="flex size-14 items-center justify-center rounded-2xl bg-board text-board-ink shadow-sheet-raised">
-                <x-svg-academic-cap class="size-8" aria-hidden="true" />
-            </div>
+            @if ($siteMark)
+                <div class="flex size-20 items-center justify-center overflow-hidden rounded-2xl bg-white p-2 shadow-sheet-raised ring-1 ring-rule/60">
+                    <img src="{{ $siteMark }}" alt="{{ $madrasahName }}" class="h-full w-full object-contain">
+                </div>
+            @else
+                <div class="flex size-14 items-center justify-center rounded-2xl bg-board text-board-ink shadow-sheet-raised">
+                    <x-svg-academic-cap class="size-8" aria-hidden="true" />
+                </div>
+            @endif
             <h1 class="mt-4 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">SIM Madrasah</h1>
             <p class="mt-1 max-w-sm text-sm leading-relaxed text-ink-soft">
                 {{ $madrasahName }} — Sistem Informasi Manajemen Madrasah Terintegrasi

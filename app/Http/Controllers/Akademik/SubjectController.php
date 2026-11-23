@@ -39,6 +39,7 @@ class SubjectController extends Controller
 
         $validated = $request->validated();
         $validated['sort_order'] = (Subject::max('sort_order') ?? 0) + 1;
+        $validated = $this->normalizeJp($validated);
 
         $subject = Subject::create($validated);
 
@@ -51,11 +52,29 @@ class SubjectController extends Controller
     {
         $this->authorize('update', $subject);
 
-        $subject->update($request->validated());
+        $subject->update($this->normalizeJp($request->validated()));
 
         activity('akademik')->performedOn($subject)->log('mapel_diubah');
 
         return redirect()->route('mapel.index')->with('status', 'Mata pelajaran berhasil diperbarui.');
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function normalizeJp(array $data): array
+    {
+        $jp = collect($data['jp'] ?? [])
+            ->filter(fn ($value) => $value !== null && $value !== '')
+            ->map(fn ($value) => (int) $value)
+            ->all();
+
+        $data['jp_per_grade'] = $jp !== [] ? $jp : null;
+        $data['category'] = $data['category'] ?? null;
+        unset($data['jp']);
+
+        return $data;
     }
 
     public function reorder(Request $request): RedirectResponse

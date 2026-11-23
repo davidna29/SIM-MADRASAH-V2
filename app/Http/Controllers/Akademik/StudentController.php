@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Akademik;
 
+use App\Exports\SiswaEmisExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
@@ -12,8 +13,11 @@ use App\Models\Person;
 use App\Models\Student;
 use App\Models\StudentEnrollment;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class StudentController extends Controller
 {
@@ -106,6 +110,23 @@ class StudentController extends Controller
         activity('akademik')->performedOn($student)->log('siswa_baru');
 
         return redirect()->route('siswa.show', $student)->with('status', 'Data siswa berhasil disimpan dan disematkan ke papan.');
+    }
+
+    public function exportEmis(Request $request): BinaryFileResponse
+    {
+        $this->authorize('viewAny', Student::class);
+
+        $validated = $request->validate([
+            'class_group_id' => ['nullable', 'integer', 'exists:class_groups,id'],
+            'q' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $tahun = AcademicYear::active();
+
+        return Excel::download(
+            new SiswaEmisExport($tahun->id, $validated['class_group_id'] ?? null, $validated['q'] ?? null),
+            'data-siswa-emis-'.str_replace('/', '-', $tahun->name).'.xlsx'
+        );
     }
 
     public function show(Student $student): View

@@ -39,9 +39,24 @@
             </div>
         </form>
 
-        <div class="mt-6">
+        @if ($isEditor)
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-sheet bg-sheet px-4 py-3 shadow-sheet ring-1 ring-inset ring-rule/60">
+                <label class="inline-flex items-center gap-2 text-xs font-semibold text-ink-soft">
+                    <input type="checkbox" class="size-4 rounded border-rule-strong text-primary focus:ring-primary"
+                        onclick="document.querySelectorAll('.bulk-article').forEach((box) => { box.checked = this.checked; })">
+                    Pilih semua di halaman ini
+                </label>
+                <form id="bulk-approve" method="POST" action="{{ route('cms.berita.bulk-setujui') }}"
+                    onsubmit="return document.querySelectorAll('.bulk-article:checked').length > 0 && confirm('Setujui semua berita yang dipilih?');">
+                    @csrf
+                    <x-ui.button type="submit" size="sm" variant="primary" icon="check-circle">Setujui terpilih</x-ui.button>
+                </form>
+            </div>
+        @endif
+
+        <div class="mt-3">
             <x-ui.sheet title="Daftar Berita" :subtitle="$articles->total() . ' berita'" pinned :padding="false">
-                <x-ui.table :headers="['Judul', 'Status', 'Kategori', 'Penulis', 'Diperbarui', '']">
+                <x-ui.table :headers="$isEditor ? ['Pilih', 'Judul', 'Status', 'Kategori', 'Penulis', 'Diperbarui', ''] : ['Judul', 'Status', 'Kategori', 'Penulis', 'Diperbarui', '']">
                     <x-slot name="emptySlot">Belum ada berita.</x-slot>
                     <x-slot>
                         @foreach ($articles as $article)
@@ -55,6 +70,11 @@
                                 };
                             @endphp
                             <tr class="transition hover:bg-paper/60">
+                                @if ($isEditor)
+                                    <td class="w-10 px-4 py-3">
+                                        <input type="checkbox" form="bulk-approve" name="ids[]" value="{{ $article->id }}" class="bulk-article size-4 rounded border-rule-strong text-primary focus:ring-primary">
+                                    </td>
+                                @endif
                                 <td class="max-w-[340px] px-4 py-3">
                                     <p class="truncate font-semibold text-ink">{{ $article->title }}</p>
                                     <p class="tabular mt-0.5 font-mono text-[11px] text-ink-faint">/{{ $article->slug }}</p>

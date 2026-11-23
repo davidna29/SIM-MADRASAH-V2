@@ -11,7 +11,7 @@ class MediaItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        'album_id', 'tipe', 'file_path', 'video_url', 'caption', 'sort_order',
+        'album_id', 'tipe', 'title', 'description', 'file_path', 'video_url', 'caption', 'sort_order',
         'publication_approved_at', 'publication_approved_by',
     ];
 

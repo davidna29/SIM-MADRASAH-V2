@@ -191,6 +191,34 @@
                 </div>
             </x-ui.sheet>
 
+            {{-- Dokumen Legalitas --}}
+            <x-ui.sheet title="Dokumen Legalitas" subtitle="Unggah PDF akreditasi, SK pendirian, dan izin operasional" pinned ruled>
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                    @foreach ([
+                        'madrasah_file_akreditasi' => ['label' => 'Sertifikat Akreditasi', 'hint' => 'Sertifikat BAN-S/M yang berlaku.'],
+                        'madrasah_file_sk_pendirian' => ['label' => 'SK Pendirian', 'hint' => 'Surat keputusan pendirian madrasah.'],
+                        'madrasah_file_ijop' => ['label' => 'Izin Operasional (IJOP)', 'hint' => 'Kosongkan bila belum tersedia — tampil “Menyusul”.'],
+                    ] as $key => $document)
+                        @php($existing = $settings->get($key))
+                        <div class="space-y-2">
+                            <x-ui.field :label="$document['label']" :hint="$document['hint']" :error="$errors->first($key)">
+                                <input type="file" name="{{ $key }}" accept="application/pdf"
+                                    class="w-full rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink ring-1 ring-inset ring-rule-strong transition file:mr-3 file:rounded-md file:border-0 file:bg-primary-soft file:px-3 file:py-1 file:text-xs file:font-semibold file:text-primary-strong hover:ring-ink-faint/60 focus:outline-none focus:ring-2 focus:ring-primary">
+                            </x-ui.field>
+                            @if ($existing)
+                                <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($existing) }}" target="_blank" rel="noopener"
+                                    class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
+                                    <x-svg-document-text class="size-3.5" aria-hidden="true" /> Lihat berkas saat ini
+                                </a>
+                            @else
+                                <p class="text-xs text-ink-faint">Belum ada berkas.</p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                <p class="mt-4 text-xs text-ink-faint">Format PDF, maksimal 5 MB per berkas. Unggah ulang untuk mengganti dokumen lama.</p>
+            </x-ui.sheet>
+
             {{-- Logo --}}
             <x-ui.sheet title="Logo Madrasah" subtitle="Logo tampil di sistem dan website publik" pinned ruled>
                 <div class="flex flex-wrap items-start gap-6">

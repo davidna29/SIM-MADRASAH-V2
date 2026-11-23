@@ -13,7 +13,10 @@
                 </p>
             </div>
             <div class="flex items-center gap-2">
-                <x-ui.button variant="secondary" icon="arrow-down-tray">Import Excel</x-ui.button>
+                @if (in_array(auth()->user()?->role, ['super_admin', 'tata_usaha', 'wakamad_kesiswaan', 'kepala_madrasah'], true))
+                    <x-ui.button variant="secondary" icon="arrow-down-tray" href="{{ route('siswa.emis', request()->only('q', 'class_group_id')) }}">Export EMIS</x-ui.button>
+                @endif
+                <x-ui.button variant="secondary" icon="arrow-up-tray" href="{{ route('siswa.import') }}">Import Excel</x-ui.button>
                 <x-ui.button variant="primary" icon="user-plus" href="{{ route('siswa.create') }}">Tambah Siswa</x-ui.button>
             </div>
         </div>

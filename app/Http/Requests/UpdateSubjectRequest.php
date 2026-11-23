@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateSubjectRequest extends FormRequest
 {
@@ -18,6 +19,9 @@ class UpdateSubjectRequest extends FormRequest
         return [
             'code' => ['required', 'string', 'max:10', 'unique:subjects,code,'.$id?->id],
             'name' => ['required', 'string', 'max:60'],
+            'category' => ['nullable', Rule::in(['keagamaan', 'umum', 'mulok'])],
+            'jp' => ['nullable', 'array'],
+            'jp.*' => ['nullable', 'integer', 'min:0', 'max:12'],
         ];
     }
 

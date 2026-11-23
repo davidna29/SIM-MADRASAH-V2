@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreAlbumRequest;
+use App\Http\Requests\Api\V1\StoreGalleryItemRequest;
 use App\Http\Requests\Api\V1\UpdateAlbumRequest;
 use App\Http\Resources\Api\V1\MediaAlbumResource;
 use App\Models\MediaAlbum;
@@ -15,6 +16,7 @@ use App\Support\Api\ApiResponse;
 use App\Support\Api\ApiScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class GalleryController extends Controller
 {
@@ -71,6 +73,41 @@ class GalleryController extends Controller
         return ApiResponse::success(
             MediaAlbumResource::make($album)->resolve($request),
             warnings: ['Album dibuat privat. Publikasi dan unggah media dilakukan melalui web.'],
+            status: 201,
+        );
+    }
+
+    public function storeItem(StoreGalleryItemRequest $request, MediaAlbum $album): JsonResponse
+    {
+        $this->authorize('update', $album);
+
+        if ($album->status !== 'privat') {
+            throw ApiException::conflict(
+                'Item hanya dapat ditambahkan ke album privat melalui API.',
+                ApiErrorCode::RECORD_ALREADY_PUBLISHED,
+            );
+        }
+
+        $item = $this->galleries->addItem($album, $request->validated(), $request->file('file'));
+
+        ApiAudit::log($request, 'api_galeri_item_ditambah', $item, [
+            'album_id' => $album->id,
+            'tipe' => $item->tipe,
+        ]);
+
+        return ApiResponse::success(
+            [
+                'id' => $item->id,
+                'album_id' => $item->album_id,
+                'tipe' => $item->tipe,
+                'title' => $item->title,
+                'deskripsi' => $item->description,
+                'file_url' => $item->file_path ? Storage::disk('public')->url($item->file_path) : null,
+                'video_url' => $item->video_url,
+                'publication_approved_at' => null,
+                'sort_order' => $item->sort_order,
+            ],
+            warnings: ['Item tersimpan tanpa persetujuan publikasi. Setujui melalui CMS sebelum tampil di website.'],
             status: 201,
         );
     }

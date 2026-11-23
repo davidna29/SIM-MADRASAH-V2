@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Akademik\AttendanceController;
 use App\Http\Controllers\Akademik\ClassGroupController;
+use App\Http\Controllers\Akademik\ExcelImportController;
 use App\Http\Controllers\Akademik\HomeroomController;
 use App\Http\Controllers\Akademik\JurnalController;
+use App\Http\Controllers\Akademik\KalenderController;
 use App\Http\Controllers\Akademik\MutasiKeluarController;
 use App\Http\Controllers\Akademik\RekapRaporController;
 use App\Http\Controllers\Akademik\ScheduleCellController;
@@ -56,6 +58,7 @@ use App\Http\Controllers\Publik\BerandaController;
 use App\Http\Controllers\Publik\BeritaController as PublikBeritaController;
 use App\Http\Controllers\Publik\GaleriController as PublikGaleriController;
 use App\Http\Controllers\Publik\HalamanController;
+use App\Http\Controllers\Publik\KalenderController as PublikKalenderController;
 use App\Http\Controllers\Publik\OrganisasiController;
 use App\Http\Controllers\Publik\PindahanController;
 use App\Http\Controllers\Publik\PpdbController;
@@ -87,6 +90,7 @@ Route::get('/berita/{article:slug}', [PublikBeritaController::class, 'show'])->n
 Route::get('/agenda', [PublikAgendaController::class, 'index'])->name('publik.agenda.index');
 Route::get('/galeri', [PublikGaleriController::class, 'index'])->name('publik.galeri.index');
 Route::get('/galeri/{album:slug}', [PublikGaleriController::class, 'show'])->name('publik.galeri.show');
+Route::get('/kalender', [PublikKalenderController::class, 'index'])->name('publik.kalender');
 Route::get('/halaman/{publicPage:slug}', [HalamanController::class, 'show'])->name('publik.halaman');
 
 // PPDB Daring (publik, tanpa auth)
@@ -116,6 +120,49 @@ Route::middleware('auth')->group(function () {
     // Dashboard admin — ringkasan kondisi madrasah (bukan data demo)
     Route::middleware('role:super_admin|kepala_madrasah|wakamad_kurikulum|wakamad_kesiswaan|bendahara|tata_usaha')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    });
+
+    // Export EMIS data siswa — lintas role (didaftarkan sebelum wildcard {student})
+    Route::middleware('role:super_admin|tata_usaha|wakamad_kesiswaan|kepala_madrasah')->group(function () {
+        Route::get('/akademik/data-siswa/export-emis', [StudentController::class, 'exportEmis'])->name('siswa.emis');
+    });
+
+    // Import Excel — siswa, guru, mapel (fixed routes sebelum wildcard)
+    Route::middleware('role:super_admin|tata_usaha|wakamad_kesiswaan')->group(function () {
+        Route::get('/akademik/data-siswa/import', [ExcelImportController::class, 'upload'])->name('siswa.import')->defaults('module', 'siswa');
+        Route::get('/akademik/data-siswa/import/template', [ExcelImportController::class, 'template'])->name('siswa.import.template')->defaults('module', 'siswa');
+        Route::post('/akademik/data-siswa/import/preview', [ExcelImportController::class, 'process'])->name('siswa.import.process')->defaults('module', 'siswa');
+        Route::get('/akademik/data-siswa/import/pratinjau', [ExcelImportController::class, 'preview'])->name('siswa.import.preview')->defaults('module', 'siswa');
+        Route::post('/akademik/data-siswa/import/simpan', [ExcelImportController::class, 'commit'])->name('siswa.import.simpan')->defaults('module', 'siswa');
+        Route::post('/akademik/data-siswa/import/batal', [ExcelImportController::class, 'cancel'])->name('siswa.import.batal')->defaults('module', 'siswa');
+    });
+    Route::middleware('role:super_admin|tata_usaha')->group(function () {
+        Route::get('/kepegawaian/data-guru/import', [ExcelImportController::class, 'upload'])->name('guru.import')->defaults('module', 'guru');
+        Route::get('/kepegawaian/data-guru/import/template', [ExcelImportController::class, 'template'])->name('guru.import.template')->defaults('module', 'guru');
+        Route::post('/kepegawaian/data-guru/import/preview', [ExcelImportController::class, 'process'])->name('guru.import.process')->defaults('module', 'guru');
+        Route::get('/kepegawaian/data-guru/import/pratinjau', [ExcelImportController::class, 'preview'])->name('guru.import.preview')->defaults('module', 'guru');
+        Route::post('/kepegawaian/data-guru/import/simpan', [ExcelImportController::class, 'commit'])->name('guru.import.simpan')->defaults('module', 'guru');
+        Route::post('/kepegawaian/data-guru/import/batal', [ExcelImportController::class, 'cancel'])->name('guru.import.batal')->defaults('module', 'guru');
+    });
+    Route::middleware('role:super_admin|wakamad_kurikulum')->group(function () {
+        Route::get('/akademik/mata-pelajaran/import', [ExcelImportController::class, 'upload'])->name('mapel.import')->defaults('module', 'mapel');
+        Route::get('/akademik/mata-pelajaran/import/template', [ExcelImportController::class, 'template'])->name('mapel.import.template')->defaults('module', 'mapel');
+        Route::post('/akademik/mata-pelajaran/import/preview', [ExcelImportController::class, 'process'])->name('mapel.import.process')->defaults('module', 'mapel');
+        Route::get('/akademik/mata-pelajaran/import/pratinjau', [ExcelImportController::class, 'preview'])->name('mapel.import.preview')->defaults('module', 'mapel');
+        Route::post('/akademik/mata-pelajaran/import/simpan', [ExcelImportController::class, 'commit'])->name('mapel.import.simpan')->defaults('module', 'mapel');
+        Route::post('/akademik/mata-pelajaran/import/batal', [ExcelImportController::class, 'cancel'])->name('mapel.import.batal')->defaults('module', 'mapel');
+    });
+
+    // Kalender Pendidikan (MOD-020) — lintas role, bukan di dalam group super_admin
+    Route::middleware('role:super_admin|wakamad_kurikulum|tata_usaha|kepala_madrasah|guru')->group(function () {
+        Route::get('/akademik/kalender', [KalenderController::class, 'index'])->name('kalender.index');
+        Route::get('/akademik/kalender/cetak', [KalenderController::class, 'cetak'])->name('kalender.cetak');
+    });
+    Route::middleware('role:super_admin|wakamad_kurikulum|tata_usaha')->group(function () {
+        Route::post('/akademik/kalender', [KalenderController::class, 'store'])->name('kalender.store');
+        Route::post('/akademik/kalender/periode', [KalenderController::class, 'updatePeriods'])->name('kalender.periode');
+        Route::put('/akademik/kalender/{event}', [KalenderController::class, 'update'])->name('kalender.update');
+        Route::delete('/akademik/kalender/{event}', [KalenderController::class, 'destroy'])->name('kalender.destroy');
     });
 
     // Super Admin — modul demo (Tahap 11)
@@ -391,6 +438,9 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('/berita', [ArticleController::class, 'index'])->name('berita.index');
+        Route::post('/berita/bulk-setujui', [ArticleController::class, 'bulkApprove'])
+            ->middleware('role:super_admin|wakamad_humas|editor_berita|kepala_madrasah')
+            ->name('berita.bulk-setujui');
         Route::get('/berita/tambah', [ArticleController::class, 'create'])->name('berita.create');
         Route::post('/berita', [ArticleController::class, 'store'])->name('berita.store');
         Route::get('/berita/{article}', [ArticleController::class, 'show'])->name('berita.show');

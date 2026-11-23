@@ -280,10 +280,14 @@ Token permanen + 4 scope setara kredensial admin API. Wajib:
 - [ ] Hapus draft tes id 5 “Tes API Hermes - draft, abaikan/hapus”.
 - [ ] Putuskan timezone: tetap UTC atau ubah ke `Asia/Jakarta` + `locale=id` (perlu rencana konversi data).
 - [ ] Uji manual upload foto ±4 MB, cetak PDF rapor, submit PPDB.
-- [ ] Publish halaman publik hasil `PublicPageSeeder` (masih draft).
-- [ ] Aktifkan `show_on_website` untuk guru/pegawai agar `/profil/guru` terisi.
-- [ ] Setujui media lama yang belum punya `publication_approved_at`.
-- [ ] Opsional: `APP_NAME` masih “Laravel”; bersihkan `storage/logs/laravel.log` lama; isi Sentry DSN bila dipakai.
+- [x] Publish halaman publik hasil `PublicPageSeeder` — **selesai** (7 halaman terisi & publik).
+- [x] Aktifkan `show_on_website` untuk guru/pegawai agar `/profil/guru` terisi — **selesai** (31 pegawai).
+- [x] `APP_NAME` diperbaiki menjadi “SIM Madrasah” — **selesai**.
+- [x] Setujui media baru MIS NU — **selesai** (61 item approved).
+- [ ] 464 siswa sisanya belum diimpor (pilot VI-A/VI-B saja).
+- [ ] Verifikasi/isi SK pendirian & operasional (masih placeholder demo) serta email resmi.
+- [ ] Push perubahan kode ke `origin/main` (deploy kali ini memakai sinkronisasi berkas langsung; auto-deploy Git berikutnya berisiko menimpa).
+- [ ] Bersihkan `storage/logs/laravel.log` lama; isi Sentry DSN bila dipakai.
 
 ---
 
@@ -301,3 +305,69 @@ Dampak:
 - `scheduled_at`, `published_at`, presensi “hari ini”, dan jadwal berita memakai UTC.
 - Artikel yang dijadwalkan “11:35” akan terbit pukul **18:35 WIB**.
 - Mengubah timezone bukan sekadar ganti config: data lama dan jadwal yang sudah ada perlu diputuskan (konversi atau tidak). Kerjakan sebagai task terpisah dengan test regresi.
+
+
+---
+
+## 12. Onboarding Data MIS NU — 23 November 2026 (sore)
+
+Deploy dilakukan **tanpa `git push`** (sesuai instruksi); kode dikirim lewat tar/ssh, database diubah lewat migrasi + seeder + perintah `misnu:*`.
+
+### 12.1 Backup sebelum perubahan
+
+- DB: `~/backup-sim/db/2026-11-23_082730.sql` (570 KB) + salinan lokal `~/Downloads/backup-sim-prod/pre-misnu-2026-11-23.sql`.
+- Files: `~/backup-sim/files/2026-11-23_082730.zip` (15 MB).
+- `.env`: `~/backup-sim/.env-pre-misnu-20261123-082731` (0600).
+- Kode: `~/backup-sim/code/pre-misnu-code-20261123.tgz`.
+- `public/build`: `~/backup-sim/public-build-pre-misnu-20261123.tgz`.
+- Snapshot siswa demo: `~/backup-sim/students-before-purge-20261123-082927.csv`.
+- Data sumber PII: `~/misnu-data/` (0700, berkas 0600).
+
+### 12.2 Langkah yang dijalankan
+
+```bash
+composer2 dump-autoload -o
+php artisan migrate --force           # 4 migrasi (mapel, pegawai, kalender, is_efektif)
+php artisan db:seed --class=MisnuEmployeeSeeder --force
+php artisan db:seed --class=MisnuClassGroupSeeder --force
+php artisan db:seed --class=MisnuSubjectSeeder --force
+php artisan db:seed --class=MisnuRoomSeeder --force
+php artisan db:seed --class=MisnuHomeroomSeeder --force
+php artisan db:seed --class=MisnuExtracurricularSeeder --force
+php artisan db:seed --class=MisnuPublicPageSeeder --force
+php artisan db:seed --class=MisnuCalendarSeeder --force
+php artisan misnu:purge-demo --students --employees --force --production
+php -d memory_limit=512M artisan misnu:import-siswa \
+  --file=/home/u549935065/misnu-data/database-siswa-emis-2026-2027.xlsx \
+  --rombel=VI-A,VI-B
+php artisan misnu:import-galeri --source=.../dokumentasi --source=.../kegiatan --approve
+php artisan misnu:import-prestasi --file=/home/u549935065/misnu-data/prestasi-misnu.csv
+php artisan optimize
+```
+
+Catatan: `MisnuSettingSeeder` **tidak** dijalankan di production (agar logo `settings/logo.jpeg`, email resmi, dan pengaturan PPDB/mutasi tidak tertimpa). Identitas diperbarui selektif: nama, tagline, telepon, website, naungan, desa/kecamatan, koordinat, jam layanan.
+
+### 12.3 Hasil verifikasi
+
+| Data | Hasil |
+|---|---|
+| Siswa / enrollment | 57 / 57 (VI-A 28, VI-B 29) |
+| Wali | 109 |
+| Pegawai aktif | 31 (9 demo di-soft-delete) |
+| Rombel | 18 |
+| Mapel | 13 |
+| Ruangan | 16 |
+| Ekstrakurikuler | 9 |
+| Wali kelas | 18 |
+| Kalender | 2 periode, 26 kegiatan |
+| Halaman publik | 7 publik |
+| Galeri | 5 album, 64 item (61 approved) |
+| Prestasi | 2 (sisanya alumni, `storage/app/reports/prestasi-unmatched.csv`) |
+
+Uji HTTP: `/`, `/profil*`, `/kontak`, `/galeri`, `/kalender`, `/sitemap.xml`, `/login`, `/ppdb` = 200. Uji internal (Auth CLI): dashboard, kalender, mapel, data siswa, data guru, import siswa, prestasi = 200. Tidak ada ERROR baru di `storage/logs/laravel-2026-11-23.log`.
+
+### 12.4 Peringatan penting
+
+- Repo production kini **dirty** (perubahan belum di-commit/push). Auto-deploy Git berikutnya dapat menimpa kode ini — segera commit/push dari lingkungan pengembang setelah disetujui.
+- `public/build` diganti dengan hasil `npm run build` (hash baru) karena kelas Tailwind untuk view baru belum ada di build lama.
+- Jangan jalankan `migrate:fresh` atau `misnu:purge-demo` lagi di production.

@@ -26,7 +26,7 @@
             <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
                 <a href="{{ route('publik.beranda') }}" class="flex min-w-0 items-center gap-3 rounded-control focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-board-ink">
                     @if ($siteLogoUrl)
-                        <img src="{{ $siteLogoUrl }}" alt="Logo {{ $schoolName }}" class="size-11 shrink-0 rounded-control bg-white object-contain p-1.5">
+                        <img src="{{ $siteLogoUrl }}" alt="Logo {{ $schoolName }}" class="h-11 w-auto max-w-[7.5rem] shrink-0 rounded-control bg-white object-contain px-1.5 py-1">
                     @else
                         <span class="flex size-11 shrink-0 items-center justify-center rounded-control bg-board-ink text-board">
                             <x-svg-academic-cap class="size-6" aria-hidden="true" />
@@ -61,6 +61,7 @@
                         <div class="absolute left-0 top-full z-40 mt-2 w-60 rounded-sheet bg-sheet p-2 text-ink shadow-sheet-raised ring-1 ring-rule/70">
                             <a href="{{ route('publik.berita.index') }}" class="block rounded-control px-3 py-2 text-sm hover:bg-paper">Berita</a>
                             <a href="{{ route('publik.agenda.index') }}" class="block rounded-control px-3 py-2 text-sm hover:bg-paper">Agenda & Pengumuman</a>
+                            <a href="{{ route('publik.kalender') }}" class="block rounded-control px-3 py-2 text-sm hover:bg-paper">Kalender Pendidikan</a>
                             <a href="{{ route('publik.galeri.index') }}" class="block rounded-control px-3 py-2 text-sm hover:bg-paper">Galeri</a>
                             <a href="{{ route('publik.video') }}" class="block rounded-control px-3 py-2 text-sm hover:bg-paper">Video</a>
                         </div>
@@ -105,6 +106,7 @@
                         <div class="grid gap-1 pb-2 pt-2 pl-3">
                             <a @click="mobileOpen = false" href="{{ route('publik.berita.index') }}" class="rounded-control px-3 py-2 text-sm hover:bg-board-soft/40">Berita</a>
                             <a @click="mobileOpen = false" href="{{ route('publik.agenda.index') }}" class="rounded-control px-3 py-2 text-sm hover:bg-board-soft/40">Agenda & Pengumuman</a>
+                            <a @click="mobileOpen = false" href="{{ route('publik.kalender') }}" class="rounded-control px-3 py-2 text-sm hover:bg-board-soft/40">Kalender Pendidikan</a>
                             <a @click="mobileOpen = false" href="{{ route('publik.galeri.index') }}" class="rounded-control px-3 py-2 text-sm hover:bg-board-soft/40">Galeri</a>
                             <a @click="mobileOpen = false" href="{{ route('publik.video') }}" class="rounded-control px-3 py-2 text-sm hover:bg-board-soft/40">Video</a>
                         </div>
@@ -133,9 +135,13 @@
                 <div class="sm:col-span-2">
                     <a href="{{ route('publik.beranda') }}" class="inline-flex items-center gap-3 text-ink">
                         @if ($siteLogoUrl)
-                            <img src="{{ $siteLogoUrl }}" alt="" class="size-10 rounded-control object-contain">
+                            <span class="flex h-10 max-w-[7rem] items-center justify-center rounded-control bg-white px-1.5 py-1">
+                                <img src="{{ $siteLogoUrl }}" alt="Logo {{ $schoolName }}" class="h-full w-auto max-w-full object-contain">
+                            </span>
                         @else
-                            <span class="flex size-10 items-center justify-center rounded-control bg-board text-board-ink"><x-svg-academic-cap class="size-5" aria-hidden="true" /></span>
+                            <span class="flex size-10 items-center justify-center rounded-control bg-board text-board-ink">
+                                <x-svg-academic-cap class="size-5" aria-hidden="true" />
+                            </span>
                         @endif
                         <span class="font-extrabold tracking-tight">{{ $schoolName }}</span>
                     </a>

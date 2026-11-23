@@ -13,7 +13,7 @@
                 </p>
             </div>
             <div class="flex items-center gap-2">
-                <x-ui.button variant="secondary" icon="arrow-down-tray">Import Excel</x-ui.button>
+                <x-ui.button variant="secondary" icon="arrow-up-tray" href="{{ route('guru.import') }}">Import Excel</x-ui.button>
                 <x-ui.button variant="primary" icon="user-plus" href="{{ route('pegawai.create') }}">Tambah Guru/Pegawai</x-ui.button>
             </div>
         </div>

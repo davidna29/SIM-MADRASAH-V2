@@ -16,6 +16,7 @@ class SitemapController extends Controller
             ['loc' => route('publik.beranda'), 'lastmod' => now()->toAtomString()],
             ['loc' => route('publik.berita.index'), 'lastmod' => now()->toAtomString()],
             ['loc' => route('publik.agenda.index'), 'lastmod' => now()->toAtomString()],
+            ['loc' => route('publik.kalender'), 'lastmod' => now()->toAtomString()],
             ['loc' => route('publik.galeri.index'), 'lastmod' => now()->toAtomString()],
             ['loc' => route('publik.video'), 'lastmod' => now()->toAtomString()],
             ['loc' => route('publik.profil'), 'lastmod' => now()->toAtomString()],

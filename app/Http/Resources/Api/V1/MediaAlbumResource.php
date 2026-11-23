@@ -22,6 +22,8 @@ class MediaAlbumResource extends JsonResource
             'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($item) => [
                 'id' => $item->id,
                 'tipe' => $item->tipe,
+                'title' => $item->title,
+                'description' => $item->description,
                 'caption' => $item->caption,
                 'file_url' => $item->file_path ? Storage::disk('public')->url($item->file_path) : null,
                 'video_url' => $item->video_url,

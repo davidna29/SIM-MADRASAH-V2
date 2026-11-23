@@ -23,6 +23,9 @@
     @else
         <meta name="twitter:card" content="summary">
     @endif
+    @if (file_exists(public_path('storage/settings/favicon.png')))
+        <link rel="icon" type="image/png" href="{{ asset('storage/settings/favicon.png') }}">
+    @endif
     @fonts
     <script>
         (function(){var t=localStorage.getItem('sim-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}})();

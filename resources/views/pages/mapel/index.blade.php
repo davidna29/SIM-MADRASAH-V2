@@ -12,7 +12,8 @@
                     Urutan daftar menentukan posisi mapel pada rapor dan laporan nilai — geser baris untuk mengubah urutan.
                 </p>
             </div>
-            <x-ui.button variant="primary" icon="plus" @click="openCreate()">Tambah Mata Pelajaran</x-ui.button>
+            <x-ui.button variant="secondary" icon="arrow-up-tray" href="{{ route('mapel.import') }}">Import Excel</x-ui.button>
+                <x-ui.button variant="primary" icon="plus" @click="openCreate()">Tambah Mata Pelajaran</x-ui.button>
         </div>
 
         @if (session('status'))
@@ -46,7 +47,7 @@
 
         <div x-data="sortableTable()" @reorder="persistOrder" class="mt-4">
             <x-ui.sheet :padding="false">
-                <x-ui.table :headers="['', 'Urutan', 'Kode', 'Nama Mata Pelajaran', '']">
+                <x-ui.table :headers="['', 'Urutan', 'Kode', 'Nama Mata Pelajaran', 'Kelompok', 'JP per Tingkat', '']">
                     <x-slot name="emptySlot">Tidak ada mata pelajaran.</x-slot>
                     <x-slot>
                         @foreach ($subjects as $subject)
@@ -59,9 +60,23 @@
                                 <td class="tabular w-12 px-3 py-3 font-mono text-xs font-semibold text-ink-faint">{{ $loop->iteration }}</td>
                                 <td class="tabular px-4 py-3 font-mono text-xs font-bold text-primary">{{ $subject->code }}</td>
                                 <td class="px-4 py-3 font-semibold text-ink">{{ $subject->name }}</td>
+                                <td class="px-4 py-3">
+                                    @if ($subject->category)
+                                        <x-ui.badge variant="primary" :dot="false">{{ ucfirst($subject->category) }}</x-ui.badge>
+                                    @else
+                                        <span class="text-xs text-ink-faint">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-xs text-ink-soft">
+                                    @if (! empty($subject->jp_per_grade))
+                                        <span class="font-mono tabular">{{ collect(['I', 'II', 'III', 'IV', 'V', 'VI'])->filter(fn ($grade) => isset($subject->jp_per_grade[$grade]))->map(fn ($grade) => $grade.':'.$subject->jp_per_grade[$grade])->implode(' · ') }}</span>
+                                    @else
+                                        <span class="text-ink-faint">—</span>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
-                                        <x-ui.button size="sm" variant="ghost" icon="pencil-square" @click="openEdit({{ $subject->id }}, {{ json_encode($subject->code) }}, {{ json_encode($subject->name) }})">Ubah</x-ui.button>
+                                        <x-ui.button size="sm" variant="ghost" icon="pencil-square" @click="openEdit({{ $subject->id }}, {{ json_encode($subject->code) }}, {{ json_encode($subject->name) }}, {{ json_encode($subject->category) }}, {{ json_encode($subject->jp_per_grade ?? []) }})">Ubah</x-ui.button>
                                         <form method="POST" action="{{ route('mapel.destroy', $subject) }}" onsubmit="return confirm('Hapus mata pelajaran ini?');">
                                             @csrf
                                             @method('DELETE')
@@ -110,6 +125,27 @@
                             <input id="name" name="name" x-model="form.name" type="text" placeholder="Matematika"
                                 class="w-full rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-faint ring-1 ring-inset ring-rule-strong transition duration-150 hover:ring-ink-faint/60 focus:outline-none focus:ring-2 focus:ring-primary" required>
                         </div>
+                        <div class="space-y-1.5">
+                            <label for="category" class="block text-xs font-bold text-ink">Kelompok</label>
+                            <select id="category" name="category" x-model="form.category" class="w-full appearance-none rounded-[var(--radius-control)] bg-sheet px-3.5 py-2.5 text-sm text-ink ring-1 ring-inset ring-rule-strong focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option value="">— Tidak diatur —</option>
+                                <option value="keagamaan">Keagamaan</option>
+                                <option value="umum">Umum</option>
+                                <option value="mulok">Muatan Lokal</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <p class="block text-xs font-bold text-ink">Alokasi JP per Tingkat</p>
+                            <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                                @foreach (['I', 'II', 'III', 'IV', 'V', 'VI'] as $grade)
+                                    <label class="space-y-1">
+                                        <span class="block text-center text-[11px] font-semibold text-ink-faint">{{ $grade }}</span>
+                                        <input type="number" name="jp[{{ $grade }}]" min="0" max="12" x-model="form.jp['{{ $grade }}']"
+                                            class="w-full rounded-[var(--radius-control)] bg-sheet px-2 py-2 text-center text-sm text-ink ring-1 ring-inset ring-rule-strong focus:outline-none focus:ring-2 focus:ring-primary">
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mt-6 flex items-center justify-end gap-2 border-t border-rule/70 pt-4">
@@ -127,17 +163,17 @@
                 modalOpen: false,
                 editing: false,
                 formAction: '{{ route('mapel.store') }}',
-                form: { code: '', name: '' },
+                form: { code: '', name: '', category: '', jp: {} },
                 openCreate() {
                     this.editing = false;
                     this.formAction = '{{ route('mapel.store') }}';
-                    this.form = { code: '', name: '' };
+                    this.form = { code: '', name: '', category: '', jp: {} };
                     this.modalOpen = true;
                 },
-                openEdit(id, code, name) {
+                openEdit(id, code, name, category, jp) {
                     this.editing = true;
                     this.formAction = '{{ url('/akademik/mata-pelajaran') }}' + '/' + id;
-                    this.form = { code, name };
+                    this.form = { code, name, category: category || '', jp: jp || {} };
                     this.modalOpen = true;
                 },
                 async persistOrder(event) {
