@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Services\Publikasi\ArticleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -166,10 +167,36 @@ class ArticleController extends Controller
         abort_unless($target, 404);
         $this->authorizeTransition($article, $aksi);
 
-        $scheduledAt = $request->input('scheduled_at');
-        $article->transitionTo($target, $scheduledAt, auth()->id());
+        $publishedAt = null;
 
-        activity('publikasi')->performedOn($article)->log('berita_status_'.$aksi);
+        if ($aksi === 'publikasikan') {
+            $validated = $request->validate([
+                'published_at' => ['nullable', 'date'],
+            ]);
+
+            $publishedAt = $validated['published_at'] ?? null;
+
+            abort_if(
+                $publishedAt && Carbon::parse($publishedAt)->gt(now()),
+                422,
+                'Tanggal terbit tidak boleh di masa depan.',
+            );
+        }
+
+        $scheduledAt = $request->input('scheduled_at');
+        $article->transitionTo($target, $scheduledAt, auth()->id(), $publishedAt);
+
+        if ($aksi === 'publikasikan') {
+            activity('publikasi')
+                ->performedOn($article)
+                ->withProperties([
+                    'published_at' => $article->published_at?->toIso8601String(),
+                    'manual' => $publishedAt !== null,
+                ])
+                ->log('berita_publish_manual');
+        } else {
+            activity('publikasi')->performedOn($article)->log('berita_status_'.$aksi);
+        }
 
         return back()->with('status', 'Status berita diubah menjadi '.strtolower($article->statusLabel()).'.');
     }

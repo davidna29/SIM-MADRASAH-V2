@@ -6,6 +6,7 @@ use App\Models\Agenda;
 use App\Models\Article;
 use App\Models\MediaAlbum;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class CmsApiTest extends ApiTestCase
@@ -101,6 +102,107 @@ class CmsApiTest extends ApiTestCase
             ->assertJsonPath('code', 'VALIDATION_ERROR');
 
         $this->assertSame(0, Article::count());
+    }
+
+    protected function publishableArticle(string $status = Article::DISETUJUI): Article
+    {
+        $editor = $this->apiUser('editor_berita');
+
+        return Article::create([
+            'title' => 'Berita Siap Terbit API',
+            'slug' => 'berita-siap-terbit-api',
+            'body' => 'Isi berita siap terbit.',
+            'status' => $status,
+            'author_id' => $editor->id,
+        ]);
+    }
+
+    public function test_api_publishes_article_with_manual_date(): void
+    {
+        $this->travelTo(Carbon::parse('2026-03-10 09:30:00'));
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['website:read', 'cms:write']);
+        $article = $this->publishableArticle();
+        $manualDate = '2026-03-01 14:15:00';
+
+        $this->withHeaders($this->idempotentHeaders('cms-key-pub-manual', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.berita.update', $article), [
+                'title' => 'Berita Terbit API',
+                'body' => 'Isi berita yang diterbitkan.',
+                'status' => Article::PUBLISH,
+                'published_at' => $manualDate,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.status', Article::PUBLISH)
+            ->assertJsonPath('data.published_at', Carbon::parse($manualDate)->toIso8601String());
+
+        $article->refresh();
+        $this->assertSame(Article::PUBLISH, $article->status);
+        $this->assertTrue($article->published_at->equalTo(Carbon::parse($manualDate)));
+        $this->assertDatabaseHas('activity_log', [
+            'log_name' => 'api',
+            'description' => 'api_berita_dipublikasikan',
+        ]);
+    }
+
+    public function test_api_publishes_article_without_date_using_now(): void
+    {
+        $this->travelTo(Carbon::parse('2026-03-10 09:30:00'));
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['website:read', 'cms:write']);
+        $article = $this->publishableArticle(Article::DIJADWALKAN);
+
+        $this->withHeaders($this->idempotentHeaders('cms-key-pub-now', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.berita.update', $article), [
+                'title' => 'Berita Terbit API',
+                'body' => 'Isi berita yang diterbitkan.',
+                'status' => Article::PUBLISH,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.status', Article::PUBLISH)
+            ->assertJsonPath('data.published_at', now()->toIso8601String());
+
+        $this->assertTrue($article->fresh()->published_at->equalTo(now()));
+    }
+
+    public function test_api_rejects_future_publish_date(): void
+    {
+        $this->travelTo(Carbon::parse('2026-03-10 09:30:00'));
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['website:read', 'cms:write']);
+        $article = $this->publishableArticle();
+
+        $this->withHeaders($this->idempotentHeaders('cms-key-pub-future', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.berita.update', $article), [
+                'title' => 'Berita Terbit API',
+                'body' => 'Isi berita yang diterbitkan.',
+                'status' => Article::PUBLISH,
+                'published_at' => '2026-03-11 09:30:00',
+            ])
+            ->assertStatus(422)
+            ->assertJsonPath('code', 'VALIDATION_ERROR');
+
+        $article->refresh();
+        $this->assertSame(Article::DISETUJUI, $article->status);
+        $this->assertNull($article->published_at);
+    }
+
+    public function test_api_cannot_publish_draft_directly(): void
+    {
+        $editor = $this->apiUser('editor_berita');
+        $token = $this->bearer($editor, ['website:read', 'cms:write']);
+        $article = $this->publishableArticle(Article::DRAFT);
+
+        $this->withHeaders($this->idempotentHeaders('cms-key-pub-draft', $this->authHeaders($token)))
+            ->putJson(route('api.v1.cms.berita.update', $article), [
+                'title' => 'Draft API',
+                'body' => 'Isi draft.',
+                'status' => Article::PUBLISH,
+            ])
+            ->assertStatus(422)
+            ->assertJsonPath('code', 'BUSINESS_RULE_VIOLATION');
+
+        $this->assertSame(Article::DRAFT, $article->fresh()->status);
     }
 
     public function test_agenda_update_is_limited_to_archive_records(): void

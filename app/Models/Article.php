@@ -94,7 +94,7 @@ class Article extends Model
         return in_array($target, self::transitions()[$this->status] ?? [], true);
     }
 
-    public function transitionTo(string $target, ?string $scheduledAt = null, ?int $reviewerId = null): void
+    public function transitionTo(string $target, ?string $scheduledAt = null, ?int $reviewerId = null, ?string $publishedAt = null): void
     {
         abort_unless($this->canTransitionTo($target), 422, 'Transisi status tidak valid.');
 
@@ -105,7 +105,10 @@ class Article extends Model
         }
 
         if ($target === self::PUBLISH) {
-            $data['published_at'] = now();
+            $effectivePublishedAt = $publishedAt ? Carbon::parse($publishedAt) : now();
+            abort_if($effectivePublishedAt->gt(now()), 422, 'Tanggal terbit tidak boleh di masa depan.');
+
+            $data['published_at'] = $effectivePublishedAt;
             $data['scheduled_at'] = null;
         }
 

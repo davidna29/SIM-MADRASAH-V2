@@ -6,8 +6,10 @@ use App\Models\Agenda;
 use App\Models\Article;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Models\Activity;
 use Tests\TestCase;
 
 class CmsModuleTest extends TestCase
@@ -129,6 +131,68 @@ class CmsModuleTest extends TestCase
         $this->actingAs($this->editor)->get(route('cms.agenda.index'))->assertOk();
         $this->actingAs($this->humas)->get(route('cms.berita.index'))->assertOk();
         $this->actingAs($this->guru)->get(route('cms.berita.index'))->assertOk();
+    }
+
+    protected function approvedArticle(): Article
+    {
+        return Article::create([
+            'title' => 'Berita Siap Terbit',
+            'slug' => 'berita-siap-terbit',
+            'body' => 'Isi berita siap terbit.',
+            'status' => Article::DISETUJUI,
+            'author_id' => $this->editor->id,
+        ]);
+    }
+
+    public function test_publish_without_date_uses_now(): void
+    {
+        $this->travelTo(Carbon::parse('2026-03-10 09:30:00'));
+        $article = $this->approvedArticle();
+
+        $this->actingAs($this->editor)
+            ->post(route('cms.berita.transition', [$article, 'publikasikan']))
+            ->assertRedirect();
+
+        $article->refresh();
+        $this->assertSame(Article::PUBLISH, $article->status);
+        $this->assertTrue($article->published_at->equalTo(now()));
+
+        $log = Activity::query()->where('description', 'berita_publish_manual')->latest('id')->firstOrFail();
+        $this->assertFalse((bool) $log->properties['manual']);
+        $this->assertSame(now()->toIso8601String(), $log->properties['published_at']);
+    }
+
+    public function test_publish_with_past_date_uses_given_date(): void
+    {
+        $this->travelTo(Carbon::parse('2026-03-10 09:30:00'));
+        $article = $this->approvedArticle();
+        $manualDate = '2026-03-01 14:15:00';
+
+        $this->actingAs($this->editor)
+            ->post(route('cms.berita.transition', [$article, 'publikasikan']), ['published_at' => $manualDate])
+            ->assertRedirect();
+
+        $article->refresh();
+        $this->assertSame(Article::PUBLISH, $article->status);
+        $this->assertTrue($article->published_at->equalTo(Carbon::parse($manualDate)));
+
+        $log = Activity::query()->where('description', 'berita_publish_manual')->latest('id')->firstOrFail();
+        $this->assertTrue((bool) $log->properties['manual']);
+        $this->assertSame(Carbon::parse($manualDate)->toIso8601String(), $log->properties['published_at']);
+    }
+
+    public function test_publish_with_future_date_is_rejected(): void
+    {
+        $this->travelTo(Carbon::parse('2026-03-10 09:30:00'));
+        $article = $this->approvedArticle();
+
+        $this->actingAs($this->editor)
+            ->post(route('cms.berita.transition', [$article, 'publikasikan']), ['published_at' => '2026-03-11 09:30:00'])
+            ->assertStatus(422);
+
+        $article->refresh();
+        $this->assertSame(Article::DISETUJUI, $article->status);
+        $this->assertNull($article->published_at);
     }
 
     public function test_scheduled_article_auto_publishes(): void

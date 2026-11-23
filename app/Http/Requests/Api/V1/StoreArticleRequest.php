@@ -22,6 +22,7 @@ class StoreArticleRequest extends FormRequest
             'tags' => ['nullable', 'string', 'max:255'],
             'featured_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'status' => ['prohibited'],
+            'published_at' => ['prohibited'],
         ];
     }
 
@@ -29,6 +30,7 @@ class StoreArticleRequest extends FormRequest
     {
         return [
             'status.prohibited' => 'Status tidak boleh dikirim; berita API selalu dibuat sebagai draft.',
+            'published_at.prohibited' => 'Berita baru selalu berstatus draft; publikasikan melalui PUT dengan status publish.',
         ];
     }
 }

@@ -109,13 +109,24 @@ Catatan privasi:
 | Method | Path | Perilaku |
 |---|---|---|
 | POST | `/cms/berita` | Selalu membuat `status=draft`; slug unik; upload `featured_image` |
-| PUT | `/cms/berita/{article}` | Hanya draft/revisi; status diprohibisi; berita publish → 409 |
+| PUT | `/cms/berita/{article}` | Draft/revisi untuk edit; kirim `status=publish` untuk menerbitkan (hanya dari `disetujui`/`dijadwalkan`); `published_at` opsional (≤ now, default now); berita publish → 409 |
 | POST | `/cms/agenda` | Selalu `status=arsip`; publikasi lewat web |
 | PUT | `/cms/agenda/{agenda}` | Hanya agenda arsip; status diprohibisi |
 | POST | `/cms/galeri` | Selalu `status=privat`; upload `cover_image`; media lewat web |
 | PUT | `/cms/galeri/{album}` | Hanya album privat; status diprohibisi |
 
-API tidak menyediakan endpoint publish, unggah item galeri, atau DELETE.
+API tidak menyediakan unggah item galeri atau DELETE. Publikasi berita dilakukan lewat `PUT /cms/berita/{article}` dengan `status=publish`; agenda/galeri tetap publikasi lewat web.
+
+Contoh publikasi berita dengan tanggal terbit manual (maks. sekarang):
+
+```json
+{
+  "title": "Kegiatan MPLS",
+  "body": "Isi berita...",
+  "status": "publish",
+  "published_at": "2026-03-01T14:15:00+07:00"
+}
+```
 
 Contoh berita:
 
@@ -305,4 +316,4 @@ Tidak tersedia dan tidak boleh ditambahkan lewat token asisten:
 - Mengubah setting global.
 - Menerbitkan/mengedit rapor yang sudah terbit.
 - Mengubah periode pajak yang terkunci.
-- Publikasi berita/agenda/album langsung dari API.
+- Publikasi agenda/album langsung dari API (berita boleh via `PUT status=publish`).

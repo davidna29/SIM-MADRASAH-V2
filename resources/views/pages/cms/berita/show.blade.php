@@ -35,6 +35,15 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="mt-6">
+                <x-ui.alert variant="danger" dismissible>
+                    <strong class="font-bold">Periksa kembali:</strong>
+                    @foreach ($errors->all() as $error) {{ $error }} @endforeach
+                </x-ui.alert>
+            </div>
+        @endif
+
         <!-- Aksi transisi -->
         @if ($actions->isNotEmpty())
             <div class="mt-6 rounded-sheet bg-sheet shadow-sheet ring-1 ring-inset ring-rule/60 p-4">
@@ -47,6 +56,16 @@
                                 <input type="datetime-local" name="scheduled_at"
                                     class="rounded-[var(--radius-control)] bg-sheet px-2.5 py-1.5 text-xs text-ink ring-1 ring-inset ring-rule-strong focus:outline-none focus:ring-2 focus:ring-primary">
                                 <x-ui.button type="submit" size="sm" :variant="$action['variant']" icon="clock">{{ $action['label'] }}</x-ui.button>
+                            </form>
+                        @elseif ($action['aksi'] === 'publikasikan')
+                            <form method="POST" action="{{ route('cms.berita.transition', [$article, 'publikasikan']) }}" class="flex items-center gap-2">
+                                @csrf
+                                <label for="published_at" class="text-xs text-ink-soft">Tanggal terbit</label>
+                                <input type="datetime-local" id="published_at" name="published_at"
+                                    max="{{ now()->format('Y-m-d\TH:i') }}"
+                                    value="{{ old('published_at') }}"
+                                    class="rounded-[var(--radius-control)] bg-sheet px-2.5 py-1.5 text-xs text-ink ring-1 ring-inset ring-rule-strong focus:outline-none focus:ring-2 focus:ring-primary">
+                                <x-ui.button type="submit" size="sm" :variant="$action['variant']" icon="check">{{ $action['label'] }}</x-ui.button>
                             </form>
                         @else
                             <form method="POST" action="{{ route('cms.berita.transition', [$article, $action['aksi']]) }}">

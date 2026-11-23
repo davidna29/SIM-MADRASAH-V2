@@ -78,20 +78,39 @@ class ArticleController extends Controller
     {
         $this->authorize('update', $article);
 
-        if (! in_array($article->status, [Article::DRAFT, Article::REVISI], true)) {
+        $validated = $request->validated();
+        $publish = ($validated['status'] ?? null) === Article::PUBLISH;
+
+        if (! $publish && ! in_array($article->status, [Article::DRAFT, Article::REVISI], true)) {
             throw ApiException::conflict(
                 'Hanya berita draft/revisi yang dapat diubah melalui API.',
                 ApiErrorCode::RECORD_ALREADY_PUBLISHED,
             );
         }
 
-        $this->articles->update($article, $request->validated(), $request->file('featured_image'));
+        if ($publish && ! $article->canTransitionTo(Article::PUBLISH)) {
+            throw ApiException::business(
+                'Berita hanya dapat dipublikasikan dari status disetujui atau dijadwalkan.',
+            );
+        }
 
-        ApiAudit::log($request, 'api_berita_diubah', $article);
+        $this->articles->update($article, $validated, $request->file('featured_image'));
+
+        if ($publish) {
+            $publishedAt = $validated['published_at'] ?? null;
+            $article->transitionTo(Article::PUBLISH, null, $request->user()->id, $publishedAt);
+
+            ApiAudit::log($request, 'api_berita_dipublikasikan', $article, [
+                'published_at' => $article->published_at?->toIso8601String(),
+                'manual' => $publishedAt !== null,
+            ]);
+        } else {
+            ApiAudit::log($request, 'api_berita_diubah', $article);
+        }
 
         return ApiResponse::success(
             ArticleResource::make($article->fresh('author'))->resolve($request),
-            warnings: ['Status berita tidak diubah oleh API.'],
+            warnings: $publish ? [] : ['Status berita tidak diubah oleh API.'],
         );
     }
 }
