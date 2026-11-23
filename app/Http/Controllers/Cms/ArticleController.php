@@ -165,6 +165,13 @@ class ArticleController extends Controller
         $skipped = 0;
 
         foreach (Article::whereIn('id', $validated['ids'])->get() as $article) {
+            // Draft belum punya jalur langsung ke disetujui; editor dapat
+            // mengajukannya lalu menyetujui dalam satu aksi bulk.
+            if ($article->status === Article::DRAFT) {
+                $article->transitionTo(Article::DIAJUKAN, null, auth()->id());
+                activity('publikasi')->performedOn($article)->log('berita_status_diajukan');
+            }
+
             if (! $article->canTransitionTo(Article::DISETUJUI)) {
                 $skipped++;
 

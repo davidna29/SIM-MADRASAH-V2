@@ -40,8 +40,9 @@ class BulkApproveArticleTest extends TestCase
 
         $this->assertSame(Article::DISETUJUI, $diajukan->fresh()->status);
         $this->assertSame(Article::DISETUJUI, $review->fresh()->status);
-        $this->assertSame(Article::DRAFT, $draft->fresh()->status);
+        $this->assertSame(Article::DISETUJUI, $draft->fresh()->status);
         $this->assertSame($editor->id, $diajukan->fresh()->reviewer_id);
+        $this->assertSame($editor->id, $draft->fresh()->reviewer_id);
         $this->assertDatabaseHas('activity_log', ['log_name' => 'publikasi', 'description' => 'berita_bulk_setujui']);
     }
 
